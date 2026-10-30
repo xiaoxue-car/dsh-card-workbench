@@ -114,7 +114,7 @@ const guardedAccountWrites = /if \(account\.title !== title\)/
 const activeTaskCard =
   /function ActiveTaskCard[\s\S]*?activeTaskKicker[\s\S]*?taskCompleted[\s\S]*?h\(ActiveTaskCard[\s\S]*?h\(Intake/
 const activeTaskClick = /onOpen: openSession/
-const activeTaskRemount = /recentCompletedTask[\s\S]*?initializedTask/
+const activeTaskRemount = /completedTasksFromJobs[\s\S]*?setCompletedTasks/
 const intakeSameRow = /\.butler-intake > \.butler-row\{[^}]*display:grid[^}]*grid-template-columns:minmax\(0,1fr\) auto/
 const compactPicker = /\.butler-intake \.butler-workdir-row \.butler-btn\.small\{[^}]*height:28px/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/

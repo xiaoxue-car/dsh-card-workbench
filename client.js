@@ -2589,23 +2589,20 @@ window.__ModuleLoader__.load({
       return items
     }
 
-    function currentActiveTask(jobs) {
-      return allActiveTasks(jobs)[0] || null
-    }
-
-    function recentCompletedTask(jobs, withinMs = 10 * 60 * 1000) {
-      const now = Date.now()
+    function completedTasksFromJobs(jobs, limit = 20) {
       const items = []
       for (const job of jobs || []) {
         for (const card of job.cards || []) {
           if (card.status !== 'done') continue
-          const at = card.finishedAt || card.lastActivityAt || card.createdAt || 0
-          if (!at || now - at > withinMs) continue
-          items.push({ job, card, at })
+          items.push({
+            job,
+            card,
+            at: card.finishedAt || card.lastActivityAt || card.createdAt || 0,
+          })
         }
       }
       items.sort((a, b) => b.at - a.at)
-      return items[0] || null
+      return items.slice(0, limit)
     }
 
     function ActiveTaskCard({ t, active, completed, compact, queued, accent, nowTime, onOpen, onDismiss }) {
@@ -2925,9 +2922,8 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         if (!data || initializedTask.current) return
         initializedTask.current = true
-        if (currentActiveTask(data.jobs || [])) return
-        const recent = recentCompletedTask(data.jobs || [])
-        if (recent) setCompletedTasks((previous) => (previous.length ? previous : [recent]))
+        const seed = completedTasksFromJobs(data.jobs || [])
+        if (seed.length) setCompletedTasks((previous) => (previous.length ? previous : seed))
       }, [data])
 
       React.useEffect(() => {
