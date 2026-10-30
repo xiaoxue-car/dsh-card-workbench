@@ -109,6 +109,8 @@ const chineseModeLabels =
   /modeStandard: '标准模式'[\s\S]*?modePtc: 'PTC 模式'[\s\S]*?modeMinimal: '精简模式'[\s\S]*?modeCreative: '创造模式'/
 const boardView = /function BoardView[\s\S]*?butler-board/
 const dependencyBadge = /dependsOn\?\.length/
+const guardedOverlayWrites = /setImportantIfChanged[\s\S]*?document\.visibilityState === 'hidden'/
+const guardedAccountWrites = /if \(account\.title !== title\)/
 
 assert.ok(fullPage.test(source), 'butler page must be fixed below the top chrome and fill the viewport')
 assert.ok(conversationFullscreen.test(source), 'the app layout must hide the sidebar and fill the grid')
@@ -165,6 +167,8 @@ assert.ok(presetAction.test(source), 'mode selector must call the selectPreset a
 assert.ok(chineseModeLabels.test(source), 'mode options must display Chinese labels')
 assert.ok(boardView.test(source), 'the workbench must provide a board view')
 assert.ok(dependencyBadge.test(source), 'cards must display dependency metadata')
+assert.ok(guardedOverlayWrites.test(source), 'overlay layout writes must be change-guarded and skip hidden tabs')
+assert.ok(guardedAccountWrites.test(source), 'account badge writes must not run unconditionally')
 assert.ok(draftStorage.test(source), 'unsent composer text must be persisted to local storage')
 assert.ok(needsUserNavigation.test(source), 'only needsUser cards may open the detailed conversation')
 assert.ok(manualOpenReturn.test(source), 'manual 打开对话 must return to cards after a turn/answer ends')
@@ -201,6 +205,7 @@ console.log('PASS workdir: empty by default with choose-folder prompt')
 console.log('PASS mode: per-conversation selector wired to selectPreset')
 console.log('PASS mode: Chinese labels 标准/PTC/精简/创造')
 console.log('PASS board view: timeline/board toggle with dependency metadata')
+console.log('PASS render loop: overlay/account writes are change-guarded')
 console.log('PASS navigation: only needsUser opens detail; resolves return to cards')
 console.log('PASS navigation: manual 打开对话 returns after the turn ends')
 console.log('PASS drafts: unsent text persisted across close/reload')

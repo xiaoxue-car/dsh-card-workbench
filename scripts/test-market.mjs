@@ -24,8 +24,12 @@ assert.match(engine, /toolUpdateStatus/, 'agent status tool implementation must 
 assert.match(index, /card_workshop_split/, 'card workshop tools must be registered')
 assert.match(client, /butler-board/, 'board view must be present')
 assert.match(client, /modeStandard: '标准模式'/, 'mode labels must be Chinese')
+assert.match(engine, /MAX_SESSION_META/, 'session metadata cache must be bounded')
+assert.match(engine, /MAX_ACCESS_APPLIED/, 'access-applied set must be bounded')
+assert.match(client, /setImportantIfChanged/, 'global overlay style writes must be guarded')
 
 console.log('PASS market: publishable name, license, dsh.bundle and engines are present')
 console.log('PASS market: fullAccess and autoAdopt default to safe values')
 console.log('PASS market: five card workshop tools and host-side status validation exist')
 console.log('PASS market: board view and Chinese mode labels are installed')
+console.log('PASS resources: session caches and overlay style writes are bounded')

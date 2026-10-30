@@ -1,4 +1,4 @@
-# 只用 Gitee 发布卡片工坊
+﻿# 只用 Gitee 发布卡片工坊
 
 不需要 GitHub，也不需要 npm。
 
@@ -75,7 +75,7 @@ npm pkg get name version repository homepage engines
 
 ```text
 name: dsh-card-workbench
-version: 1.1.1
+version: 1.1.2
 repository.url: https://gitee.com/<你的用户名>/dsh-card-workbench
 ```
 
@@ -90,8 +90,8 @@ git push
 打标签：
 
 ```powershell
-git tag v1.1.1
-git push origin v1.1.1
+git tag v1.1.2
+git push origin v1.1.2
 ```
 
 ## 4. 创建市场索引
@@ -141,7 +141,7 @@ Copy-Item icon.svg site\icons\dsh-card-workbench.svg
       },
       "versions": [
         {
-          "version": "1.1.1",
+          "version": "1.1.2",
           "publishTimestamp": 1793325000,
           "source": {
             "type": "git",
@@ -279,3 +279,4 @@ git ls-remote https://gitee.com/<你的用户名>/dsh-card-workbench.git
 ### 没有 GitHub 是否影响
 
 不影响自建市场索引。只有提交 `awesome-dsh-plugin` 时才可能受维护者偏好影响。
+

@@ -3337,13 +3337,23 @@ window.__ModuleLoader__.load({
           })
           applied.length = 0
         }
+        const setImportantIfChanged = (node, name, value) => {
+          if (
+            node.style.getPropertyValue(name) === value &&
+            node.style.getPropertyPriority(name) === 'important'
+          ) {
+            return
+          }
+          node.style.setProperty(name, value, 'important')
+        }
         const apply = () => {
+          if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
           document.querySelectorAll('[data-shell-overlay]').forEach((node) => {
-            node.style.setProperty('position', 'fixed', 'important')
-            node.style.setProperty('inset', '0', 'important')
-            node.style.setProperty('z-index', '2147483647', 'important')
-            node.style.setProperty('overflow', 'visible', 'important')
-            node.style.setProperty('pointer-events', 'none', 'important')
+            setImportantIfChanged(node, 'position', 'fixed')
+            setImportantIfChanged(node, 'inset', '0')
+            setImportantIfChanged(node, 'z-index', '2147483647')
+            setImportantIfChanged(node, 'overflow', 'visible')
+            setImportantIfChanged(node, 'pointer-events', 'none')
           })
           document.querySelectorAll('[class*="_sidebarCol"]').forEach((node) => {
             if (!node.dataset.butlerFullWidth) {
@@ -3389,14 +3399,16 @@ window.__ModuleLoader__.load({
             const account = document.querySelector('[data-butler-account]')
             if (!account) return
             badge = account.querySelector('[data-butler-update-badge]')
-            account.title = active
+            const title = active
               ? `${t('account')} · ${t('accountUpdate')}${version ? ` ${version}` : ''}`
               : t('account')
-            account.setAttribute(
-              'aria-label',
-              active ? `${t('account')} · ${t('accountUpdate')}` : t('account'),
-            )
-            if (badge) badge.style.display = active ? 'inline-block' : 'none'
+            const aria = active ? `${t('account')} · ${t('accountUpdate')}` : t('account')
+            if (account.title !== title) account.title = title
+            if (account.getAttribute('aria-label') !== aria) account.setAttribute('aria-label', aria)
+            if (badge) {
+              const display = active ? 'inline-block' : 'none'
+              if (badge.style.display !== display) badge.style.display = display
+            }
           } catch {}
         }
         const applyState = (presentation) => {
