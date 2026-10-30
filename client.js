@@ -26,6 +26,8 @@ window.__ModuleLoader__.load({
       activeTask: '当前执行',
       taskRunning: '执行中',
       taskVerifying: '核对中',
+      taskQueued: '排队中',
+      taskQueuedCount: '另有 {n} 个排队',
       taskBlocked: '待处理',
       taskCompleted: '任务已完成',
       taskCompletedHint: '点击查看结果，或关闭此提示',
@@ -247,6 +249,8 @@ window.__ModuleLoader__.load({
       activeTask: 'Current task',
       taskRunning: 'Running',
       taskVerifying: 'Verifying',
+      taskQueued: 'Queued',
+      taskQueuedCount: '{n} more queued',
       taskBlocked: 'Needs attention',
       taskCompleted: 'Task complete',
       taskCompletedHint: 'Open the result or dismiss this notice',
@@ -466,7 +470,7 @@ window.__ModuleLoader__.load({
       .butler-inner{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:16px;min-width:0;}
       .butler-inner > *{min-width:0;max-width:100%;}
       .butler-card{background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l1);border-radius:14px;box-sizing:border-box;}
-      .butler-task-stack{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;min-width:0;}
+      .butler-task-stack{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;min-width:0;max-height:380px;overflow:auto;padding-right:2px;}
       .butler-task-stack .butler-active-task{margin-bottom:0;}
       .butler-active-task.is-compact{padding:10px 14px 9px;}
       .butler-active-task.is-compact .butler-active-top{margin-bottom:5px;}
@@ -2554,8 +2558,12 @@ window.__ModuleLoader__.load({
       const items = []
       for (const job of jobs || []) {
         for (const card of job.cards || []) {
-          if (!ACTIVE_TASK_STATES.has(card.status) && !card.needsUser) continue
-          items.push({ job, card, at: Math.max(card.lastActivityAt || 0, card.createdAt || 0) })
+          if (['done', 'failed', 'skipped'].includes(card.status)) continue
+          items.push({
+            job,
+            card,
+            at: Math.max(card.lastActivityAt || 0, card.createdAt || 0),
+          })
         }
       }
       items.sort((a, b) => b.at - a.at)
@@ -2581,7 +2589,7 @@ window.__ModuleLoader__.load({
       return items[0] || null
     }
 
-    function ActiveTaskCard({ t, active, completed, compact, nowTime, onOpen, onDismiss }) {
+    function ActiveTaskCard({ t, active, completed, compact, queued, nowTime, onOpen, onDismiss }) {
       const source = completed || active
       if (!source) return null
       const { job, card } = source
@@ -2597,7 +2605,9 @@ window.__ModuleLoader__.load({
           ? t('taskBlocked')
           : card.status === 'verifying'
             ? t('taskVerifying')
-            : t('taskRunning')
+            : card.status === 'queued'
+              ? t('taskQueued')
+              : t('taskRunning')
       const open = () => {
         if (sessionId) onOpen?.(sessionId)
       }
@@ -2657,6 +2667,9 @@ window.__ModuleLoader__.load({
             'div',
             { className: 'butler-active-meta' },
             h('span', null, `${t('taskProgress')} ${t('taskSteps').replace('{done}', done).replace('{total}', total)}`),
+            queued > 0
+              ? h('span', null, t('taskQueuedCount').replace('{n}', queued))
+              : null,
             h('span', null, `${t('taskLatest')} ${ago(nowTime, card.lastActivityAt || card.createdAt)}`),
           ),
         ),
@@ -3040,6 +3053,7 @@ window.__ModuleLoader__.load({
                       active: item.completed ? null : item,
                       completed: item.completed ? item : null,
                       compact: taskCards.length > 1,
+                      queued: item.queued || 0,
                       nowTime: Date.now(),
                       onOpen: openSession,
                       onDismiss: () => setCompletedTask(null),
