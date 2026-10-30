@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Butler Card Workbench">
+  <defs>
+    <linearGradient id="bg" x1="4" y1="2" x2="60" y2="62" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3b6cf6"/>
+      <stop offset="1" stop-color="#6a3de8"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="18" y1="16" x2="46" y2="50" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e9eeff"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="url(#bg)"/>
+  <rect x="16" y="15" width="28" height="35" rx="5" fill="#ffffff" opacity="0.28" transform="rotate(-9 30 32)"/>
+  <rect x="17" y="14" width="29" height="36" rx="5" fill="#ffffff" opacity="0.55" transform="rotate(-4 31 32)"/>
+  <rect x="18" y="13" width="30" height="37" rx="5" fill="url(#sheen)"/>
+  <path d="M25 30.5l4.8 4.8L40 24.4" fill="none" stroke="#3b57e0" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M25 39.5h13" stroke="#9fb0f4" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M46.5 15.2c0-1.6 1.3-2.9 2.9-2.9s2.9 1.3 2.9 2.9c0 1.2-.7 2.2-1.7 2.6l.6 1.7h-3.6l.6-1.7c-1-.4-1.7-1.4-1.7-2.6z" fill="#ffcf5c"/>
+  <circle cx="49.4" cy="10.6" r="1.2" fill="#ffcf5c"/>
+</svg>

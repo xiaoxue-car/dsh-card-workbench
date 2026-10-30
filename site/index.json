@@ -1,0 +1,43 @@
+{
+  "format": 1,
+  "title": {
+    "en": "Card Workbench",
+    "zh": "卡片工坊"
+  },
+  "plugins": [
+    {
+      "name": "dsh-card-workbench",
+      "title": {
+        "en": "Card Workbench",
+        "zh": "卡片工坊"
+      },
+      "description": {
+        "en": "A card workbench that turns workspace conversations into tracked cards, runs them in the background, watches for stalls, verifies results, and returns to the workbench after user input.",
+        "zh": "把工作区对话接管为卡片工坊：拆卡、后台执行、盯办催办、逐项核对，用户填写或选择后自动回到工坊。"
+      },
+      "icon": "icons/dsh-card-workbench.svg",
+      "author": "fglry",
+      "homepage": "https://gitee.com/fglry/dsh-card-workbench#readme",
+      "repository": {
+        "url": "https://gitee.com/fglry/dsh-card-workbench"
+      },
+      "metadata": {
+        "category": "workflow"
+      },
+      "versions": [
+        {
+          "version": "1.1.1",
+          "publishTimestamp": 1793332440,
+          "source": {
+            "type": "git",
+            "url": "https://gitee.com/fglry/dsh-card-workbench",
+            "commit": "7972d44e0c02af3fc89a6a075f4fdc24041afe68"
+          },
+          "engines": {
+            "dsh": ">=0.2.1-rc.2 <0.3.0-0"
+          }
+        }
+      ]
+    }
+  ]
+}
