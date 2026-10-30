@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Butler Card Workbench",
+    "description": "Hand work to the butler: it splits it into cards, watches progress, unsticks stalls and verifies each result. It can also adopt multiple work conversations and manage each as its own card group."
+  }
+}
