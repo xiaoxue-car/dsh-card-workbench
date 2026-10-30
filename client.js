@@ -485,15 +485,14 @@ window.__ModuleLoader__.load({
       .butler-task-lane-head small{font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--dsw-alias-label-tertiary);}
       .butler-task-deck{position:relative;display:flex;flex-direction:column;gap:8px;min-width:0;}
       .butler-task-deck.is-multi:not(.is-expanded){display:block;overflow:hidden;}
-      .butler-task-deck.is-multi:not(.is-expanded) .butler-task-deck-item{position:absolute;left:0;right:0;top:0;transform:translateY(calc(var(--deck-index) * 20px)) rotate(calc((var(--deck-index) - 1) * -0.45deg));transform-origin:50% 0;}
-      .butler-task-deck.is-multi:not(.is-expanded) .butler-active-task.is-compact{height:84px;padding:8px 12px;overflow:hidden;}
+      .butler-task-deck.is-multi:not(.is-expanded) .butler-task-deck-item{position:absolute;left:0;right:0;top:0;transform:translateY(calc(var(--deck-index) * 34px)) rotate(calc((var(--deck-index) - 1) * -0.35deg));transform-origin:50% 0;transition:transform .18s ease;}
+      .butler-task-deck.is-multi:not(.is-expanded) .butler-active-task.is-compact{height:92px;padding:8px 12px;overflow:hidden;}
       .butler-task-deck.is-multi:not(.is-expanded) .butler-active-task.is-compact .butler-active-foot{display:none;}
       .butler-task-deck.is-multi:not(.is-expanded) .butler-active-task.is-compact .butler-active-top{margin-bottom:0;}
       .butler-task-deck.is-multi:not(.is-expanded) .butler-active-task.is-compact .butler-active-orbit{opacity:.18;}
       .butler-task-deck.is-expanded .butler-task-deck-item{transform:none;}
       .butler-task-deck.is-expanded{max-height:390px;overflow:auto;padding-right:2px;}
-      .butler-task-deck-item{min-width:0;}
-      .butler-task-deck-item .butler-active-task{margin-bottom:0;}
+      .butler-task-deck-item{min-width:0;}      .butler-task-deck-item .butler-active-task{margin-bottom:0;}
       .butler-task-completed-list{display:flex;flex-direction:column;gap:5px;max-height:170px;overflow:auto;padding-right:2px;}
       .butler-task-completed-row{appearance:none;border:1px solid rgba(52,211,153,.18);background:rgba(52,211,153,.045);color:inherit;border-radius:8px;padding:7px 8px;display:flex;align-items:center;gap:7px;text-align:left;cursor:pointer;min-width:0;}
       .butler-task-completed-row:hover{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.09);}
@@ -588,6 +587,11 @@ window.__ModuleLoader__.load({
       .butler-timeline-toggle:hover{color:var(--dsw-alias-brand-primary);}
       .butler-timeline-chevron{flex:none;font-size:10px;color:var(--dsw-alias-label-secondary);width:12px;text-align:center;}
       .butler-job-side{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+      .butler-job-side .butler-action-strong{height:28px;padding:4px 10px;border-radius:7px;border-color:rgba(34,211,238,.48);background:rgba(34,211,238,.10);color:#0e7490;font-size:11.5px;font-weight:700;box-shadow:0 0 0 1px rgba(34,211,238,.08);}
+      .butler-job-side .butler-action-strong:hover:not(:disabled){border-color:rgba(34,211,238,.8);background:rgba(34,211,238,.16);}
+      .butler-job-side .butler-action-strong.is-warn{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.10);color:#b45309;}
+      .butler-job-side .butler-action-strong.danger{border-color:rgba(244,63,94,.45);background:rgba(244,63,94,.09);color:#be123c;}
+      .butler-job-side .butler-action-strong.danger:hover:not(:disabled){border-color:rgba(244,63,94,.8);background:rgba(244,63,94,.15);}
       .butler-pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--dsw-alias-border-l1);border-radius:999px;padding:2px 9px;font-size:10.5px;color:var(--dsw-alias-label-secondary);white-space:nowrap;line-height:1.7;}
       .butler-pill i{width:6px;height:6px;border-radius:50%;background:currentColor;}
       .butler-tone-run{color:var(--dsw-alias-brand-primary);border-color:var(--dsw-alias-brand-primary);}
@@ -883,12 +887,13 @@ window.__ModuleLoader__.load({
       return h('span', { className: `butler-pill butler-tone-${tone || 'idle'}` }, h('i'), text)
     }
 
-    function Btn({ children, onClick, tone, small, ghost, danger, disabled, title }) {
+    function Btn({ children, onClick, tone, small, ghost, danger, disabled, title, className }) {
       const classes = ['butler-btn']
       if (tone) classes.push(tone)
       if (small) classes.push('small')
       if (ghost) classes.push('ghost')
       if (danger) classes.push('danger')
+      if (className) classes.push(className)
       return h(
         'button',
         {
@@ -1785,6 +1790,7 @@ window.__ModuleLoader__.load({
                   {
                     small: true,
                     ghost: true,
+                    className: 'butler-action-strong',
                     disabled: busy,
                     onClick: () => {
                       console.log('[butler] JobCard openSession', {
@@ -1804,6 +1810,7 @@ window.__ModuleLoader__.load({
                   {
                     small: true,
                     ghost: true,
+                    className: 'butler-action-strong is-warn',
                     disabled: busy,
                     onClick: () => onAction('pauseJob', { jobId: job.id }, `pause:${job.id}`),
                   },
@@ -1815,6 +1822,7 @@ window.__ModuleLoader__.load({
                   Btn,
                   {
                     small: true,
+                    className: 'butler-action-strong',
                     disabled: busy,
                     onClick: () => onAction('resumeJob', { jobId: job.id }, `resume:${job.id}`),
                   },
@@ -1825,7 +1833,7 @@ window.__ModuleLoader__.load({
               'button',
               {
                 type: 'button',
-                className: 'butler-btn small ghost danger',
+                className: 'butler-btn small ghost danger butler-action-strong',
                 disabled: busy,
                 onClick: () => {
                   if (window.confirm(isSession ? t('confirmRemoveGroup') : t('confirmDelete'))) {
@@ -2176,6 +2184,8 @@ window.__ModuleLoader__.load({
 
     function WorkspaceList({ jobs, t, defaultCwd, nowTime, busy, openSession, onAction, modelCatalog, permissionCatalog, presetCatalog }) {
       const [historyOpen, setHistoryOpen] = React.useState(false)
+      const pinnedCwd = React.useRef(defaultCwd || '')
+      if (!pinnedCwd.current && defaultCwd) pinnedCwd.current = defaultCwd
       const workspaceOrder = React.useRef(new Map())
       const groups = React.useMemo(() => {
         const map = new Map()
@@ -2204,7 +2214,7 @@ window.__ModuleLoader__.load({
             ),
           }))
           .sort((a, b) => {
-            const current = defaultCwd || ''
+            const current = pinnedCwd.current
             const aCurrent = a.cwd === current
             const bCurrent = b.cwd === current
             if (aCurrent !== bCurrent) return aCurrent ? -1 : 1
@@ -2752,7 +2762,7 @@ window.__ModuleLoader__.load({
       const completed = completedTasks || []
       if (!active.length && !completed.length) return null
       const multi = active.length > 1
-      const deckHeight = multi && !expanded ? Math.min(84 + (active.length - 1) * 20, 200) : undefined
+      const deckHeight = multi && !expanded ? Math.min(92 + (active.length - 1) * 34, 220) : undefined
       const collapseOnBlur = (event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setExpanded(false)
       }
