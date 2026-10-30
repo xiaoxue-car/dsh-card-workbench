@@ -27,6 +27,11 @@ assert.match(client, /modeStandard: '标准模式'/, 'mode labels must be Chines
 assert.match(engine, /MAX_SESSION_META/, 'session metadata cache must be bounded')
 assert.match(engine, /MAX_ACCESS_APPLIED/, 'access-applied set must be bounded')
 assert.match(client, /setImportantIfChanged/, 'global overlay style writes must be guarded')
+assert.doesNotMatch(
+  engine,
+  /job\.brief = `工作对话：[\s\S]{0,160}board\.autoJump/,
+  'sending a user message must not schedule an auto jump',
+)
 
 console.log('PASS market: publishable name, license, dsh.bundle and engines are present')
 console.log('PASS market: fullAccess and autoAdopt default to safe values')

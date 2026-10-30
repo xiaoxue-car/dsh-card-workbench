@@ -466,6 +466,12 @@ window.__ModuleLoader__.load({
       .butler-inner{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:16px;min-width:0;}
       .butler-inner > *{min-width:0;max-width:100%;}
       .butler-card{background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l1);border-radius:14px;box-sizing:border-box;}
+      .butler-task-stack{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;min-width:0;}
+      .butler-task-stack .butler-active-task{margin-bottom:0;}
+      .butler-active-task.is-compact{padding:10px 14px 9px;}
+      .butler-active-task.is-compact .butler-active-top{margin-bottom:5px;}
+      .butler-active-task.is-compact .butler-active-title{font-size:14px;}
+      .butler-active-task.is-compact .butler-active-foot{margin-top:7px;}
       .butler-active-task{position:relative;overflow:hidden;margin-bottom:14px;padding:14px 16px 12px;border:1px solid rgba(34,211,238,.52);border-radius:12px;background:linear-gradient(135deg,rgba(34,211,238,.10),transparent 44%),linear-gradient(180deg,var(--dsw-alias-bg-layer-1),var(--dsw-alias-bg-layer-2));box-shadow:0 0 0 1px rgba(34,211,238,.06),0 12px 34px rgba(0,0,0,.16);cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;box-sizing:border-box;}
       .butler-active-task::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(34,211,238,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.07) 1px,transparent 1px);background-size:22px 22px;opacity:.55;mask-image:linear-gradient(120deg,black,transparent 70%);}
       .butler-active-task:hover{transform:translateY(-1px);border-color:rgba(34,211,238,.9);box-shadow:0 0 0 1px rgba(34,211,238,.12),0 16px 40px rgba(0,0,0,.22);}
@@ -2134,12 +2140,16 @@ window.__ModuleLoader__.load({
 
     function WorkspaceList({ jobs, t, defaultCwd, nowTime, busy, openSession, onAction, modelCatalog, permissionCatalog, presetCatalog }) {
       const [historyOpen, setHistoryOpen] = React.useState(false)
+      const workspaceOrder = React.useRef(new Map())
       const groups = React.useMemo(() => {
         const map = new Map()
         for (const job of jobs) {
           const key = job.cwd || ''
           if (!map.has(key)) map.set(key, [])
           map.get(key).push(job)
+        }
+        for (const key of map.keys()) {
+          if (!workspaceOrder.current.has(key)) workspaceOrder.current.set(key, workspaceOrder.current.size)
         }
         return [...map.entries()]
           .map(([cwd, list]) => ({
@@ -2162,7 +2172,8 @@ window.__ModuleLoader__.load({
             const aCurrent = a.cwd === current
             const bCurrent = b.cwd === current
             if (aCurrent !== bCurrent) return aCurrent ? -1 : 1
-            return b.latest - a.latest
+            // First-seen order: activity in another workspace cannot move blocks.
+            return workspaceOrder.current.get(a.cwd) - workspaceOrder.current.get(b.cwd)
           })
       }, [jobs, defaultCwd])
       const now = nowTime || Date.now()
@@ -2572,7 +2583,7 @@ window.__ModuleLoader__.load({
       return items[0] || null
     }
 
-    function ActiveTaskCard({ t, active, completed, parallel, nowTime, onOpen, onDismiss }) {
+    function ActiveTaskCard({ t, active, completed, compact, nowTime, onOpen, onDismiss }) {
       const source = completed || active
       if (!source) return null
       const { job, card } = source
@@ -2595,7 +2606,7 @@ window.__ModuleLoader__.load({
       return h(
         'section',
         {
-          className: `butler-active-task${isComplete ? ' is-complete' : ''}${sessionId ? ' is-openable' : ''}`,
+          className: `butler-active-task${isComplete ? ' is-complete' : ''}${compact ? ' is-compact' : ''}${sessionId ? ' is-openable' : ''}`,
           role: sessionId ? 'button' : undefined,
           tabIndex: sessionId ? 0 : undefined,
           'aria-label': sessionId ? `${card.title || job.title} · ${t('taskOpenHint')}` : undefined,
@@ -2618,9 +2629,6 @@ window.__ModuleLoader__.load({
             t('activeTaskKicker'),
           ),
           h('span', { className: `butler-active-status${isComplete ? ' is-complete' : ''}` }, status),
-          parallel > 1
-            ? h('span', { className: 'butler-active-parallel' }, t('taskParallel').replace('{n}', parallel))
-            : null,
         ),
         h(
           'div',
@@ -2945,7 +2953,10 @@ window.__ModuleLoader__.load({
       }
       const visibleJobs = filter === 'all' ? jobs : jobs.filter((job) => (job.kind || 'brief') === filter)
       const activeTasks = allActiveTasks(jobs)
-      const activeTask = activeTasks[0] || null
+      const taskCards = [
+        ...(completedTask ? [{ ...completedTask, completed: true }] : []),
+        ...activeTasks.map((item) => ({ ...item, completed: false })),
+      ]
       const filterLabels = { all: 'filterAll', brief: 'filterBrief', session: 'filterSession' }
 
       return h(
@@ -3023,15 +3034,24 @@ window.__ModuleLoader__.load({
           h(
             'div',
             { className: 'butler-inner' },
-            h(ActiveTaskCard, {
-              t,
-              active: activeTask,
-              completed: completedTask,
-              parallel: activeTasks.length,
-              nowTime: Date.now(),
-              onOpen: openSession,
-              onDismiss: () => setCompletedTask(null),
-            }),
+            taskCards.length
+              ? h(
+                  'div',
+                  { className: 'butler-task-stack' },
+                  taskCards.map((item) =>
+                    h(ActiveTaskCard, {
+                      key: `${item.job.id}:${item.card.id}`,
+                      t,
+                      active: item.completed ? null : item,
+                      completed: item.completed ? item : null,
+                      compact: taskCards.length > 1,
+                      nowTime: Date.now(),
+                      onOpen: openSession,
+                      onDismiss: () => setCompletedTask(null),
+                    }),
+                  ),
+                )
+              : null,
             h(Intake, {
               t,
               brief,
