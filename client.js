@@ -557,6 +557,7 @@ window.__ModuleLoader__.load({
       .butler-field > span{font-size:11px;color:var(--dsw-alias-label-secondary);}
       .butler-input{width:100%;box-sizing:border-box;height:34px;background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l1);border-radius:8px;padding:0 10px;color:inherit;font:inherit;font-size:12.5px;outline:none;}
       .butler-select{width:100%;box-sizing:border-box;height:34px;background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l1);border-radius:8px;padding:0 8px;color:inherit;font:inherit;font-size:12px;outline:none;cursor:pointer;min-width:0;}
+      .butler-workdir-row .butler-select{height:34px;max-width:none;width:100%;padding:0 8px;border-radius:8px;font-size:12px;}
       .butler-input:focus{border-color:var(--dsw-alias-brand-primary);}
       .butler-workdir-row{display:flex;gap:6px;align-items:center;}
       .butler-workdir-row .butler-input{flex:1;min-width:0;}
