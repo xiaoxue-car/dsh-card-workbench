@@ -28,6 +28,11 @@ window.__ModuleLoader__.load({
       taskVerifying: '核对中',
       taskQueued: '排队中',
       taskQueuedCount: '另有 {n} 个排队',
+      taskRunningLane: '进行中',
+      taskCompletedLane: '已完成',
+      taskNoRunning: '暂无进行中任务',
+      taskNoCompleted: '暂无已完成任务',
+      taskExpandHint: '悬浮或点击展开全部',
       taskBlocked: '待处理',
       taskCompleted: '任务已完成',
       taskCompletedHint: '点击查看结果，或关闭此提示',
@@ -249,6 +254,11 @@ window.__ModuleLoader__.load({
       taskVerifying: 'Verifying',
       taskQueued: 'Queued',
       taskQueuedCount: '{n} more queued',
+      taskRunningLane: 'Running',
+      taskCompletedLane: 'Completed',
+      taskNoRunning: 'No running tasks',
+      taskNoCompleted: 'No completed tasks',
+      taskExpandHint: 'Hover or click to expand',
       taskBlocked: 'Needs attention',
       taskCompleted: 'Task complete',
       taskCompletedHint: 'Open the result or dismiss this notice',
@@ -466,13 +476,26 @@ window.__ModuleLoader__.load({
       .butler-inner{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:16px;min-width:0;}
       .butler-inner > *{min-width:0;max-width:100%;}
       .butler-card{background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l1);border-radius:14px;box-sizing:border-box;}
-      .butler-task-stack{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;min-width:0;max-height:380px;overflow:auto;padding-right:2px;}
-      .butler-task-stack .butler-active-task{margin-bottom:0;}
+      .butler-task-board{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(260px,.8fr);gap:12px;margin-bottom:14px;min-width:0;}
+      .butler-task-lane{border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-base);padding:10px;min-width:0;box-sizing:border-box;}
+      .butler-task-lane.is-running{border-color:rgba(34,211,238,.25);}
+      .butler-task-lane.is-completed{border-color:rgba(52,211,153,.22);}
+      .butler-task-lane-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:1px 3px 8px;font-size:10px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--dsw-alias-label-secondary);}
+      .butler-task-lane-head small{font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--dsw-alias-label-tertiary);}
+      .butler-task-deck{position:relative;display:flex;flex-direction:column;gap:8px;min-width:0;}
+      .butler-task-deck.is-multi:not(.is-expanded){display:block;}
+      .butler-task-deck.is-multi:not(.is-expanded) .butler-task-deck-item{position:absolute;left:0;right:0;top:0;transform:translateY(calc(var(--deck-index) * 9px));}
+      .butler-task-deck.is-expanded{max-height:390px;overflow:auto;padding-right:2px;}
+      .butler-task-deck-item{min-width:0;}
+      .butler-task-deck-item .butler-active-task{margin-bottom:0;}
+      .butler-task-completed-list{display:flex;flex-direction:column;gap:7px;max-height:390px;overflow:auto;padding-right:2px;}
+      .butler-task-empty{font-size:10.5px;color:var(--dsw-alias-label-tertiary);padding:12px 4px;text-align:center;}
+      @media (max-width:850px){.butler-task-board{grid-template-columns:minmax(0,1fr);}}
       .butler-active-task.is-compact{padding:10px 14px 9px;}
       .butler-active-task.is-compact .butler-active-top{margin-bottom:5px;}
       .butler-active-task.is-compact .butler-active-title{font-size:14px;}
       .butler-active-task.is-compact .butler-active-foot{margin-top:7px;}
-      .butler-active-task{position:relative;overflow:hidden;margin-bottom:14px;padding:14px 16px 12px;border:1px solid rgba(34,211,238,.52);border-radius:12px;background:linear-gradient(135deg,rgba(34,211,238,.10),transparent 44%),linear-gradient(180deg,var(--dsw-alias-bg-layer-1),var(--dsw-alias-bg-layer-2));box-shadow:0 0 0 1px rgba(34,211,238,.06),0 12px 34px rgba(0,0,0,.16);cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;box-sizing:border-box;}
+      .butler-active-task{position:relative;overflow:hidden;margin-bottom:14px;padding:14px 16px 12px;border:1px solid var(--task-accent,rgba(34,211,238,.52));border-radius:12px;background:linear-gradient(135deg,rgba(34,211,238,.10),transparent 44%),linear-gradient(180deg,var(--dsw-alias-bg-layer-1),var(--dsw-alias-bg-layer-2));box-shadow:0 0 0 1px rgba(34,211,238,.06),0 12px 34px rgba(0,0,0,.16);cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;box-sizing:border-box;}
       .butler-active-task::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(34,211,238,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.07) 1px,transparent 1px);background-size:22px 22px;opacity:.55;mask-image:linear-gradient(120deg,black,transparent 70%);}
       .butler-active-task:hover{transform:translateY(-1px);border-color:rgba(34,211,238,.9);box-shadow:0 0 0 1px rgba(34,211,238,.12),0 16px 40px rgba(0,0,0,.22);}
       .butler-active-task:focus-visible{outline:2px solid rgba(34,211,238,.9);outline-offset:2px;}
@@ -482,7 +505,7 @@ window.__ModuleLoader__.load({
       .is-complete .butler-active-orbit{border-color:rgba(52,211,153,.25);}
       .butler-active-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
       .butler-active-label{display:inline-flex;align-items:center;gap:7px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:9px;font-weight:650;letter-spacing:.18em;text-transform:uppercase;color:#67e8f9;}
-      .butler-active-dot{width:6px;height:6px;border-radius:50%;background:#22d3ee;box-shadow:0 0 10px rgba(34,211,238,.95);animation:butler-task-pulse 1.8s ease-in-out infinite;}
+      .butler-active-dot{width:6px;height:6px;border-radius:50%;background:var(--task-accent,#22d3ee);box-shadow:0 0 10px rgba(34,211,238,.95);animation:butler-task-pulse 1.8s ease-in-out infinite;}
       .is-complete .butler-active-dot{background:#34d399;box-shadow:0 0 10px rgba(52,211,153,.75);animation:none;}
       .butler-active-status{flex:none;border:1px solid rgba(34,211,238,.34);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:650;letter-spacing:.04em;color:#a5f3fc;background:rgba(34,211,238,.08);}
       .butler-active-status.is-complete{border-color:rgba(52,211,153,.38);color:#a7f3d0;background:rgba(52,211,153,.08);}
@@ -491,7 +514,7 @@ window.__ModuleLoader__.load({
       .butler-active-copy{min-width:0;display:flex;flex-direction:column;gap:3px;}
       .butler-active-title{font-size:17px;line-height:1.35;font-weight:720;letter-spacing:-.01em;color:var(--dsw-alias-label-primary);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
       .butler-active-sub{font-size:10.5px;line-height:1.5;color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;}
-      .butler-active-arrow{flex:none;width:26px;height:26px;border:1px solid rgba(34,211,238,.28);border-radius:50%;display:grid;place-items:center;color:#67e8f9;font-size:13px;margin-top:1px;}
+      .butler-active-arrow{flex:none;width:26px;height:26px;border:1px solid rgba(34,211,238,.28);border-radius:50%;display:grid;place-items:center;color:var(--task-accent,#67e8f9);font-size:13px;margin-top:1px;}
       .is-complete .butler-active-arrow{border-color:rgba(52,211,153,.3);color:#6ee7b7;}
       .butler-active-foot{position:relative;z-index:1;display:flex;align-items:center;gap:12px;margin-top:11px;}
       .butler-active-progress{flex:1;height:3px;border-radius:999px;background:rgba(148,163,184,.2);overflow:hidden;}
@@ -2585,7 +2608,7 @@ window.__ModuleLoader__.load({
       return items[0] || null
     }
 
-    function ActiveTaskCard({ t, active, completed, compact, queued, nowTime, onOpen, onDismiss }) {
+    function ActiveTaskCard({ t, active, completed, compact, queued, accent, nowTime, onOpen, onDismiss }) {
       const source = completed || active
       if (!source) return null
       const { job, card } = source
@@ -2611,6 +2634,7 @@ window.__ModuleLoader__.load({
         'section',
         {
           className: `butler-active-task${isComplete ? ' is-complete' : ''}${compact ? ' is-compact' : ''}${sessionId ? ' is-openable' : ''}`,
+          style: accent ? { '--task-accent': accent } : undefined,
           role: sessionId ? 'button' : undefined,
           tabIndex: sessionId ? 0 : undefined,
           'aria-label': sessionId ? `${card.title || job.title} · ${t('taskOpenHint')}` : undefined,
@@ -2691,6 +2715,113 @@ window.__ModuleLoader__.load({
       )
     }
 
+    const TASK_ACCENTS = ['#22d3ee', '#a78bfa', '#f59e0b', '#f472b6', '#34d399']
+
+    function TaskBoard({ t, activeTasks, completedTasks, nowTime, onOpen, onComplete }) {
+      const [expanded, setExpanded] = React.useState(false)
+      const active = activeTasks || []
+      const completed = completedTasks || []
+      if (!active.length && !completed.length) return null
+      const multi = active.length > 1
+      const deckHeight = multi && !expanded ? 104 + (active.length - 1) * 9 : undefined
+      const collapseOnBlur = (event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setExpanded(false)
+      }
+      return h(
+        'div',
+        { className: 'butler-task-board' },
+        h(
+          'section',
+          { className: 'butler-task-lane is-running' },
+          h(
+            'div',
+            { className: 'butler-task-lane-head' },
+            h('span', null, `${t('taskRunningLane')} ${active.length}`),
+            multi ? h('small', null, t('taskExpandHint')) : null,
+          ),
+          active.length
+            ? h(
+                'div',
+                {
+                  className: `butler-task-deck${multi ? ' is-multi' : ''}${expanded ? ' is-expanded' : ''}`,
+                  style: deckHeight ? { height: `${deckHeight}px` } : undefined,
+                  onMouseEnter: () => {
+                    if (multi) setExpanded(true)
+                  },
+                  onMouseLeave: () => {
+                    if (multi) setExpanded(false)
+                  },
+                  onFocusCapture: () => {
+                    if (multi) setExpanded(true)
+                  },
+                  onBlurCapture: collapseOnBlur,
+                  onClick: (event) => {
+                    if (multi && !expanded) {
+                      event.preventDefault()
+                      setExpanded(true)
+                    }
+                  },
+                  onKeyDown: (event) => {
+                    if (
+                      multi &&
+                      !expanded &&
+                      (event.key === 'Enter' || event.key === ' ')
+                    ) {
+                      event.preventDefault()
+                      setExpanded(true)
+                    }
+                  },
+                },
+                active.map((item, index) =>
+                  h(
+                    'div',
+                    {
+                      key: `${item.job.id}:${item.card.id}`,
+                      className: 'butler-task-deck-item',
+                      style: { zIndex: active.length - index, '--deck-index': index },
+                    },
+                    h(ActiveTaskCard, {
+                      t,
+                      active: item,
+                      compact: true,
+                      accent: TASK_ACCENTS[index % TASK_ACCENTS.length],
+                      nowTime,
+                      onOpen: multi && !expanded ? null : onOpen,
+                    }),
+                  ),
+                ),
+              )
+            : h('div', { className: 'butler-task-empty' }, t('taskNoRunning')),
+        ),
+        h(
+          'section',
+          { className: 'butler-task-lane is-completed' },
+          h(
+            'div',
+            { className: 'butler-task-lane-head' },
+            h('span', null, `${t('taskCompletedLane')} ${completed.length}`),
+          ),
+          completed.length
+            ? h(
+                'div',
+                { className: 'butler-task-completed-list' },
+                completed.map((item, index) =>
+                  h(ActiveTaskCard, {
+                    key: `${item.job.id}:${item.card.id}`,
+                    t,
+                    completed: item,
+                    compact: true,
+                    accent: '#34d399',
+                    nowTime,
+                    onOpen: () => onComplete(item),
+                  }),
+                ),
+              )
+            : h('div', { className: 'butler-task-empty' }, t('taskNoCompleted')),
+        ),
+      )
+    }
+
     function BoardView({ jobs, t }) {
       const columns = [
         { key: 'pending', label: 'boardPending', states: ['queued'] },
@@ -2767,7 +2898,7 @@ window.__ModuleLoader__.load({
       const [cwd, setCwd] = React.useState('')
       const [filter, setFilter] = React.useState('all')
       const [viewMode, setViewMode] = React.useState('timeline')
-      const [completedTask, setCompletedTask] = React.useState(null)
+      const [completedTasks, setCompletedTasks] = React.useState([])
       const previousTasks = React.useRef(new Map())
       const initializedTask = React.useRef(false)
 
@@ -2796,7 +2927,7 @@ window.__ModuleLoader__.load({
         initializedTask.current = true
         if (currentActiveTask(data.jobs || [])) return
         const recent = recentCompletedTask(data.jobs || [])
-        if (recent) setCompletedTask(recent)
+        if (recent) setCompletedTasks((previous) => (previous.length ? previous : [recent]))
       }, [data])
 
       React.useEffect(() => {
@@ -2815,7 +2946,11 @@ window.__ModuleLoader__.load({
         )
         if (finished.length) {
           finished.sort((a, b) => b.at - a.at)
-          setCompletedTask(finished[0])
+          setCompletedTasks((previous) => {
+            const merged = new Map(previous.map((item) => [`${item.job.id}:${item.card.id}`, item]))
+            for (const item of finished) merged.set(`${item.job.id}:${item.card.id}`, item)
+            return [...merged.values()].sort((a, b) => b.at - a.at).slice(0, 20)
+          })
         }
       }, [data])
 
@@ -2939,10 +3074,15 @@ window.__ModuleLoader__.load({
       }
       const visibleJobs = filter === 'all' ? jobs : jobs.filter((job) => (job.kind || 'brief') === filter)
       const activeTasks = allActiveTasks(jobs)
-      const taskCards = [
-        ...(completedTask ? [{ ...completedTask, completed: true }] : []),
-        ...activeTasks.map((item) => ({ ...item, completed: false })),
-      ]
+      const completeTask = (item) => {
+        setCompletedTasks((previous) =>
+          previous.filter(
+            (entry) => !(entry.job.id === item.job.id && entry.card.id === item.card.id),
+          ),
+        )
+        const sessionId = item.card.sessionId || item.job.sessionId
+        if (sessionId) openSession(sessionId)
+      }
       const filterLabels = { all: 'filterAll', brief: 'filterBrief', session: 'filterSession' }
 
       return h(
@@ -3017,25 +3157,14 @@ window.__ModuleLoader__.load({
           h(
             'div',
             { className: 'butler-inner' },
-            taskCards.length
-              ? h(
-                  'div',
-                  { className: 'butler-task-stack' },
-                  taskCards.map((item) =>
-                    h(ActiveTaskCard, {
-                      key: `${item.job.id}:${item.card.id}`,
-                      t,
-                      active: item.completed ? null : item,
-                      completed: item.completed ? item : null,
-                      compact: taskCards.length > 1,
-                      queued: item.queued || 0,
-                      nowTime: Date.now(),
-                      onOpen: openSession,
-                      onDismiss: () => setCompletedTask(null),
-                    }),
-                  ),
-                )
-              : null,
+            h(TaskBoard, {
+              t,
+              activeTasks,
+              completedTasks,
+              nowTime: Date.now(),
+              onOpen: openSession,
+              onComplete: completeTask,
+            }),
             h(Intake, {
               t,
               brief,
