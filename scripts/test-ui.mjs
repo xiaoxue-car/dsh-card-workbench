@@ -119,6 +119,7 @@ const intakeSameRow = /\.butler-intake > \.butler-row\{[^}]*display:grid[^}]*gri
 const compactPicker = /\.butler-intake \.butler-workdir-row \.butler-btn\.small\{[^}]*height:28px/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
 const completedClickRemoval = /setCompletedTasks[\s\S]*?openSession\(sessionId\)/
+const planningPlaceholder = /job\.status === 'planning'[\s\S]*?planning:\$\{job\.id\}/
 const stableWorkspaceOrder = /workspaceOrder\.current\.get\(a\.cwd\)/
 
 assert.ok(fullPage.test(source), 'butler page must be fixed below the top chrome and fill the viewport')
@@ -185,6 +186,7 @@ assert.ok(intakeSameRow.test(source), 'Intake workdir and start button must stay
 assert.ok(compactPicker.test(source), 'the choose-folder button must be compact')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')
 assert.ok(completedClickRemoval.test(source), 'clicking a completed task must remove it and open its conversation')
+assert.ok(planningPlaceholder.test(source), 'a newly created planning job must render immediately')
 assert.ok(stableWorkspaceOrder.test(source), 'workspace order must not follow activity')
 assert.ok(draftStorage.test(source), 'unsent composer text must be persisted to local storage')
 assert.ok(!automaticNeedsUserOpen.test(source), 'needsUser must not auto-open; the user clicks the task card')
@@ -225,6 +227,7 @@ console.log('PASS board view: timeline/board toggle with dependency metadata')
 console.log('PASS render loop: overlay/account writes are change-guarded')
 console.log('PASS active task: current task card above Intake with completion state')
 console.log('PASS task board: running deck and completed lane render together')
+console.log('PASS task board: new planning task renders before cards exist')
 console.log('PASS completed task: clicking removes it and opens the conversation')
 console.log('PASS workspace order: first-seen order is stable across activity')
 console.log('PASS no auto jump: user messages and needsUser do not navigate automatically')

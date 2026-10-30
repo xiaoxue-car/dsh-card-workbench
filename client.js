@@ -27,6 +27,7 @@ window.__ModuleLoader__.load({
       taskRunning: '执行中',
       taskVerifying: '核对中',
       taskQueued: '排队中',
+      taskPlanning: '拆解中',
       taskQueuedCount: '另有 {n} 个排队',
       taskRunningLane: '进行中',
       taskCompletedLane: '已完成',
@@ -253,6 +254,7 @@ window.__ModuleLoader__.load({
       taskRunning: 'Running',
       taskVerifying: 'Verifying',
       taskQueued: 'Queued',
+      taskPlanning: 'Planning',
       taskQueuedCount: '{n} more queued',
       taskRunningLane: 'Running',
       taskCompletedLane: 'Completed',
@@ -2587,7 +2589,24 @@ window.__ModuleLoader__.load({
     function allActiveTasks(jobs) {
       const items = []
       for (const job of jobs || []) {
-        for (const card of job.cards || []) {
+        const cards = job.cards || []
+        if (!cards.length) {
+          if (job.status === 'planning' || job.status === 'queued') {
+            items.push({
+              job,
+              card: {
+                id: `planning:${job.id}`,
+                title: job.title,
+                status: job.status,
+                createdAt: job.createdAt,
+                lastActivityAt: job.updatedAt,
+              },
+              at: job.createdAt || job.updatedAt || 0,
+            })
+          }
+          continue
+        }
+        for (const card of cards) {
           if (['done', 'failed', 'skipped'].includes(card.status)) continue
           items.push({
             job,
@@ -2634,7 +2653,9 @@ window.__ModuleLoader__.load({
             ? t('taskVerifying')
             : card.status === 'queued'
               ? t('taskQueued')
-              : t('taskRunning')
+              : card.status === 'planning'
+                ? t('taskPlanning')
+                : t('taskRunning')
       const open = () => {
         if (sessionId) onOpen?.(sessionId)
       }
