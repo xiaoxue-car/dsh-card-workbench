@@ -115,6 +115,9 @@ const activeTaskCard =
   /function ActiveTaskCard[\s\S]*?activeTaskKicker[\s\S]*?taskCompleted[\s\S]*?h\(ActiveTaskCard[\s\S]*?h\(Intake/
 const activeTaskClick = /onOpen: openSession/
 const activeTaskRemount = /recentCompletedTask[\s\S]*?initializedTask/
+const intakeSameRow = /\.butler-intake > \.butler-row\{[^}]*flex-wrap:nowrap/
+const compactPicker = /\.butler-intake \.butler-workdir-row \.butler-btn\.small\{[^}]*height:28px/
+const parallelBadge = /taskParallel/
 
 assert.ok(fullPage.test(source), 'butler page must be fixed below the top chrome and fill the viewport')
 assert.ok(conversationFullscreen.test(source), 'the app layout must hide the sidebar and fill the grid')
@@ -176,6 +179,9 @@ assert.ok(guardedAccountWrites.test(source), 'account badge writes must not run 
 assert.ok(activeTaskCard.test(source), 'active task card must render above Intake and expose completion state')
 assert.ok(activeTaskClick.test(source), 'clicking the active task card must open its conversation')
 assert.ok(activeTaskRemount.test(source), 'recent completion must survive a remount')
+assert.ok(intakeSameRow.test(source), 'Intake workdir and start button must stay on one row')
+assert.ok(compactPicker.test(source), 'the choose-folder button must be compact')
+assert.ok(parallelBadge.test(source), 'parallel task count must be visible')
 assert.ok(draftStorage.test(source), 'unsent composer text must be persisted to local storage')
 assert.ok(needsUserNavigation.test(source), 'only needsUser cards may open the detailed conversation')
 assert.ok(manualOpenReturn.test(source), 'manual 打开对话 must return to cards after a turn/answer ends')

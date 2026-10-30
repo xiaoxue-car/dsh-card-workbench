@@ -35,6 +35,7 @@ window.__ModuleLoader__.load({
       taskNoSession: '该任务暂无对话',
       taskDismiss: '关闭完成提示',
       taskSteps: '{done}/{total}',
+      taskParallel: '{n} 个任务并行',
       refresh: '刷新',
       refreshing: '刷新中…',
       refreshed: '已刷新',
@@ -255,6 +256,7 @@ window.__ModuleLoader__.load({
       taskNoSession: 'No conversation for this task',
       taskDismiss: 'Dismiss completion notice',
       taskSteps: '{done}/{total}',
+      taskParallel: '{n} tasks in parallel',
       refresh: 'Refresh',
       refreshing: 'Refreshing…',
       refreshed: 'Refreshed',
@@ -477,6 +479,7 @@ window.__ModuleLoader__.load({
       .is-complete .butler-active-dot{background:#34d399;box-shadow:0 0 10px rgba(52,211,153,.75);animation:none;}
       .butler-active-status{flex:none;border:1px solid rgba(34,211,238,.34);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:650;letter-spacing:.04em;color:#a5f3fc;background:rgba(34,211,238,.08);}
       .butler-active-status.is-complete{border-color:rgba(52,211,153,.38);color:#a7f3d0;background:rgba(52,211,153,.08);}
+      .butler-active-parallel{flex:none;border:1px solid var(--dsw-alias-border-l1);border-radius:999px;padding:3px 8px;font-size:9.5px;color:var(--dsw-alias-label-secondary);background:rgba(148,163,184,.06);white-space:nowrap;}
       .butler-active-main{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
       .butler-active-copy{min-width:0;display:flex;flex-direction:column;gap:3px;}
       .butler-active-title{font-size:17px;line-height:1.35;font-weight:720;letter-spacing:-.01em;color:var(--dsw-alias-label-primary);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
@@ -508,6 +511,10 @@ window.__ModuleLoader__.load({
       .butler-input:focus{border-color:var(--dsw-alias-brand-primary);}
       .butler-workdir-row{display:flex;gap:6px;align-items:center;}
       .butler-workdir-row .butler-input{flex:1;min-width:0;}
+      .butler-intake > .butler-row{flex-wrap:nowrap;align-items:flex-start;}
+      .butler-intake > .butler-row > .butler-field{flex:1 1 auto;min-width:0;}
+      .butler-intake > .butler-row > .butler-btn{flex:none;align-self:flex-start;margin-top:18px;height:34px;}
+      .butler-intake .butler-workdir-row .butler-btn.small{height:28px;padding:3px 7px;border-radius:6px;font-size:11px;}
       .butler-btn{appearance:none;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);border-radius:8px;padding:7px 12px;font:inherit;font-size:12.5px;line-height:1.2;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:border-color .15s ease, opacity .15s ease;}
       .butler-btn:hover:not(:disabled){border-color:var(--dsw-alias-border-l2);}
       .butler-btn:disabled{opacity:.5;cursor:default;}
@@ -2532,7 +2539,7 @@ window.__ModuleLoader__.load({
 
     const ACTIVE_TASK_STATES = new Set(['starting', 'running', 'stalled', 'fixing', 'verifying'])
 
-    function currentActiveTask(jobs) {
+    function allActiveTasks(jobs) {
       const items = []
       for (const job of jobs || []) {
         for (const card of job.cards || []) {
@@ -2541,7 +2548,11 @@ window.__ModuleLoader__.load({
         }
       }
       items.sort((a, b) => b.at - a.at)
-      return items[0] || null
+      return items
+    }
+
+    function currentActiveTask(jobs) {
+      return allActiveTasks(jobs)[0] || null
     }
 
     function recentCompletedTask(jobs, withinMs = 10 * 60 * 1000) {
@@ -2559,7 +2570,7 @@ window.__ModuleLoader__.load({
       return items[0] || null
     }
 
-    function ActiveTaskCard({ t, active, completed, nowTime, onOpen, onDismiss }) {
+    function ActiveTaskCard({ t, active, completed, parallel, nowTime, onOpen, onDismiss }) {
       const source = completed || active
       if (!source) return null
       const { job, card } = source
@@ -2605,6 +2616,9 @@ window.__ModuleLoader__.load({
             t('activeTaskKicker'),
           ),
           h('span', { className: `butler-active-status${isComplete ? ' is-complete' : ''}` }, status),
+          parallel > 1
+            ? h('span', { className: 'butler-active-parallel' }, t('taskParallel').replace('{n}', parallel))
+            : null,
         ),
         h(
           'div',
@@ -2737,7 +2751,7 @@ window.__ModuleLoader__.load({
       const [filter, setFilter] = React.useState('all')
       const [viewMode, setViewMode] = React.useState('timeline')
       const [completedTask, setCompletedTask] = React.useState(null)
-      const previousTask = React.useRef(null)
+      const previousTasks = React.useRef(new Map())
       const initializedTask = React.useRef(false)
       const waitingSeen = React.useRef(false)
 
@@ -2771,18 +2785,22 @@ window.__ModuleLoader__.load({
 
       React.useEffect(() => {
         const jobs = data?.jobs || []
-        const current = currentActiveTask(jobs)
-        if (current) {
-          previousTask.current = { jobId: current.job.id, cardId: current.card.id }
-          setCompletedTask((previous) => previous || null)
-          return
+        const current = allActiveTasks(jobs)
+        const currentIds = new Set(current.map((item) => item.card.id))
+        const finished = []
+        for (const [cardId, snapshot] of previousTasks.current) {
+          if (currentIds.has(cardId)) continue
+          const job = jobs.find((item) => item.id === snapshot.jobId)
+          const card = (job?.cards || []).find((item) => item.id === cardId)
+          if (card?.status === 'done') finished.push({ job, card, at: card.finishedAt || card.lastActivityAt || 0 })
         }
-        const previous = previousTask.current
-        if (!previous) return
-        previousTask.current = null
-        const job = jobs.find((item) => item.id === previous.jobId)
-        const card = (job?.cards || []).find((item) => item.id === previous.cardId)
-        if (card?.status === 'done') setCompletedTask({ job, card })
+        previousTasks.current = new Map(
+          current.map((item) => [item.card.id, { jobId: item.job.id }]),
+        )
+        if (finished.length) {
+          finished.sort((a, b) => b.at - a.at)
+          setCompletedTask(finished[0])
+        }
       }, [data])
 
       React.useEffect(() => {
@@ -2924,7 +2942,8 @@ window.__ModuleLoader__.load({
         session: groups,
       }
       const visibleJobs = filter === 'all' ? jobs : jobs.filter((job) => (job.kind || 'brief') === filter)
-      const activeTask = currentActiveTask(jobs)
+      const activeTasks = allActiveTasks(jobs)
+      const activeTask = activeTasks[0] || null
       const filterLabels = { all: 'filterAll', brief: 'filterBrief', session: 'filterSession' }
 
       return h(
@@ -3006,6 +3025,7 @@ window.__ModuleLoader__.load({
               t,
               active: activeTask,
               completed: completedTask,
+              parallel: activeTasks.length,
               nowTime: Date.now(),
               onOpen: openSession,
               onDismiss: () => setCompletedTask(null),

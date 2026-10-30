@@ -90,3 +90,33 @@ console.log('PASS dependencies: downstream card is not ready before its prerequi
 console.log('PASS dependencies: completed prerequisite unlocks the downstream card')
 console.log('PASS dependencies: failed prerequisite blocks the downstream card')
 console.log('PASS agent tools: cannot mark done directly; blocked requires a reason')
+
+// The concurrency budget is global across all jobs, not per job.
+butler.board.jobs = [
+  {
+    id: 'job-c1',
+    kind: 'brief',
+    status: 'running',
+    title: 'c1',
+    cwd: process.cwd(),
+    cards: [{ id: 'c1', title: 'C1', status: 'queued', dependsOn: [] }],
+    chat: [],
+  },
+  {
+    id: 'job-c2',
+    kind: 'brief',
+    status: 'running',
+    title: 'c2',
+    cwd: process.cwd(),
+    cards: [{ id: 'c2', title: 'C2', status: 'queued', dependsOn: [] }],
+    chat: [],
+  },
+]
+butler.config.maxConcurrency = 1
+butler.pump(butler.findJob('job-c1'))
+butler.pump(butler.findJob('job-c2'))
+const activeAfterPump = butler.board.jobs
+  .flatMap((item) => item.cards)
+  .filter((card) => card.status === 'starting' || card.status === 'running').length
+assert.equal(activeAfterPump, 1)
+console.log('PASS concurrency: one global budget across multiple jobs')
