@@ -498,7 +498,7 @@ window.__ModuleLoader__.load({
       @keyframes butler-task-pulse{0%,100%{opacity:.55;transform:scale(.9);}50%{opacity:1;transform:scale(1.1);}}
       @media (prefers-reduced-motion:reduce){.butler-active-dot{animation:none;}.butler-active-task,.butler-active-progress span{transition:none;}}
       @media (max-width:700px){.butler-active-task{padding-right:40px;}.butler-active-foot{align-items:flex-start;flex-direction:column;gap:6px;}.butler-active-meta{white-space:normal;}}
-      .butler-intake{padding:16px 18px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--dsw-alias-brand-primary);box-shadow:0 0 0 1px var(--dsw-alias-brand-primary),0 8px 24px rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-1);min-width:0;max-width:100%;}
+      .butler-intake{padding:16px 18px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--dsw-alias-brand-primary);box-shadow:0 0 0 1px var(--dsw-alias-brand-primary),0 8px 24px rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-1);min-width:0;max-width:100%;width:100%;box-sizing:border-box;}
       .butler-intake .butler-label{font-size:15px;font-weight:750;color:var(--dsw-alias-label-primary);letter-spacing:.01em;}
       .butler-field-hint{font-size:11px;color:var(--dsw-alias-brand-primary);line-height:1.5;}
       .butler-label{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;font-weight:600;color:var(--dsw-alias-label-secondary);}
@@ -512,7 +512,7 @@ window.__ModuleLoader__.load({
       .butler-input:focus{border-color:var(--dsw-alias-brand-primary);}
       .butler-workdir-row{display:flex;gap:6px;align-items:center;}
       .butler-workdir-row .butler-input{flex:1;min-width:0;}
-      .butler-intake > .butler-row{flex-wrap:nowrap;align-items:flex-start;min-width:0;width:100%;box-sizing:border-box;}
+      .butler-intake > .butler-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;min-width:0;width:100%;box-sizing:border-box;}
       .butler-intake > .butler-row > .butler-field{flex:1 1 auto;min-width:0;}
       .butler-intake .butler-workdir-row{min-width:0;}
       .butler-intake > .butler-row > .butler-btn{flex:none;align-self:flex-start;margin-top:26px;height:34px;}

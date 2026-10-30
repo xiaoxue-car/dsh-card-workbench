@@ -115,7 +115,7 @@ const activeTaskCard =
   /function ActiveTaskCard[\s\S]*?activeTaskKicker[\s\S]*?taskCompleted[\s\S]*?h\(ActiveTaskCard[\s\S]*?h\(Intake/
 const activeTaskClick = /onOpen: openSession/
 const activeTaskRemount = /recentCompletedTask[\s\S]*?initializedTask/
-const intakeSameRow = /\.butler-intake > \.butler-row\{[^}]*flex-wrap:nowrap/
+const intakeSameRow = /\.butler-intake > \.butler-row\{[^}]*display:grid[^}]*grid-template-columns:minmax\(0,1fr\) auto/
 const compactPicker = /\.butler-intake \.butler-workdir-row \.butler-btn\.small\{[^}]*height:28px/
 const parallelBadge = /taskParallel/
 
