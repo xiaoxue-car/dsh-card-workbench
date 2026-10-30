@@ -513,7 +513,7 @@ window.__ModuleLoader__.load({
       .butler-workdir-row .butler-input{flex:1;min-width:0;}
       .butler-intake > .butler-row{flex-wrap:nowrap;align-items:flex-start;}
       .butler-intake > .butler-row > .butler-field{flex:1 1 auto;min-width:0;}
-      .butler-intake > .butler-row > .butler-btn{flex:none;align-self:flex-start;margin-top:18px;height:34px;}
+      .butler-intake > .butler-row > .butler-btn{flex:none;align-self:flex-start;margin-top:26px;height:34px;}
       .butler-intake .butler-workdir-row .butler-btn.small{height:28px;padding:3px 7px;border-radius:6px;font-size:11px;}
       .butler-btn{appearance:none;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);border-radius:8px;padding:7px 12px;font:inherit;font-size:12.5px;line-height:1.2;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:border-color .15s ease, opacity .15s ease;}
       .butler-btn:hover:not(:disabled){border-color:var(--dsw-alias-border-l2);}
