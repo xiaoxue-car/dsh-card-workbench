@@ -2544,6 +2544,21 @@ window.__ModuleLoader__.load({
       return items[0] || null
     }
 
+    function recentCompletedTask(jobs, withinMs = 10 * 60 * 1000) {
+      const now = Date.now()
+      const items = []
+      for (const job of jobs || []) {
+        for (const card of job.cards || []) {
+          if (card.status !== 'done') continue
+          const at = card.finishedAt || card.lastActivityAt || card.createdAt || 0
+          if (!at || now - at > withinMs) continue
+          items.push({ job, card, at })
+        }
+      }
+      items.sort((a, b) => b.at - a.at)
+      return items[0] || null
+    }
+
     function ActiveTaskCard({ t, active, completed, nowTime, onOpen, onDismiss }) {
       const source = completed || active
       if (!source) return null
@@ -2723,6 +2738,7 @@ window.__ModuleLoader__.load({
       const [viewMode, setViewMode] = React.useState('timeline')
       const [completedTask, setCompletedTask] = React.useState(null)
       const previousTask = React.useRef(null)
+      const initializedTask = React.useRef(false)
       const waitingSeen = React.useRef(false)
 
       const load = React.useCallback(async () => {
@@ -2744,6 +2760,14 @@ window.__ModuleLoader__.load({
         }, 1500)
         return () => clearInterval(timer)
       }, [load])
+
+      React.useEffect(() => {
+        if (!data || initializedTask.current) return
+        initializedTask.current = true
+        if (currentActiveTask(data.jobs || [])) return
+        const recent = recentCompletedTask(data.jobs || [])
+        if (recent) setCompletedTask(recent)
+      }, [data])
 
       React.useEffect(() => {
         const jobs = data?.jobs || []
