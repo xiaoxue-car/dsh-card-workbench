@@ -1,4 +1,4 @@
-{
+﻿{
   "format": 1,
   "title": {
     "en": "Card Workbench",
@@ -26,12 +26,12 @@
       },
       "versions": [
         {
-          "version": "1.1.1",
-          "publishTimestamp": 1793332440,
+          "version": "1.1.2",
+          "publishTimestamp": 1793338472,
           "source": {
             "type": "git",
             "url": "https://gitee.com/fglry/dsh-card-workbench",
-            "commit": "7972d44e0c02af3fc89a6a075f4fdc24041afe68"
+            "commit": "c12c9cf1bae4f8f8ea10fbdc265ab5bdc28f65b7"
           },
           "engines": {
             "dsh": ">=0.2.1-rc.2 <0.3.0-0"
@@ -41,3 +41,4 @@
     }
   ]
 }
+
