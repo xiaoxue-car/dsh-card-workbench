@@ -113,6 +113,7 @@ const guardedOverlayWrites = /setImportantIfChanged[\s\S]*?document\.visibilityS
 const guardedAccountWrites = /if \(account\.title !== title\)/
 const activeTaskCard =
   /function ActiveTaskCard[\s\S]*?activeTaskKicker[\s\S]*?taskCompleted[\s\S]*?h\(ActiveTaskCard[\s\S]*?h\(Intake/
+const activeTaskClick = /onOpen: openSession/
 
 assert.ok(fullPage.test(source), 'butler page must be fixed below the top chrome and fill the viewport')
 assert.ok(conversationFullscreen.test(source), 'the app layout must hide the sidebar and fill the grid')
@@ -172,6 +173,7 @@ assert.ok(dependencyBadge.test(source), 'cards must display dependency metadata'
 assert.ok(guardedOverlayWrites.test(source), 'overlay layout writes must be change-guarded and skip hidden tabs')
 assert.ok(guardedAccountWrites.test(source), 'account badge writes must not run unconditionally')
 assert.ok(activeTaskCard.test(source), 'active task card must render above Intake and expose completion state')
+assert.ok(activeTaskClick.test(source), 'clicking the active task card must open its conversation')
 assert.ok(draftStorage.test(source), 'unsent composer text must be persisted to local storage')
 assert.ok(needsUserNavigation.test(source), 'only needsUser cards may open the detailed conversation')
 assert.ok(manualOpenReturn.test(source), 'manual 打开对话 must return to cards after a turn/answer ends')
