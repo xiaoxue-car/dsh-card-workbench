@@ -125,6 +125,7 @@ const persistedWorkspaceOrder = /const WORKSPACE_ORDER_KEY = 'butler:workspace-o
 const strongJobActions = /butler-action-strong[\s\S]*?openConversation[\s\S]*?pauseJob[\s\S]*?deleteJob/
 const clearCompleted = /butler-clear-completed[\s\S]*?onClearCompleted/
 const clearCompletedReset = /onClearCompleted: \(\) => setCompletedTasks\(\[\]\)/
+const hideEmptyCompletedLane = /completed\.length\s*\?\s*h\(\s*'section'[\s\S]*?\) : null/
 const workspaceDropdown = /workspaces && workspaces\.length[\s\S]*?butler-select/
 
 assert.ok(fullPage.test(source), 'butler page must be fixed below the top chrome and fill the viewport')
@@ -197,6 +198,7 @@ assert.ok(persistedWorkspaceOrder.test(source), 'workspace order must persist ac
 assert.ok(strongJobActions.test(source), 'open, pause and remove buttons must use the strong action style')
 assert.ok(clearCompleted.test(source), 'the completed lane must expose a clear-all button')
 assert.ok(clearCompletedReset.test(source), 'clicking clear-all must reset completedTasks')
+assert.ok(hideEmptyCompletedLane.test(source), 'an empty completed lane must be removed')
 assert.ok(workspaceDropdown.test(source), 'the intake workdir must offer an existing-workspace dropdown')
 assert.ok(draftStorage.test(source), 'unsent composer text must be persisted to local storage')
 assert.ok(!automaticNeedsUserOpen.test(source), 'needsUser must not auto-open; the user clicks the task card')
@@ -244,6 +246,7 @@ console.log('PASS workspace order: first-seen order is persisted in localStorage
 console.log('PASS conversation actions: open, pause and remove are visually strong')
 console.log('PASS completed lane: clear-all button is present')
 console.log('PASS completed lane: clear-all resets completedTasks to []')
+console.log('PASS completed lane: empty lane is removed after the last item')
 console.log('PASS intake: existing workspace dropdown is present')
 console.log('PASS no auto jump: user messages and needsUser do not navigate automatically')
 console.log('PASS navigation: no automatic conversation open; task-card click only')

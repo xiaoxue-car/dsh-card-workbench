@@ -483,6 +483,7 @@ window.__ModuleLoader__.load({
       .butler-inner > *{min-width:0;max-width:100%;}
       .butler-card{background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l1);border-radius:14px;box-sizing:border-box;}
       .butler-task-board{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(250px,.8fr);gap:12px;margin-bottom:0;min-width:0;padding:9px 12px;border:1px solid rgba(34,211,238,.42);border-radius:12px;background:linear-gradient(135deg,rgba(34,211,238,.07),transparent 44%),linear-gradient(180deg,var(--dsw-alias-bg-layer-1),var(--dsw-alias-bg-layer-2));box-shadow:0 0 0 1px rgba(34,211,238,.05),0 10px 28px rgba(0,0,0,.12);box-sizing:border-box;}
+      .butler-task-board.is-single{grid-template-columns:minmax(0,1fr);}
       .butler-task-lane{border:0;border-radius:0;background:transparent;padding:0;min-width:0;box-sizing:border-box;}
       .butler-task-lane.is-completed{border-left:1px solid rgba(148,163,184,.16);padding-left:12px;}
       .butler-task-lane-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:1px 3px 8px;font-size:10px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--dsw-alias-label-secondary);}
@@ -2818,7 +2819,7 @@ window.__ModuleLoader__.load({
       }
       return h(
         'div',
-        { className: 'butler-task-board' },
+        { className: `butler-task-board${completed.length ? '' : ' is-single'}` },
         h(
           'section',
           { className: 'butler-task-lane is-running' },
@@ -2882,7 +2883,8 @@ window.__ModuleLoader__.load({
               )
             : h('div', { className: 'butler-task-empty' }, t('taskNoRunning')),
         ),
-        h(
+        completed.length
+          ? h(
           'section',
           { className: 'butler-task-lane is-completed' },
           h(
@@ -2928,7 +2930,7 @@ window.__ModuleLoader__.load({
                 ),
               )
             : h('div', { className: 'butler-task-empty' }, t('taskNoCompleted')),
-        ),
+        ) : null,
       )
     }
 
