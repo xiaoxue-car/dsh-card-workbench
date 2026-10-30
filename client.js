@@ -2774,7 +2774,6 @@ window.__ModuleLoader__.load({
       const [completedTask, setCompletedTask] = React.useState(null)
       const previousTasks = React.useRef(new Map())
       const initializedTask = React.useRef(false)
-      const waitingSeen = React.useRef(false)
 
       const load = React.useCallback(async () => {
         try {
@@ -2821,26 +2820,6 @@ window.__ModuleLoader__.load({
         if (finished.length) {
           finished.sort((a, b) => b.at - a.at)
           setCompletedTask(finished[0])
-        }
-      }, [data])
-
-      React.useEffect(() => {
-        const waiting = (data?.jobs || []).flatMap((job) =>
-          (job.cards || [])
-            .filter((card) => card.needsUser?.requestId)
-            .map((card) => ({ job, card })),
-        )
-        if (waiting.length) {
-          if (!waitingSeen.current) {
-            waitingSeen.current = true
-            const first = waiting[0]
-            const sessionId = first.card.sessionId || first.job.sessionId
-            if (sessionId) openSession(sessionId)
-          }
-        } else if (waitingSeen.current) {
-          waitingSeen.current = false
-          returnTrack.current = null
-          props.returnToButler?.()
         }
       }, [data])
 

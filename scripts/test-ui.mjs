@@ -82,8 +82,8 @@ const historyDefaultClosed =
   /const \[historyOpen, setHistoryOpen\] = React\.useState\(false\)/
 const draftStorage =
   /const DRAFT_PREFIX = 'butler:draft:'[\s\S]*?localStorage\.setItem\(DRAFT_PREFIX \+ key, value\)/
-const needsUserNavigation =
-  /card\.needsUser\?\.requestId[\s\S]*?if \(sessionId\) openSession\(sessionId\)[\s\S]*?props\.returnToButler\?\.\(\)/
+const automaticNeedsUserOpen =
+  /const waiting = \(data\?\.jobs[\s\S]*?if \(sessionId\) openSession\(sessionId\)/
 const noAnalysisAutoOpen =
   !/turn\/end[\s\S]{0,200}openSession\(/.test(source)
 const manualOpenReturn =
@@ -185,9 +185,9 @@ assert.ok(compactPicker.test(source), 'the choose-folder button must be compact'
 assert.ok(taskStack.test(source), 'all active tasks must render in the task stack')
 assert.ok(stableWorkspaceOrder.test(source), 'workspace order must not follow activity')
 assert.ok(draftStorage.test(source), 'unsent composer text must be persisted to local storage')
-assert.ok(needsUserNavigation.test(source), 'only needsUser cards may open the detailed conversation')
+assert.ok(!automaticNeedsUserOpen.test(source), 'needsUser must not auto-open; the user clicks the task card')
 assert.ok(manualOpenReturn.test(source), 'manual 打开对话 must return to cards after a turn/answer ends')
-assert.ok(needsUserNavigation.test(source) && noAnalysisAutoOpen, 'analysis completion must not auto-open a conversation')
+assert.ok(noAnalysisAutoOpen, 'analysis completion must not auto-open a conversation')
 
 console.log('PASS page: fixed full viewport below top chrome')
 console.log('PASS layout: sidebar hidden and frame grid full width')
@@ -224,8 +224,8 @@ console.log('PASS render loop: overlay/account writes are change-guarded')
 console.log('PASS active task: current task card above Intake with completion state')
 console.log('PASS task stack: all active tasks render together')
 console.log('PASS workspace order: first-seen order is stable across activity')
-console.log('PASS no auto jump: only needsUser or task-card click opens detail')
-console.log('PASS navigation: only needsUser opens detail; resolves return to cards')
+console.log('PASS no auto jump: user messages and needsUser do not navigate automatically')
+console.log('PASS navigation: no automatic conversation open; task-card click only')
 console.log('PASS navigation: manual 打开对话 returns after the turn ends')
 console.log('PASS drafts: unsent text persisted across close/reload')
 
