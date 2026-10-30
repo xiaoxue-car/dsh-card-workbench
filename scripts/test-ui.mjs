@@ -121,7 +121,7 @@ const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task
 const completedClickRemoval = /setCompletedTasks[\s\S]*?openSession\(sessionId\)/
 const planningPlaceholder = /job\.status === 'planning'[\s\S]*?planning:\$\{job\.id\}/
 const stableWorkspaceOrder = /workspaceOrder\.current\.get\(a\.cwd\)/
-const pinnedWorkspaceOrder = /const pinnedCwd = React\.useRef[\s\S]*?const current = pinnedCwd\.current/
+const persistedWorkspaceOrder = /const WORKSPACE_ORDER_KEY = 'butler:workspace-order'[\s\S]*?saveWorkspaceOrder\(workspaceOrder\.current\)/
 const strongJobActions = /butler-action-strong[\s\S]*?openConversation[\s\S]*?pauseJob[\s\S]*?deleteJob/
 
 assert.ok(fullPage.test(source), 'butler page must be fixed below the top chrome and fill the viewport')
@@ -190,7 +190,7 @@ assert.ok(taskStack.test(source), 'all active tasks must render in the task deck
 assert.ok(completedClickRemoval.test(source), 'clicking a completed task must remove it and open its conversation')
 assert.ok(planningPlaceholder.test(source), 'a newly created planning job must render immediately')
 assert.ok(stableWorkspaceOrder.test(source), 'workspace order must not follow activity')
-assert.ok(pinnedWorkspaceOrder.test(source), 'workspace order must pin the initial current workspace')
+assert.ok(persistedWorkspaceOrder.test(source), 'workspace order must persist across reloads and active-session changes')
 assert.ok(strongJobActions.test(source), 'open, pause and remove buttons must use the strong action style')
 assert.ok(draftStorage.test(source), 'unsent composer text must be persisted to local storage')
 assert.ok(!automaticNeedsUserOpen.test(source), 'needsUser must not auto-open; the user clicks the task card')
@@ -234,7 +234,7 @@ console.log('PASS task board: running deck and completed lane render together')
 console.log('PASS task board: new planning task renders before cards exist')
 console.log('PASS completed task: clicking removes it and opens the conversation')
 console.log('PASS workspace order: first-seen order is stable across activity')
-console.log('PASS workspace order: initial current workspace is pinned')
+console.log('PASS workspace order: first-seen order is persisted in localStorage')
 console.log('PASS conversation actions: open, pause and remove are visually strong')
 console.log('PASS no auto jump: user messages and needsUser do not navigate automatically')
 console.log('PASS navigation: no automatic conversation open; task-card click only')

@@ -2181,12 +2181,34 @@ window.__ModuleLoader__.load({
       }
     }
     const clearDraft = (key) => writeDraft(key, '')
+    const WORKSPACE_ORDER_KEY = 'butler:workspace-order'
+    const readWorkspaceOrder = () => {
+      try {
+        const raw = JSON.parse(window.localStorage.getItem(WORKSPACE_ORDER_KEY) || '[]')
+        if (!Array.isArray(raw)) return new Map()
+        return new Map(
+          raw.filter(
+            (entry) =>
+              Array.isArray(entry) &&
+              typeof entry[0] === 'string' &&
+              Number.isFinite(entry[1]),
+          ),
+        )
+      } catch {
+        return new Map()
+      }
+    }
+    const saveWorkspaceOrder = (order) => {
+      try {
+        window.localStorage.setItem(WORKSPACE_ORDER_KEY, JSON.stringify([...order.entries()]))
+      } catch {
+        /* storage may be unavailable */
+      }
+    }
 
     function WorkspaceList({ jobs, t, defaultCwd, nowTime, busy, openSession, onAction, modelCatalog, permissionCatalog, presetCatalog }) {
       const [historyOpen, setHistoryOpen] = React.useState(false)
-      const pinnedCwd = React.useRef(defaultCwd || '')
-      if (!pinnedCwd.current && defaultCwd) pinnedCwd.current = defaultCwd
-      const workspaceOrder = React.useRef(new Map())
+      const workspaceOrder = React.useRef(readWorkspaceOrder())
       const groups = React.useMemo(() => {
         const map = new Map()
         for (const job of jobs) {
@@ -2194,9 +2216,14 @@ window.__ModuleLoader__.load({
           if (!map.has(key)) map.set(key, [])
           map.get(key).push(job)
         }
+        let changed = false
         for (const key of map.keys()) {
-          if (!workspaceOrder.current.has(key)) workspaceOrder.current.set(key, workspaceOrder.current.size)
+          if (!workspaceOrder.current.has(key)) {
+            workspaceOrder.current.set(key, workspaceOrder.current.size)
+            changed = true
+          }
         }
+        if (changed) saveWorkspaceOrder(workspaceOrder.current)
         return [...map.entries()]
           .map(([cwd, list]) => ({
             cwd,
@@ -2214,11 +2241,8 @@ window.__ModuleLoader__.load({
             ),
           }))
           .sort((a, b) => {
-            const current = pinnedCwd.current
-            const aCurrent = a.cwd === current
-            const bCurrent = b.cwd === current
-            if (aCurrent !== bCurrent) return aCurrent ? -1 : 1
-            // First-seen order: activity in another workspace cannot move blocks.
+            // Persistent first-seen order: activity and active-session changes
+            // cannot move a workspace block.
             return workspaceOrder.current.get(a.cwd) - workspaceOrder.current.get(b.cwd)
           })
       }, [jobs, defaultCwd])
