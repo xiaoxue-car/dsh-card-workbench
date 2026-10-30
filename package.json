@@ -32,6 +32,7 @@
                   "cordis.patch.yml",
                   "README.md",
                   "PUBLISH.md",
+                  "GITEE.md",
                   "LICENSE",
                   "screenshots.json",
                   "docs/*.md",
