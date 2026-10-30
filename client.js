@@ -2680,11 +2680,33 @@ window.__ModuleLoader__.load({
       return items
     }
 
-    function currentCompletedTasks(jobs, limit = 8) {
+    const DISMISSED_COMPLETED_KEY = 'butler:dismissed-completed'
+    const completedTaskKey = (item) => `${item.job.id}:${item.card.id}`
+    const readDismissedCompleted = () => {
+      try {
+        const raw = JSON.parse(window.localStorage.getItem(DISMISSED_COMPLETED_KEY) || '[]')
+        return new Set(Array.isArray(raw) ? raw.filter((key) => typeof key === 'string') : [])
+      } catch {
+        return new Set()
+      }
+    }
+    const writeDismissedCompleted = (dismissed) => {
+      try {
+        window.localStorage.setItem(
+          DISMISSED_COMPLETED_KEY,
+          JSON.stringify([...dismissed].slice(-200)),
+        )
+      } catch {
+        /* storage may be unavailable */
+      }
+    }
+
+    function currentCompletedTasks(jobs, limit = 8, dismissed = null) {
       const items = []
       for (const job of jobs || []) {
         for (const card of job.cards || []) {
           if (card.status !== 'done') continue
+          if (dismissed?.has(`${job.id}:${card.id}`)) continue
           items.push({
             job,
             card,
@@ -3011,6 +3033,7 @@ window.__ModuleLoader__.load({
       const [filter, setFilter] = React.useState('all')
       const [viewMode, setViewMode] = React.useState('timeline')
       const [completedTasks, setCompletedTasks] = React.useState([])
+      const dismissedCompleted = React.useRef(readDismissedCompleted())
       const previousTasks = React.useRef(new Map())
       const initializedTask = React.useRef(false)
 
@@ -3037,7 +3060,7 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         if (!data || initializedTask.current) return
         initializedTask.current = true
-        const recent = currentCompletedTasks(data.jobs || [])
+        const recent = currentCompletedTasks(data.jobs || [], 8, dismissedCompleted.current)
         if (recent.length) setCompletedTasks((previous) => (previous.length ? previous : recent))
       }, [data])
 
@@ -3068,7 +3091,10 @@ window.__ModuleLoader__.load({
           finished.sort((a, b) => b.at - a.at)
           setCompletedTasks((previous) => {
             const merged = new Map(previous.map((item) => [`${item.job.id}:${item.card.id}`, item]))
-            for (const item of finished) merged.set(`${item.job.id}:${item.card.id}`, item)
+            for (const item of finished) {
+              if (dismissedCompleted.current.has(`${item.job.id}:${item.card.id}`)) continue
+              merged.set(`${item.job.id}:${item.card.id}`, item)
+            }
             return [...merged.values()].sort((a, b) => b.at - a.at).slice(0, 20)
           })
         }
@@ -3200,6 +3226,8 @@ window.__ModuleLoader__.load({
       const visibleJobs = filter === 'all' ? jobs : jobs.filter((job) => (job.kind || 'brief') === filter)
       const activeTasks = allActiveTasks(jobs)
       const completeTask = (item) => {
+        dismissedCompleted.current.add(completedTaskKey(item))
+        writeDismissedCompleted(dismissedCompleted.current)
         setCompletedTasks((previous) =>
           previous.filter(
             (entry) => !(entry.job.id === item.job.id && entry.card.id === item.card.id),
@@ -3207,6 +3235,13 @@ window.__ModuleLoader__.load({
         )
         const sessionId = item.card.sessionId || item.job.sessionId
         if (sessionId) openSession(sessionId)
+      }
+      const clearCompleted = () => {
+        for (const item of completedTasks) {
+          dismissedCompleted.current.add(completedTaskKey(item))
+        }
+        writeDismissedCompleted(dismissedCompleted.current)
+        setCompletedTasks([])
       }
       const filterLabels = { all: 'filterAll', brief: 'filterBrief', session: 'filterSession' }
 
@@ -3289,7 +3324,7 @@ window.__ModuleLoader__.load({
               nowTime: Date.now(),
               onOpen: openSession,
               onComplete: completeTask,
-              onClearCompleted: () => setCompletedTasks([]),
+              onClearCompleted: clearCompleted,
             }),
             h(Intake, {
               t,
