@@ -2238,7 +2238,6 @@ window.__ModuleLoader__.load({
     function SettingsBar({ t, settings, busy, onToggle }) {
       const items = [
         ['autoAdopt', 'autoAdopt'],
-        ['autoJump', 'autoJump'],
         ['verifyConversations', 'autoVerify'],
         ['nudgeConversations', 'autoNudge'],
       ]
@@ -2249,7 +2248,6 @@ window.__ModuleLoader__.load({
           'div',
           { className: 'butler-label' },
           h('span', null, t('settingsTitle')),
-          h('small', null, settings.autoJump ? t('autoJumpOnHint') : ''),
         ),
         h(
           'div',
@@ -3002,9 +3000,6 @@ window.__ModuleLoader__.load({
                           : t('ready'),
                 )
               : h('span', { className: 'butler-live' }, h('i'), t('loading')),
-            settings.autoJump
-              ? h('span', { className: 'butler-pill butler-tone-run' }, t('autoJump'))
-              : null,
             h(
               Btn,
               {
@@ -3713,42 +3708,8 @@ window.__ModuleLoader__.load({
         window.addEventListener('keydown', onKeyDown)
         return () => window.removeEventListener('keydown', onKeyDown)
       }, 'butler: keyboard shortcut')
-      ctx.effect(() => {
-        let disposed = false
-        let lastToken = null
-        const check = async () => {
-          try {
-            const response = await fetch(`${API}/state`, { headers: HEADERS, cache: 'no-store' })
-            const payload = await response.json()
-            if (!payload.ok || disposed) return
-            const token = payload.data?.autoJump?.at || 0
-            if (lastToken == null) {
-              lastToken = token
-              return
-            }
-            if (token > lastToken) {
-              lastToken = token
-              const visible = typeof document === 'undefined' || document.visibilityState === 'visible'
-              if (payload.data?.settings?.autoJump && visible) {
-                try {
-                  exitConversationFullscreen()
-                  ctx.layout.selectPanel('butler')
-                } catch {
-                  /* the layout service may be unavailable while booting */
-                }
-              }
-            }
-          } catch {
-            /* the bridge may be temporarily unavailable */
-          }
-        }
-        void check()
-        const timer = setInterval(check, 4000)
-        return () => {
-          disposed = true
-          clearInterval(timer)
-        }
-      }, 'butler: auto-jump watcher')
+      // No automatic panel jump on new user messages. Only a needsUser
+      // interaction or an explicit task-card click may open a conversation.
       ctx.slots.inject('main', () =>
         ctx.slots.register(
           {
