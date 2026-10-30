@@ -1,4 +1,4 @@
-﻿# 发布 dsh-card-workbench
+# 发布 dsh-card-workbench
 
 ## 0. 前置
 
@@ -35,7 +35,7 @@ npm pkg set bugs.url=https://gitee.com/<owner>/dsh-card-workbench/issues
 
 ```json
 {
-  "version": "1.1.2",
+  "version": "1.1.3",
   "publishTimestamp": 1793325000,
   "source": {
     "type": "git",
@@ -59,7 +59,7 @@ npm publish --access public --registry=https://registry.npmjs.org
 
 ```json
 {
-  "version": "1.1.2",
+  "version": "1.1.3",
   "publishTimestamp": 1793325000,
   "source": { "type": "npm" }
 }
@@ -71,7 +71,7 @@ npm publish --access public --registry=https://registry.npmjs.org
 
 ```powershell
 npm pack
-dsh plugin --profile web add ./dsh-card-workbench-1.1.2.tgz
+dsh plugin --profile web add ./dsh-card-workbench-1.1.3.tgz
 ```
 
 不需要 GitHub/npm。这是本地安装，不算“上架市场”。
@@ -182,7 +182,7 @@ site/icons/dsh-card-workbench.svg
       "metadata": { "category": "workflow" },
       "versions": [
         {
-          "version": "1.1.2",
+          "version": "1.1.3",
           "publishTimestamp": 1793325000,
           "source": { "type": "npm" },
           "engines": { "dsh": ">=0.2.1-rc.2 <0.3.0-0" }

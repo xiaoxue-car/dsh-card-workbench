@@ -22,6 +22,19 @@ window.__ModuleLoader__.load({
       chooseFolder: '选择文件夹',
       start: '拆解开工',
       starting: '管家拆解中…',
+      activeTaskKicker: 'CURRENT OPERATION',
+      activeTask: '当前执行',
+      taskRunning: '执行中',
+      taskVerifying: '核对中',
+      taskBlocked: '待处理',
+      taskCompleted: '任务已完成',
+      taskCompletedHint: '点击查看结果，或关闭此提示',
+      taskOpenHint: '点击任务进入对话',
+      taskLatest: '最近更新',
+      taskProgress: '进度',
+      taskNoSession: '该任务暂无对话',
+      taskDismiss: '关闭完成提示',
+      taskSteps: '{done}/{total}',
       refresh: '刷新',
       refreshing: '刷新中…',
       refreshed: '已刷新',
@@ -229,6 +242,19 @@ window.__ModuleLoader__.load({
       chooseFolder: 'Choose folder',
       start: 'Split & start',
       starting: 'Butler is splitting…',
+      activeTaskKicker: 'CURRENT OPERATION',
+      activeTask: 'Current task',
+      taskRunning: 'Running',
+      taskVerifying: 'Verifying',
+      taskBlocked: 'Needs attention',
+      taskCompleted: 'Task complete',
+      taskCompletedHint: 'Open the result or dismiss this notice',
+      taskOpenHint: 'Open the conversation for this task',
+      taskLatest: 'Last update',
+      taskProgress: 'Progress',
+      taskNoSession: 'No conversation for this task',
+      taskDismiss: 'Dismiss completion notice',
+      taskSteps: '{done}/{total}',
       refresh: 'Refresh',
       refreshing: 'Refreshing…',
       refreshed: 'Refreshed',
@@ -437,6 +463,37 @@ window.__ModuleLoader__.load({
       .butler-scroll{flex:1;min-height:0;overflow:auto;padding:22px 24px 48px;}
       .butler-inner{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
       .butler-card{background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l1);border-radius:14px;}
+      .butler-active-task{position:relative;overflow:hidden;margin-bottom:14px;padding:14px 16px 12px;border:1px solid rgba(34,211,238,.52);border-radius:12px;background:linear-gradient(135deg,rgba(34,211,238,.10),transparent 44%),linear-gradient(180deg,var(--dsw-alias-bg-layer-1),var(--dsw-alias-bg-layer-2));box-shadow:0 0 0 1px rgba(34,211,238,.06),0 12px 34px rgba(0,0,0,.16);cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;}
+      .butler-active-task::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(34,211,238,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.07) 1px,transparent 1px);background-size:22px 22px;opacity:.55;mask-image:linear-gradient(120deg,black,transparent 70%);}
+      .butler-active-task:hover{transform:translateY(-1px);border-color:rgba(34,211,238,.9);box-shadow:0 0 0 1px rgba(34,211,238,.12),0 16px 40px rgba(0,0,0,.22);}
+      .butler-active-task:focus-visible{outline:2px solid rgba(34,211,238,.9);outline-offset:2px;}
+      .butler-active-task.is-complete{border-color:rgba(52,211,153,.55);background:linear-gradient(135deg,rgba(52,211,153,.09),transparent 44%),linear-gradient(180deg,var(--dsw-alias-bg-layer-1),var(--dsw-alias-bg-layer-2));}
+      .butler-active-orbit{position:absolute;right:-26px;top:-30px;width:112px;height:112px;border:1px solid rgba(34,211,238,.22);border-radius:50%;pointer-events:none;}
+      .butler-active-orbit::after{content:'';position:absolute;inset:12px;border:1px dashed rgba(34,211,238,.16);border-radius:50%;}
+      .is-complete .butler-active-orbit{border-color:rgba(52,211,153,.25);}
+      .butler-active-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+      .butler-active-label{display:inline-flex;align-items:center;gap:7px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:9px;font-weight:650;letter-spacing:.18em;text-transform:uppercase;color:#67e8f9;}
+      .butler-active-dot{width:6px;height:6px;border-radius:50%;background:#22d3ee;box-shadow:0 0 10px rgba(34,211,238,.95);animation:butler-task-pulse 1.8s ease-in-out infinite;}
+      .is-complete .butler-active-dot{background:#34d399;box-shadow:0 0 10px rgba(52,211,153,.75);animation:none;}
+      .butler-active-status{flex:none;border:1px solid rgba(34,211,238,.34);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:650;letter-spacing:.04em;color:#a5f3fc;background:rgba(34,211,238,.08);}
+      .butler-active-status.is-complete{border-color:rgba(52,211,153,.38);color:#a7f3d0;background:rgba(52,211,153,.08);}
+      .butler-active-main{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+      .butler-active-copy{min-width:0;display:flex;flex-direction:column;gap:3px;}
+      .butler-active-title{font-size:17px;line-height:1.35;font-weight:720;letter-spacing:-.01em;color:var(--dsw-alias-label-primary);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+      .butler-active-sub{font-size:10.5px;line-height:1.5;color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere;}
+      .butler-active-arrow{flex:none;width:26px;height:26px;border:1px solid rgba(34,211,238,.28);border-radius:50%;display:grid;place-items:center;color:#67e8f9;font-size:13px;margin-top:1px;}
+      .is-complete .butler-active-arrow{border-color:rgba(52,211,153,.3);color:#6ee7b7;}
+      .butler-active-foot{position:relative;z-index:1;display:flex;align-items:center;gap:12px;margin-top:11px;}
+      .butler-active-progress{flex:1;height:3px;border-radius:999px;background:rgba(148,163,184,.2);overflow:hidden;}
+      .butler-active-progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#0891b2,#22d3ee,#a5f3fc);transition:width .35s ease;}
+      .is-complete .butler-active-progress span{background:linear-gradient(90deg,#059669,#34d399,#a7f3d0);}
+      .butler-active-meta{display:flex;gap:12px;flex-wrap:wrap;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:9.5px;color:var(--dsw-alias-label-tertiary);white-space:nowrap;}
+      .butler-active-dismiss{position:absolute;right:10px;bottom:9px;z-index:2;appearance:none;border:0;background:transparent;color:var(--dsw-alias-label-tertiary);font-size:15px;line-height:1;cursor:pointer;padding:3px 5px;border-radius:5px;}
+      .butler-active-dismiss:hover{color:var(--dsw-alias-label-primary);background:rgba(148,163,184,.12);}
+      .butler-active-nosession{margin-top:7px;font-size:10px;color:var(--dsw-alias-label-tertiary);}
+      @keyframes butler-task-pulse{0%,100%{opacity:.55;transform:scale(.9);}50%{opacity:1;transform:scale(1.1);}}
+      @media (prefers-reduced-motion:reduce){.butler-active-dot{animation:none;}.butler-active-task,.butler-active-progress span{transition:none;}}
+      @media (max-width:700px){.butler-active-task{padding-right:40px;}.butler-active-foot{align-items:flex-start;flex-direction:column;gap:6px;}.butler-active-meta{white-space:normal;}}
       .butler-intake{padding:16px 18px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--dsw-alias-brand-primary);box-shadow:0 0 0 1px var(--dsw-alias-brand-primary),0 8px 24px rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-1);}
       .butler-intake .butler-label{font-size:15px;font-weight:750;color:var(--dsw-alias-label-primary);letter-spacing:.01em;}
       .butler-field-hint{font-size:11px;color:var(--dsw-alias-brand-primary);line-height:1.5;}
@@ -2473,6 +2530,121 @@ window.__ModuleLoader__.load({
       return 'wait'
     }
 
+    const ACTIVE_TASK_STATES = new Set(['starting', 'running', 'stalled', 'fixing', 'verifying'])
+
+    function currentActiveTask(jobs) {
+      const items = []
+      for (const job of jobs || []) {
+        for (const card of job.cards || []) {
+          if (!ACTIVE_TASK_STATES.has(card.status) && !card.needsUser) continue
+          items.push({ job, card, at: Math.max(card.lastActivityAt || 0, card.createdAt || 0) })
+        }
+      }
+      items.sort((a, b) => b.at - a.at)
+      return items[0] || null
+    }
+
+    function ActiveTaskCard({ t, active, completed, nowTime, onOpen, onDismiss }) {
+      const source = completed || active
+      if (!source) return null
+      const { job, card } = source
+      const isComplete = Boolean(completed)
+      const sessionId = card.sessionId || job.sessionId
+      const cards = job.cards || []
+      const done = cards.filter((item) => item.status === 'done' || item.status === 'skipped').length
+      const total = cards.length
+      const percent = total ? Math.min(100, Math.round((done / total) * 100)) : 0
+      const status = isComplete
+        ? t('taskCompleted')
+        : card.needsUser
+          ? t('taskBlocked')
+          : card.status === 'verifying'
+            ? t('taskVerifying')
+            : t('taskRunning')
+      const open = () => {
+        if (sessionId) onOpen?.(sessionId)
+      }
+      return h(
+        'section',
+        {
+          className: `butler-active-task${isComplete ? ' is-complete' : ''}${sessionId ? ' is-openable' : ''}`,
+          role: sessionId ? 'button' : undefined,
+          tabIndex: sessionId ? 0 : undefined,
+          'aria-label': sessionId ? `${card.title || job.title} · ${t('taskOpenHint')}` : undefined,
+          onClick: open,
+          onKeyDown: (event) => {
+            if ((event.key === 'Enter' || event.key === ' ') && sessionId) {
+              event.preventDefault()
+              open()
+            }
+          },
+        },
+        h('span', { className: 'butler-active-orbit', 'aria-hidden': true }),
+        h(
+          'div',
+          { className: 'butler-active-top' },
+          h(
+            'div',
+            { className: 'butler-active-label' },
+            h('span', { className: 'butler-active-dot' }),
+            t('activeTaskKicker'),
+          ),
+          h('span', { className: `butler-active-status${isComplete ? ' is-complete' : ''}` }, status),
+        ),
+        h(
+          'div',
+          { className: 'butler-active-main' },
+          h(
+            'div',
+            { className: 'butler-active-copy' },
+            h('div', { className: 'butler-active-title' }, card.title || job.title),
+            h(
+              'div',
+              { className: 'butler-active-sub' },
+              isComplete
+                ? `${job.title} · ${t('taskCompletedHint')}`
+                : `${job.title} · ${t('taskOpenHint')}`,
+            ),
+          ),
+          h('span', { className: 'butler-active-arrow', 'aria-hidden': true }, sessionId ? '↗' : '·'),
+        ),
+        h(
+          'div',
+          { className: 'butler-active-foot' },
+          h(
+            'div',
+            { className: 'butler-active-progress', 'aria-hidden': true },
+            h('span', { style: { width: `${percent}%` } }),
+          ),
+          h(
+            'div',
+            { className: 'butler-active-meta' },
+            h('span', null, `${t('taskProgress')} ${t('taskSteps').replace('{done}', done).replace('{total}', total)}`),
+            h('span', null, `${t('taskLatest')} ${ago(nowTime, card.lastActivityAt || card.createdAt)}`),
+          ),
+        ),
+        isComplete
+          ? h(
+              'button',
+              {
+                type: 'button',
+                className: 'butler-active-dismiss',
+                'aria-label': t('taskDismiss'),
+                title: t('taskDismiss'),
+                onClick: (event) => {
+                  event.stopPropagation()
+                  onDismiss?.()
+                },
+              },
+              '×',
+            )
+          : null,
+        !sessionId
+          ? h('div', { className: 'butler-active-nosession' }, t('taskNoSession'))
+          : null,
+      )
+    }
+
     function BoardView({ jobs, t }) {
       const columns = [
         { key: 'pending', label: 'boardPending', states: ['queued'] },
@@ -2549,6 +2721,8 @@ window.__ModuleLoader__.load({
       const [cwd, setCwd] = React.useState('')
       const [filter, setFilter] = React.useState('all')
       const [viewMode, setViewMode] = React.useState('timeline')
+      const [completedTask, setCompletedTask] = React.useState(null)
+      const previousTask = React.useRef(null)
       const waitingSeen = React.useRef(false)
 
       const load = React.useCallback(async () => {
@@ -2570,6 +2744,22 @@ window.__ModuleLoader__.load({
         }, 1500)
         return () => clearInterval(timer)
       }, [load])
+
+      React.useEffect(() => {
+        const jobs = data?.jobs || []
+        const current = currentActiveTask(jobs)
+        if (current) {
+          previousTask.current = { jobId: current.job.id, cardId: current.card.id }
+          setCompletedTask((previous) => previous || null)
+          return
+        }
+        const previous = previousTask.current
+        if (!previous) return
+        previousTask.current = null
+        const job = jobs.find((item) => item.id === previous.jobId)
+        const card = (job?.cards || []).find((item) => item.id === previous.cardId)
+        if (card?.status === 'done') setCompletedTask({ job, card })
+      }, [data])
 
       React.useEffect(() => {
         const waiting = (data?.jobs || []).flatMap((job) =>
@@ -2710,6 +2900,7 @@ window.__ModuleLoader__.load({
         session: groups,
       }
       const visibleJobs = filter === 'all' ? jobs : jobs.filter((job) => (job.kind || 'brief') === filter)
+      const activeTask = currentActiveTask(jobs)
       const filterLabels = { all: 'filterAll', brief: 'filterBrief', session: 'filterSession' }
 
       return h(
@@ -2787,6 +2978,14 @@ window.__ModuleLoader__.load({
           h(
             'div',
             { className: 'butler-inner' },
+            h(ActiveTaskCard, {
+              t,
+              active: activeTask,
+              completed: completedTask,
+              nowTime: Date.now(),
+              onOpen: openSession,
+              onDismiss: () => setCompletedTask(null),
+            }),
             h(Intake, {
               t,
               brief,
