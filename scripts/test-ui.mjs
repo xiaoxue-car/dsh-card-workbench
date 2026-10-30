@@ -114,7 +114,7 @@ const guardedAccountWrites = /if \(account\.title !== title\)/
 const activeTaskCard =
   /function ActiveTaskCard[\s\S]*?activeTaskKicker[\s\S]*?taskCompleted[\s\S]*?h\(ActiveTaskCard[\s\S]*?h\(Intake/
 const activeTaskClick = /onOpen: openSession/
-const activeTaskRemount = /completedTasksFromJobs[\s\S]*?setCompletedTasks/
+const completedMerge = /const merged = new Map[\s\S]*?\.slice\(0, 20\)/
 const intakeSameRow = /\.butler-intake > \.butler-row\{[^}]*display:grid[^}]*grid-template-columns:minmax\(0,1fr\) auto/
 const compactPicker = /\.butler-intake \.butler-workdir-row \.butler-btn\.small\{[^}]*height:28px/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
@@ -180,7 +180,7 @@ assert.ok(guardedOverlayWrites.test(source), 'overlay layout writes must be chan
 assert.ok(guardedAccountWrites.test(source), 'account badge writes must not run unconditionally')
 assert.ok(activeTaskCard.test(source), 'active task card must render above Intake and expose completion state')
 assert.ok(activeTaskClick.test(source), 'clicking the active task card must open its conversation')
-assert.ok(activeTaskRemount.test(source), 'recent completion must survive a remount')
+assert.ok(completedMerge.test(source), 'completed tasks must merge and deduplicate')
 assert.ok(intakeSameRow.test(source), 'Intake workdir and start button must stay on one row')
 assert.ok(compactPicker.test(source), 'the choose-folder button must be compact')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')

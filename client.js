@@ -476,10 +476,9 @@ window.__ModuleLoader__.load({
       .butler-inner{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:16px;min-width:0;}
       .butler-inner > *{min-width:0;max-width:100%;}
       .butler-card{background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l1);border-radius:14px;box-sizing:border-box;}
-      .butler-task-board{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(260px,.8fr);gap:12px;margin-bottom:14px;min-width:0;}
-      .butler-task-lane{border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-base);padding:10px;min-width:0;box-sizing:border-box;}
-      .butler-task-lane.is-running{border-color:rgba(34,211,238,.25);}
-      .butler-task-lane.is-completed{border-color:rgba(52,211,153,.22);}
+      .butler-task-board{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(250px,.8fr);gap:12px;margin-bottom:14px;min-width:0;padding:11px 12px;border:1px solid rgba(34,211,238,.42);border-radius:12px;background:linear-gradient(135deg,rgba(34,211,238,.07),transparent 44%),linear-gradient(180deg,var(--dsw-alias-bg-layer-1),var(--dsw-alias-bg-layer-2));box-shadow:0 0 0 1px rgba(34,211,238,.05),0 10px 28px rgba(0,0,0,.12);box-sizing:border-box;}
+      .butler-task-lane{border:0;border-radius:0;background:transparent;padding:0;min-width:0;box-sizing:border-box;}
+      .butler-task-lane.is-completed{border-left:1px solid rgba(148,163,184,.16);padding-left:12px;}
       .butler-task-lane-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:1px 3px 8px;font-size:10px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--dsw-alias-label-secondary);}
       .butler-task-lane-head small{font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--dsw-alias-label-tertiary);}
       .butler-task-deck{position:relative;display:flex;flex-direction:column;gap:8px;min-width:0;}
@@ -488,9 +487,16 @@ window.__ModuleLoader__.load({
       .butler-task-deck.is-expanded{max-height:390px;overflow:auto;padding-right:2px;}
       .butler-task-deck-item{min-width:0;}
       .butler-task-deck-item .butler-active-task{margin-bottom:0;}
-      .butler-task-completed-list{display:flex;flex-direction:column;gap:7px;max-height:390px;overflow:auto;padding-right:2px;}
+      .butler-task-completed-list{display:flex;flex-direction:column;gap:5px;max-height:390px;overflow:auto;padding-right:2px;}
+      .butler-task-completed-row{appearance:none;border:1px solid rgba(52,211,153,.18);background:rgba(52,211,153,.045);color:inherit;border-radius:8px;padding:7px 8px;display:flex;align-items:center;gap:7px;text-align:left;cursor:pointer;min-width:0;}
+      .butler-task-completed-row:hover{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.09);}
+      .butler-task-completed-check{flex:none;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:rgba(52,211,153,.14);color:#34d399;font-size:10px;}
+      .butler-task-completed-copy{min-width:0;display:flex;flex-direction:column;gap:1px;flex:1;}
+      .butler-task-completed-title{font-size:11px;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .butler-task-completed-sub{font-size:9px;color:var(--dsw-alias-label-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .butler-task-completed-arrow{flex:none;color:#6ee7b7;font-size:12px;}
       .butler-task-empty{font-size:10.5px;color:var(--dsw-alias-label-tertiary);padding:12px 4px;text-align:center;}
-      @media (max-width:850px){.butler-task-board{grid-template-columns:minmax(0,1fr);}}
+      @media (max-width:850px){.butler-task-board{grid-template-columns:minmax(0,1fr);}.butler-task-lane.is-completed{border-left:0;border-top:1px solid rgba(148,163,184,.16);padding-left:0;padding-top:10px;}}
       .butler-active-task.is-compact{padding:10px 14px 9px;}
       .butler-active-task.is-compact .butler-active-top{margin-bottom:5px;}
       .butler-active-task.is-compact .butler-active-title{font-size:14px;}
@@ -2589,7 +2595,7 @@ window.__ModuleLoader__.load({
       return items
     }
 
-    function completedTasksFromJobs(jobs, limit = 20) {
+    function currentCompletedTasks(jobs, limit = 8) {
       const items = []
       for (const job of jobs || []) {
         for (const card of job.cards || []) {
@@ -2802,16 +2808,25 @@ window.__ModuleLoader__.load({
             ? h(
                 'div',
                 { className: 'butler-task-completed-list' },
-                completed.map((item, index) =>
-                  h(ActiveTaskCard, {
-                    key: `${item.job.id}:${item.card.id}`,
-                    t,
-                    completed: item,
-                    compact: true,
-                    accent: '#34d399',
-                    nowTime,
-                    onOpen: () => onComplete(item),
-                  }),
+                completed.map((item) =>
+                  h(
+                    'button',
+                    {
+                      key: `${item.job.id}:${item.card.id}`,
+                      type: 'button',
+                      className: 'butler-task-completed-row',
+                      title: `${item.card.title || item.job.title} · ${item.job.title}`,
+                      onClick: () => onComplete(item),
+                    },
+                    h('span', { className: 'butler-task-completed-check' }, '✓'),
+                    h(
+                      'span',
+                      { className: 'butler-task-completed-copy' },
+                      h('span', { className: 'butler-task-completed-title' }, item.card.title || item.job.title),
+                      h('span', { className: 'butler-task-completed-sub' }, item.job.title),
+                    ),
+                    h('span', { className: 'butler-task-completed-arrow', 'aria-hidden': true }, '↗'),
+                  ),
                 ),
               )
             : h('div', { className: 'butler-task-empty' }, t('taskNoCompleted')),
@@ -2922,8 +2937,8 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         if (!data || initializedTask.current) return
         initializedTask.current = true
-        const seed = completedTasksFromJobs(data.jobs || [])
-        if (seed.length) setCompletedTasks((previous) => (previous.length ? previous : seed))
+        const recent = currentCompletedTasks(data.jobs || [])
+        if (recent.length) setCompletedTasks((previous) => (previous.length ? previous : recent))
       }, [data])
 
       React.useEffect(() => {
