@@ -3,20 +3,85 @@
 ## 0. 前置
 
 - Node.js 20+
-- npm 账号，已 `npm login`
-- GitHub 仓库（后续提供账号后创建）
+- npm 账号，已 `npm login`（npm-only 方案必需）
+- 公开 Git 仓库（GitHub / Gitee / GitLab / Codeberg 任一；没有 GitHub 可用 Gitee）
 - 当前目录：`plugins/dsh-butler`
 
-## 1. 补仓库地址
+## 0.1 没有 GitHub 也能上架
 
-拿到 GitHub 地址后执行：
+Git 是本地版本控制，GitHub 只是托管服务。当前本地仓库已经可以工作；缺的是“公开可访问的远程地址”。
+
+### 方案 A：Gitee 公开仓库（推荐，替代 GitHub）
+
+1. 在 [Gitee](https://gitee.com) 注册账号，创建公开仓库 `dsh-card-workbench`。
+2. 推送：
+
+```powershell
+git remote add origin https://gitee.com/<owner>/dsh-card-workbench.git
+git push -u origin main
+git rev-parse HEAD
+```
+
+3. 包元数据改为 Gitee 地址：
 
 ```powershell
 npm pkg set repository.type=git
-npm pkg set repository.url=https://github.com/<owner>/dsh-card-workbench
-npm pkg set homepage=https://github.com/<owner>/dsh-card-workbench#readme
-npm pkg set bugs.url=https://github.com/<owner>/dsh-card-workbench/issues
+npm pkg set repository.url=https://gitee.com/<owner>/dsh-card-workbench
+npm pkg set homepage=https://gitee.com/<owner>/dsh-card-workbench#readme
+npm pkg set bugs.url=https://gitee.com/<owner>/dsh-card-workbench/issues
 ```
+
+4. 市场索引用 Git 源：
+
+```json
+{
+  "version": "1.1.1",
+  "publishTimestamp": 1793325000,
+  "source": {
+    "type": "git",
+    "url": "https://gitee.com/<owner>/dsh-card-workbench",
+    "commit": "<git rev-parse HEAD 的 40 位 SHA>"
+  }
+}
+```
+
+Gitee 仓库必须是公开的，且支持 HTTPS clone。
+
+### 方案 B：只发布 npm（不需要 GitHub）
+
+npm 包本身可以没有 `repository` 字段；市场索引直接用 npm 源。
+
+```powershell
+npm publish --access public --registry=https://registry.npmjs.org
+```
+
+索引版本：
+
+```json
+{
+  "version": "1.1.1",
+  "publishTimestamp": 1793325000,
+  "source": { "type": "npm" }
+}
+```
+
+缺点：市场卡片没有“源代码”链接，审核资料也少；但安装可用。
+
+### 方案 C：仅本机使用
+
+```powershell
+npm pack
+dsh plugin --profile web add ./dsh-card-workbench-1.1.1.tgz
+```
+
+不需要 GitHub/npm。这是本地安装，不算“上架市场”。
+
+### 关于 awesome-dsh-plugin
+
+官方列表条目一般需要公开仓库 URL；没有 GitHub 可以尝试 Gitee，但维护者可能偏好 GitHub。  
+没有 GitHub 且不想注册 Gitee 时，直接使用“自建市场索引 + npm 源”即可，不必提交 awesome 列表。
+
+## 1. 补仓库地址
 
 检查：
 
@@ -68,20 +133,26 @@ npm view dsh-card-workbench version --registry=https://registry.npmjs.org
 npm view dsh-card-workbench dist.tarball --registry=https://registry.npmjs.org
 ```
 
-## 4. 创建 GitHub 仓库
+## 4. 创建公开 Git 仓库（GitHub 或 Gitee）
 
-拿到账号后：
+本地仓库已初始化，不需要再次 `git init`。二选一：
+
+GitHub：
 
 ```powershell
-git init -b main
-git add .
-git commit -m "Release dsh-card-workbench 1.1.1"
 git remote add origin https://github.com/<owner>/dsh-card-workbench.git
 git push -u origin main
 gh repo edit <owner>/dsh-card-workbench --add-topic dsh-plugin
 ```
 
-仓库需至少存在一天后再提交市场条目。
+Gitee：
+
+```powershell
+git remote add origin https://gitee.com/<owner>/dsh-card-workbench.git
+git push -u origin main
+```
+
+仓库需公开，且至少存在一天后再提交 awesome 列表。自建市场索引不要求等待一天。
 
 ## 5. 自建市场索引
 
@@ -108,8 +179,6 @@ site/icons/dsh-card-workbench.svg
       },
       "icon": "icons/dsh-card-workbench.svg",
       "author": "<owner>",
-      "homepage": "https://github.com/<owner>/dsh-card-workbench#readme",
-      "repository": { "url": "https://github.com/<owner>/dsh-card-workbench" },
       "metadata": { "category": "workflow" },
       "versions": [
         {
@@ -132,7 +201,26 @@ site/icons/dsh-card-workbench.svg
 
 填入索引 URL。
 
-## 6. 提交 awesome-dsh-plugin
+npm-only 索引可以不填 `homepage` / `repository`；如果有 Gitee，可以补：
+
+```json
+"homepage": "https://gitee.com/<owner>/dsh-card-workbench#readme",
+"repository": { "url": "https://gitee.com/<owner>/dsh-card-workbench" }
+```
+
+如果想完全不用 npm、只用 Gitee，把 `source` 改为：
+
+```json
+"source": {
+  "type": "git",
+  "url": "https://gitee.com/<owner>/dsh-card-workbench",
+  "commit": "<40 位 SHA>"
+}
+```
+
+## 6. 提交 awesome-dsh-plugin（可选，有公开仓库再做）
+
+`awesome-dsh-plugin` 通常要求公开仓库 URL；没有 GitHub 时可尝试 Gitee，但维护者可能偏好 GitHub。没有公开仓库时跳过本节，使用上面的自建索引即可。
 
 新增：
 
@@ -141,7 +229,7 @@ data/plugins/<owner>__dsh-card-workbench.yml
 ```
 
 ```yaml
-url: https://github.com/<owner>/dsh-card-workbench
+url: https://gitee.com/<owner>/dsh-card-workbench
 name: <owner>/dsh-card-workbench
 category: workflow
 description:
