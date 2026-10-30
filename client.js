@@ -18,6 +18,7 @@ window.__ModuleLoader__.load({
         '把整件事贴进来：目标、范围、验收标准、参考文件……\n例如：为一个 Web 应用增加用户注册流程，包含数据模型、接口、页面和测试。',
       workdir: '工作目录',
       chooseWorkspaceHint: '请选择工作区文件夹',
+      chooseWorkspace: '选择已有工作区',
       chooseWorkspaceFirst: '请先选择要交办的工作区文件夹',
       chooseFolder: '选择文件夹',
       start: '拆解开工',
@@ -33,6 +34,7 @@ window.__ModuleLoader__.load({
       taskCompletedLane: '已完成',
       taskNoRunning: '暂无进行中任务',
       taskNoCompleted: '暂无已完成任务',
+      taskClearCompleted: '清空已完成',
       taskExpandHint: '悬浮或点击展开全部',
       taskBlocked: '待处理',
       taskCompleted: '任务已完成',
@@ -245,6 +247,7 @@ window.__ModuleLoader__.load({
         'Paste the whole job: goal, scope, acceptance, references…\nFor example: add a sign-up flow to a web app with data, API, page and tests.',
       workdir: 'Working directory',
       chooseWorkspaceHint: 'Choose a workspace folder',
+      chooseWorkspace: 'Choose an existing workspace',
       chooseWorkspaceFirst: 'Choose a workspace folder before handing over work',
       chooseFolder: 'Choose folder',
       start: 'Split & start',
@@ -260,6 +263,7 @@ window.__ModuleLoader__.load({
       taskCompletedLane: 'Completed',
       taskNoRunning: 'No running tasks',
       taskNoCompleted: 'No completed tasks',
+      taskClearCompleted: 'Clear completed',
       taskExpandHint: 'Hover or click to expand',
       taskBlocked: 'Needs attention',
       taskCompleted: 'Task complete',
@@ -501,6 +505,8 @@ window.__ModuleLoader__.load({
       .butler-task-completed-title{font-size:11px;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
       .butler-task-completed-sub{font-size:9px;color:var(--dsw-alias-label-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
       .butler-task-completed-arrow{flex:none;color:#6ee7b7;font-size:12px;}
+      .butler-clear-completed{appearance:none;border:1px solid rgba(244,63,94,.5);background:rgba(244,63,94,.12);color:#e11d48;border-radius:6px;padding:2px 7px;font:inherit;font-size:9px;font-weight:700;letter-spacing:0;text-transform:none;cursor:pointer;white-space:nowrap;}
+      .butler-clear-completed:hover{border-color:rgba(244,63,94,.85);background:rgba(244,63,94,.2);}
       .butler-task-empty{font-size:10.5px;color:var(--dsw-alias-label-tertiary);padding:12px 4px;text-align:center;}
       @media (max-width:850px){.butler-task-board{grid-template-columns:minmax(0,1fr);}.butler-task-lane.is-completed{border-left:0;border-top:1px solid rgba(148,163,184,.16);padding-left:0;padding-top:10px;}}
       .butler-active-task.is-compact{padding:10px 14px 9px;}
@@ -550,6 +556,7 @@ window.__ModuleLoader__.load({
       .butler-field{flex:1 1 320px;min-width:200px;display:flex;flex-direction:column;gap:6px;}
       .butler-field > span{font-size:11px;color:var(--dsw-alias-label-secondary);}
       .butler-input{width:100%;box-sizing:border-box;height:34px;background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l1);border-radius:8px;padding:0 10px;color:inherit;font:inherit;font-size:12.5px;outline:none;}
+      .butler-select{width:100%;box-sizing:border-box;height:34px;background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l1);border-radius:8px;padding:0 8px;color:inherit;font:inherit;font-size:12px;outline:none;cursor:pointer;min-width:0;}
       .butler-input:focus{border-color:var(--dsw-alias-brand-primary);}
       .butler-workdir-row{display:flex;gap:6px;align-items:center;}
       .butler-workdir-row .butler-input{flex:1;min-width:0;}
@@ -2483,7 +2490,7 @@ window.__ModuleLoader__.load({
       )
     }
 
-    function Intake({ t, brief, setBrief, cwd, setCwd, busy, error, onSubmit, onPickDirectory }) {
+    function Intake({ t, brief, setBrief, cwd, setCwd, workspaces, busy, error, onSubmit, onPickDirectory }) {
       return h(
         'section',
         { className: 'butler-card butler-intake' },
@@ -2517,13 +2524,31 @@ window.__ModuleLoader__.load({
             h(
               'div',
               { className: 'butler-workdir-row' },
-              h('input', {
-                className: 'butler-input',
-                value: cwd,
-                placeholder: t('chooseWorkspaceHint'),
-                onChange: (event) => setCwd(event.target.value),
-                spellCheck: false,
-              }),
+              workspaces && workspaces.length
+                ? h(
+                    'select',
+                    {
+                      className: 'butler-select',
+                      value: cwd,
+                      onChange: (event) => setCwd(event.target.value),
+                      'aria-label': t('workdir'),
+                    },
+                    h('option', { value: '' }, t('chooseWorkspace')),
+                    workspaces.map((workspace) =>
+                      h(
+                        'option',
+                        { value: workspace, key: workspace },
+                        `${workspace.split(/[\\/]/).filter(Boolean).pop() || workspace} · ${workspace}`,
+                      ),
+                    ),
+                  )
+                : h('input', {
+                    className: 'butler-input',
+                    value: cwd,
+                    placeholder: t('chooseWorkspaceHint'),
+                    onChange: (event) => setCwd(event.target.value),
+                    spellCheck: false,
+                  }),
               onPickDirectory
                 ? h(
                     Btn,
@@ -2780,7 +2805,7 @@ window.__ModuleLoader__.load({
 
     const TASK_ACCENTS = ['#22d3ee', '#a78bfa', '#f59e0b', '#f472b6', '#34d399']
 
-    function TaskBoard({ t, activeTasks, completedTasks, nowTime, onOpen, onComplete }) {
+    function TaskBoard({ t, activeTasks, completedTasks, nowTime, onOpen, onComplete, onClearCompleted }) {
       const [expanded, setExpanded] = React.useState(false)
       const active = activeTasks || []
       const completed = completedTasks || []
@@ -2863,6 +2888,18 @@ window.__ModuleLoader__.load({
             'div',
             { className: 'butler-task-lane-head' },
             h('span', null, `${t('taskCompletedLane')} ${completed.length}`),
+            completed.length
+              ? h(
+                  'button',
+                  {
+                    type: 'button',
+                    className: 'butler-clear-completed',
+                    onClick: onClearCompleted,
+                    title: t('taskClearCompleted'),
+                  },
+                  t('taskClearCompleted'),
+                )
+              : null,
           ),
           completed.length
             ? h(
@@ -3002,6 +3039,15 @@ window.__ModuleLoader__.load({
       }, [data])
 
       React.useEffect(() => {
+        if (cwd) return
+        const first =
+          data?.defaultCwd ||
+          (data?.jobs || []).find((job) => job.cwd)?.cwd ||
+          ''
+        if (first) setCwd(first)
+      }, [data, cwd])
+
+      React.useEffect(() => {
         const jobs = data?.jobs || []
         const current = allActiveTasks(jobs)
         const currentIds = new Set(current.map((item) => item.card.id))
@@ -3090,7 +3136,7 @@ window.__ModuleLoader__.load({
           setError(t('chooseWorkspaceFirst'))
           return
         }
-        void act('createJob', { brief: value, cwd: cwd.trim() }, 'create').then((created) => {
+        void act('createJob', { brief: value, cwd: cwd.trim(), mergeRelated: true }, 'create').then((created) => {
           if (created) setBrief('')
         })
       }
@@ -3128,6 +3174,11 @@ window.__ModuleLoader__.load({
       const jobs = data?.jobs || []
       const sessions = data?.sessions || []
       const settings = data?.settings || {}
+      const workspaceOptions = Array.from(
+        new Set(
+          [data?.defaultCwd, ...jobs.map((job) => job.cwd), cwd].filter(Boolean),
+        ),
+      )
       const running = jobs.reduce((count, job) => count + (job.stats?.running || 0), 0)
       const stalled = jobs.reduce(
         (count, job) => count + job.cards.filter((card) => card.status === 'stalled').length,
@@ -3235,6 +3286,7 @@ window.__ModuleLoader__.load({
               nowTime: Date.now(),
               onOpen: openSession,
               onComplete: completeTask,
+              onClearCompleted: () => setCompletedTasks([]),
             }),
             h(Intake, {
               t,
@@ -3242,6 +3294,7 @@ window.__ModuleLoader__.load({
               setBrief,
               cwd,
               setCwd,
+              workspaces: workspaceOptions,
               busy: busy === 'create',
               error,
               onSubmit: submit,

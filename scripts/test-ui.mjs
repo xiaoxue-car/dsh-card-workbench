@@ -123,6 +123,8 @@ const planningPlaceholder = /job\.status === 'planning'[\s\S]*?planning:\$\{job\
 const stableWorkspaceOrder = /workspaceOrder\.current\.get\(a\.cwd\)/
 const persistedWorkspaceOrder = /const WORKSPACE_ORDER_KEY = 'butler:workspace-order'[\s\S]*?saveWorkspaceOrder\(workspaceOrder\.current\)/
 const strongJobActions = /butler-action-strong[\s\S]*?openConversation[\s\S]*?pauseJob[\s\S]*?deleteJob/
+const clearCompleted = /butler-clear-completed[\s\S]*?onClearCompleted/
+const workspaceDropdown = /workspaces && workspaces\.length[\s\S]*?butler-select/
 
 assert.ok(fullPage.test(source), 'butler page must be fixed below the top chrome and fill the viewport')
 assert.ok(conversationFullscreen.test(source), 'the app layout must hide the sidebar and fill the grid')
@@ -192,6 +194,8 @@ assert.ok(planningPlaceholder.test(source), 'a newly created planning job must r
 assert.ok(stableWorkspaceOrder.test(source), 'workspace order must not follow activity')
 assert.ok(persistedWorkspaceOrder.test(source), 'workspace order must persist across reloads and active-session changes')
 assert.ok(strongJobActions.test(source), 'open, pause and remove buttons must use the strong action style')
+assert.ok(clearCompleted.test(source), 'the completed lane must expose a clear-all button')
+assert.ok(workspaceDropdown.test(source), 'the intake workdir must offer an existing-workspace dropdown')
 assert.ok(draftStorage.test(source), 'unsent composer text must be persisted to local storage')
 assert.ok(!automaticNeedsUserOpen.test(source), 'needsUser must not auto-open; the user clicks the task card')
 assert.ok(manualOpenReturn.test(source), 'manual 打开对话 must return to cards after a turn/answer ends')
@@ -236,6 +240,8 @@ console.log('PASS completed task: clicking removes it and opens the conversation
 console.log('PASS workspace order: first-seen order is stable across activity')
 console.log('PASS workspace order: first-seen order is persisted in localStorage')
 console.log('PASS conversation actions: open, pause and remove are visually strong')
+console.log('PASS completed lane: clear-all button is present')
+console.log('PASS intake: existing workspace dropdown is present')
 console.log('PASS no auto jump: user messages and needsUser do not navigate automatically')
 console.log('PASS navigation: no automatic conversation open; task-card click only')
 console.log('PASS navigation: manual 打开对话 returns after the turn ends')
