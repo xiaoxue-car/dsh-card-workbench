@@ -56,14 +56,16 @@ screenshots.json
 
 ```powershell
 npm pack --dry-run
-npm publish --access public
+npm publish --access public --registry=https://registry.npmjs.org
 ```
+
+当前机器默认 registry 是 `https://registry.npmmirror.com/`，不加 `--registry` 会发布到镜像；上架必须显式使用 npmjs。
 
 发布后验证：
 
 ```powershell
-npm view dsh-card-workbench version
-npm view dsh-card-workbench dist.tarball
+npm view dsh-card-workbench version --registry=https://registry.npmjs.org
+npm view dsh-card-workbench dist.tarball --registry=https://registry.npmjs.org
 ```
 
 ## 4. 创建 GitHub 仓库
