@@ -486,19 +486,25 @@ window.__ModuleLoader__.load({
       .butler-task-lane.is-completed{border-left:1px solid rgba(148,163,184,.16);padding-left:12px;}
       .butler-task-lane-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:1px 3px 8px;font-size:10px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--dsw-alias-label-secondary);}
       .butler-task-lane-head small{font-size:9px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--dsw-alias-label-tertiary);}
-      .butler-task-deck{position:relative;display:flex;flex-direction:column;gap:8px;min-width:0;}
+      .butler-task-deck{position:relative;display:flex;flex-direction:column;gap:8px;min-width:0;transition:height .26s cubic-bezier(.22,.8,.3,1);}
       .butler-task-deck.is-multi:not(.is-expanded){display:block;overflow:hidden;}
-      .butler-task-deck.is-multi:not(.is-expanded) .butler-task-deck-item{position:absolute;left:0;right:0;top:0;transform:translateY(calc(var(--deck-index) * 34px)) rotate(calc((var(--deck-index) - 1) * -0.35deg));transform-origin:50% 0;transition:transform .18s ease;}
+      .butler-task-deck.is-multi:not(.is-expanded) .butler-task-deck-item{position:absolute;left:0;right:0;top:0;transform:translateY(calc(var(--deck-index) * 34px)) rotate(calc((var(--deck-index) - 1) * -0.35deg));transform-origin:50% 0;transition:transform .26s cubic-bezier(.22,.8,.3,1),opacity .2s ease;animation:butler-deck-enter .28s cubic-bezier(.22,.8,.3,1) both;animation-delay:calc(var(--deck-index) * 35ms);}
       .butler-task-deck.is-multi:not(.is-expanded) .butler-active-task.is-compact{height:92px;padding:8px 12px;overflow:hidden;}
       .butler-task-deck.is-multi:not(.is-expanded) .butler-active-task.is-compact .butler-active-foot{display:none;}
       .butler-task-deck.is-multi:not(.is-expanded) .butler-active-task.is-compact .butler-active-top{margin-bottom:0;}
       .butler-task-deck.is-multi:not(.is-expanded) .butler-active-task.is-compact .butler-active-orbit{opacity:.18;}
-      .butler-task-deck.is-expanded .butler-task-deck-item{transform:none;}
+      .butler-task-deck.is-expanded .butler-task-deck-item{transform:none;animation:butler-deck-open .24s cubic-bezier(.22,.8,.3,1) both;animation-delay:calc(var(--deck-index) * 30ms);}
       .butler-task-deck.is-expanded{max-height:390px;overflow:auto;padding-right:2px;}
+      .butler-task-deck.is-expanded .butler-active-task:hover{transform:translateY(-2px);}
       .butler-task-deck-item{min-width:0;}      .butler-task-deck-item .butler-active-task{margin-bottom:0;}
       .butler-task-completed-list{display:flex;flex-direction:column;gap:5px;max-height:170px;overflow:auto;padding-right:2px;}
-      .butler-task-completed-row{appearance:none;border:1px solid rgba(52,211,153,.18);background:rgba(52,211,153,.045);color:inherit;border-radius:8px;padding:7px 8px;display:flex;align-items:center;gap:7px;text-align:left;cursor:pointer;min-width:0;}
-      .butler-task-completed-row:hover{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.09);}
+      .butler-task-completed-row{appearance:none;border:1px solid rgba(52,211,153,.18);background:rgba(52,211,153,.045);color:inherit;border-radius:8px;padding:7px 8px;display:flex;align-items:center;gap:7px;text-align:left;cursor:pointer;min-width:0;transition:transform .16s ease,border-color .16s ease,background .16s ease;animation:butler-row-in .24s cubic-bezier(.22,.8,.3,1) both;animation-delay:calc(var(--row-index) * 28ms);}
+      .butler-task-completed-row:hover{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.09);transform:translateX(2px);}
+      .butler-task-completed-row:active{transform:translateX(1px) scale(.995);}
+      @keyframes butler-deck-enter{from{opacity:0;transform:translateY(calc(var(--deck-index) * 34px + 8px)) rotate(calc((var(--deck-index) - 1) * -0.35deg)) scale(.985);}to{opacity:1;transform:translateY(calc(var(--deck-index) * 34px)) rotate(calc((var(--deck-index) - 1) * -0.35deg)) scale(1);}}
+      @keyframes butler-deck-open{from{opacity:.35;transform:translateY(-4px);}to{opacity:1;transform:none;}}
+      @keyframes butler-row-in{from{opacity:0;transform:translateX(-5px);}to{opacity:1;transform:none;}}
+      @media (prefers-reduced-motion: reduce){.butler-task-deck,.butler-task-deck-item,.butler-task-completed-row,.butler-active-task{animation:none!important;transition:none!important;}}
       .butler-task-completed-check{flex:none;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:rgba(52,211,153,.14);color:#34d399;font-size:10px;}
       .butler-task-completed-copy{min-width:0;display:flex;flex-direction:column;gap:1px;flex:1;}
       .butler-task-completed-title{font-size:11px;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -3588,13 +3594,14 @@ window.__ModuleLoader__.load({
             ? h(
                 'div',
                 { className: 'butler-task-completed-list' },
-                completed.map((item) =>
+                completed.map((item, index) =>
                   h(
                     'button',
                     {
                       key: `${item.job.id}:${item.card.id}`,
                       type: 'button',
                       className: 'butler-task-completed-row',
+                      style: { '--row-index': index },
                       title: `${item.card.title || item.job.title} 路 ${item.job.title}`,
                       onClick: () => onComplete(item),
                     },

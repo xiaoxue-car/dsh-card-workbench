@@ -145,6 +145,7 @@ const intakeModeControls = /butler-intake-settings[\s\S]*?setPreset[\s\S]*?setPe
 const intakeModelControls = /h\(ComposerControls[\s\S]*?catalog: modelCatalog[\s\S]*?onChange: onModelChange/
 const jobModeControls = /function JobModeControls[\s\S]*?onPermission/
 const pluginDisableRestore = /overlayStyles\.forEach[\s\S]*?node\.style\.setProperty/
+const taskAnimations = /butler-deck-enter[\s\S]*?butler-deck-open[\s\S]*?butler-row-in/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
 const completedClickRemoval = /setCompletedTasks[\s\S]*?openSession\(sessionId\)/
 const planningPlaceholder = /job\.status === 'planning'[\s\S]*?planning:\$\{job\.id\}/
@@ -248,6 +249,7 @@ assert.ok(intakeModeControls.test(source), 'the intake must expose mode and perm
 assert.ok(intakeModelControls.test(source), 'the intake must expose model and reasoning controls')
 assert.ok(jobModeControls.test(source), 'conversation groups must expose always-visible mode and permission controls')
 assert.ok(pluginDisableRestore.test(source), 'disabling the plugin must restore shell overlay styles')
+assert.ok(taskAnimations.test(source), 'task deck and completed rows must animate')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')
 assert.ok(completedClickRemoval.test(source), 'clicking a completed task must remove it and open its conversation')
 assert.ok(planningPlaceholder.test(source), 'a newly created planning job must render immediately')
@@ -304,6 +306,7 @@ console.log('PASS intake: mode and permission are selectable before creating a j
 console.log('PASS intake: model and reasoning are selectable before creating a job')
 console.log('PASS conversation groups: mode and permission controls are always visible')
 console.log('PASS plugin lifecycle: shell overlay styles are restored on disable')
+console.log('PASS task board: deck and completed rows use staggered motion')
 console.log('PASS mode: per-conversation selector wired to selectPreset')
 console.log('PASS mode: Chinese labels 标准/PTC/精简/创造')
 console.log('PASS board view: timeline/board toggle with dependency metadata')
