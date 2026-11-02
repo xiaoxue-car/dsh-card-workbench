@@ -4394,6 +4394,12 @@ window.__ModuleLoader__.load({
       }
       const status = useButlerStatus()
       const data = status.data
+      React.useEffect(() => {
+        document.body.dataset.butlerPage = '1'
+        return () => {
+          delete document.body.dataset.butlerPage
+        }
+      }, [])
       const [error, setError] = React.useState('')
       const [busy, setBusy] = React.useState('')
       const [refreshing, setRefreshing] = React.useState(false)
@@ -5543,28 +5549,14 @@ window.__ModuleLoader__.load({
             )
           }
         })
-        const applied = []
         const overlayStyles = new Map()
         const style = document.createElement('style')
         style.dataset.butlerFullWidth = '1'
         style.textContent =
-          '[class*="_sidebarCol"]{visibility:hidden!important;pointer-events:none!important;}' +
-          'div[class*="_frame"]{grid-template-columns:0 minmax(0,1fr) 0!important;}'
+          'body[data-butler-page="1"] [class*="_sidebarCol"]{visibility:hidden!important;pointer-events:none!important;}' +
+          'body[data-butler-page="1"] div[class*="_frame"]{grid-template-columns:0 minmax(0,1fr) 0!important;}'
         document.head.appendChild(style)
         const restore = () => {
-          applied.forEach((node) => {
-            node.style.removeProperty('visibility')
-            node.style.removeProperty('pointer-events')
-            node.style.removeProperty('grid-template-columns')
-            if (node.dataset.butlerVisibility) node.style.visibility = node.dataset.butlerVisibility
-            if (node.dataset.butlerPointer) node.style.pointerEvents = node.dataset.butlerPointer
-            if (node.dataset.butlerColumns) node.style.gridTemplateColumns = node.dataset.butlerColumns
-            delete node.dataset.butlerFullWidth
-            delete node.dataset.butlerVisibility
-            delete node.dataset.butlerPointer
-            delete node.dataset.butlerColumns
-          })
-          applied.length = 0
           overlayStyles.forEach((styles, node) => {
             for (const [name, entry] of Object.entries(styles)) {
               if (entry.value) node.style.setProperty(name, entry.value, entry.priority)
@@ -5584,6 +5576,11 @@ window.__ModuleLoader__.load({
         }
         const apply = () => {
           if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
+          const active = document.body?.dataset?.butlerPage === '1'
+          if (!active) {
+            if (overlayStyles.size) restore()
+            return
+          }
           document.querySelectorAll('[data-shell-overlay]').forEach((node) => {
             if (!overlayStyles.has(node)) {
               const snapshot = {}
@@ -5601,29 +5598,30 @@ window.__ModuleLoader__.load({
             setImportantIfChanged(node, 'overflow', 'visible')
             setImportantIfChanged(node, 'pointer-events', 'none')
           })
-          document.querySelectorAll('[class*="_sidebarCol"]').forEach((node) => {
-            if (!node.dataset.butlerFullWidth) {
-              node.dataset.butlerFullWidth = '1'
-              node.dataset.butlerVisibility = node.style.visibility || ''
-              node.dataset.butlerPointer = node.style.pointerEvents || ''
-              node.style.setProperty('visibility', 'hidden', 'important')
-              node.style.setProperty('pointer-events', 'none', 'important')
-              applied.push(node)
-            }
-            const frame =
-              node.closest('div[class*="_frame"]') || node.parentElement
-            if (frame && !frame.dataset.butlerFullWidth) {
-              frame.dataset.butlerFullWidth = '1'
-              frame.dataset.butlerColumns = frame.style.gridTemplateColumns || ''
-              frame.style.setProperty('grid-template-columns', '0 minmax(0,1fr) 0', 'important')
-              applied.push(frame)
-            }
-          })
         }
         apply()
-        const timer = setInterval(apply, 500)
+        let scheduled = 0
+        const schedule = () => {
+          if (scheduled) return
+          scheduled = setTimeout(() => {
+            scheduled = 0
+            apply()
+          }, 60)
+        }
+        const observer = new MutationObserver(() => {
+          if (document.body?.dataset?.butlerPage === '1' || overlayStyles.size) schedule()
+        })
+        observer.observe(document.documentElement, {
+          subtree: true,
+          childList: true,
+          attributes: true,
+          attributeFilter: ['class', 'data-butler-page'],
+        })
+        const timer = setInterval(apply, 2000)
         return () => {
           clearInterval(timer)
+          clearTimeout(scheduled)
+          observer.disconnect()
           style.remove()
           restore()
         }

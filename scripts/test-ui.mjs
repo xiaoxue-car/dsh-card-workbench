@@ -27,11 +27,12 @@ const source = fs.readFileSync(path.join(root, 'client.js'), 'utf8')
 const fullPage =
   /\.butler-page\{position:fixed;inset:var\(--dsh-frame-chrome-top,0px\) 0 0 0;z-index:900;height:auto/
 const conversationFullscreen =
-  /\[class\*="_sidebarCol"\][\s\S]*?setProperty\('visibility', 'hidden', 'important'\)[\s\S]*?grid-template-columns', '0 minmax\(0,1fr\) 0', 'important'/
-const permanentFull = /const timer = setInterval\(apply, 500\)/
+  /body\[data-butler-page="1"\] \[class\*="_sidebarCol"\]\{visibility:hidden!important[\s\S]*?body\[data-butler-page="1"\] div\[class\*="_frame"\]\{grid-template-columns:0 minmax\(0,1fr\) 0!important;/
+const permanentFull = /new MutationObserver[\s\S]*?setInterval\(apply, 2000\)/
 const persistentCss =
-  /\[class\*="_sidebarCol"\]\{visibility:hidden!important/
-const noPageRestore = !/isFullscreenPage|fullWidthPending|missingSince/.test(source)
+  /body\[data-butler-page="1"\] \[class\*="_sidebarCol"\]\{visibility:hidden!important/
+const pageScopedLayout =
+  /document\.body\.dataset\.butlerPage = '1'[\s\S]*?delete document\.body\.dataset\.butlerPage/
 const topbarNoDrag = /webkitAppRegion: 'no-drag'/
 const topbarClickOnly = /if \(open\) \{[\s\S]*?close\(\)[\s\S]*?setOpen\(true\)/
 const noManageHover = !/onMouseEnter: \(\) => \{\s*refresh\(\)/.test(source)
@@ -182,9 +183,9 @@ const hideEmptyCompletedLane = /completed\.length\s*\?\s*h\(\s*'section'[\s\S]*?
 
 assert.ok(fullPage.test(source), 'butler page must be fixed below the top chrome and fill the viewport')
 assert.ok(conversationFullscreen.test(source), 'the app layout must hide the sidebar and fill the grid')
-assert.ok(permanentFull.test(source), 'full-width layout must be applied continuously on every page')
-assert.ok(persistentCss.test(source), 'a persistent stylesheet must hide the sidebar immediately')
-assert.ok(noPageRestore, 'no page transition may restore the sidebar')
+assert.ok(permanentFull.test(source), 'full-width layout must react to route and DOM changes')
+assert.ok(persistentCss.test(source), 'a scoped stylesheet must hide the sidebar immediately')
+assert.ok(pageScopedLayout.test(source), 'full-width layout must be released on page exit')
 assert.ok(topbarNoDrag.test(source), 'topbar buttons must opt out of the native drag region')
 assert.ok(topbarClickOnly.test(source), 'topbar Manage must open and close on click only')
 assert.ok(noManageHover, 'topbar Manage must not open on hover')
@@ -301,8 +302,8 @@ assert.ok(noAnalysisAutoOpen, 'analysis completion must not auto-open a conversa
 
 console.log('PASS page: fixed full viewport below top chrome')
 console.log('PASS layout: sidebar hidden and frame grid full width')
-console.log('PASS layout: permanent full width on every page; no page transition restores sidebar')
-console.log('PASS layout: persistent CSS hides sidebar immediately during route/module refresh')
+console.log('PASS layout: page-scoped full-width layout reacts to route changes')
+console.log('PASS layout: scoped CSS hides sidebar while the workbench page is active')
 console.log('PASS topbar interaction: no-drag + click-only Manage')
 console.log('PASS topbar: 卡片工坊 + 管理 + 账号 in the application row')
 console.log('PASS topbar: 卡片工坊 moved out of the 管理 dropdown')
