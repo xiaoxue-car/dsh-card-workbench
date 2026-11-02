@@ -529,8 +529,8 @@ window.__ModuleLoader__.load({
       .butler-task-deck.is-expanded{max-height:390px;overflow:auto;padding-right:2px;}
       .butler-task-deck.is-expanded .butler-active-task:hover{transform:translateY(-2px);}
       .butler-task-deck-item{min-width:0;}      .butler-task-deck-item .butler-active-task{margin-bottom:0;}
-      .butler-task-completed-list{display:flex;flex-direction:column;gap:0;max-height:none;overflow:visible;padding:2px 5px;border:1px solid rgba(52,211,153,.18);border-radius:9px;background:rgba(52,211,153,.035);}
-      .butler-task-completed-row{appearance:none;width:100%;border:0;border-bottom:1px solid rgba(148,163,184,.13);background:transparent;color:inherit;border-radius:0;padding:6px 4px;display:flex;align-items:center;gap:6px;text-align:left;cursor:pointer;min-width:0;overflow:hidden;transition:background .16s ease,color .16s ease;animation:butler-row-in .22s cubic-bezier(.22,.8,.3,1) both;animation-delay:calc(var(--row-index) * 24ms);}
+      .butler-task-completed-list{display:flex;flex-direction:column;gap:0;max-height:none;overflow:visible;padding:2px 5px;border:1px solid rgba(52,211,153,.18);border-radius:9px;background:rgba(52,211,153,.035);box-sizing:border-box;width:100%;}
+      .butler-task-completed-row{position:relative;appearance:none;width:100%;box-sizing:border-box;border:0;border-bottom:1px solid rgba(148,163,184,.13);background:transparent;color:inherit;border-radius:0;padding:6px 27px 6px 4px;display:flex;align-items:center;gap:6px;text-align:left;cursor:pointer;min-width:0;overflow:hidden;transition:background .16s ease,color .16s ease;animation:butler-row-in .22s cubic-bezier(.22,.8,.3,1) both;animation-delay:calc(var(--row-index) * 24ms);}
       .butler-task-completed-row:last-of-type{border-bottom:0;}
       .butler-task-completed-row:hover{border-bottom-color:rgba(52,211,153,.3);background:rgba(52,211,153,.08);}
       .butler-task-completed-row:active{background:rgba(52,211,153,.12);}
@@ -546,10 +546,10 @@ window.__ModuleLoader__.load({
       @media (prefers-reduced-motion: reduce){.butler-task-deck,.butler-task-deck-item,.butler-task-completed-row,.butler-active-task{animation:none!important;transition:none!important;}}
       .butler-task-completed-check{flex:none;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:rgba(52,211,153,.14);color:#34d399;font-size:10px;}
       .butler-task-completed-copy{min-width:0;display:flex;flex-direction:row;align-items:baseline;gap:6px;flex:1;overflow:hidden;}
-      .butler-task-completed-title{font-size:11px;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-      .butler-task-completed-sub{font-size:9px;color:var(--dsw-alias-label-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .butler-task-completed-title{min-width:0;font-size:11px;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .butler-task-completed-sub{min-width:0;font-size:9px;color:var(--dsw-alias-label-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
       .butler-task-completed-arrow{flex:none;color:#6ee7b7;font-size:12px;}
-      .butler-task-completed-close{flex:none;appearance:none;border:1px solid rgba(244,63,94,.28);background:rgba(244,63,94,.06);color:#be123c;border-radius:4px;width:18px;height:18px;display:grid;place-items:center;font-size:13px;line-height:1;cursor:pointer;padding:0;}
+      .butler-task-completed-close{position:absolute;right:4px;top:50%;transform:translateY(-50%);appearance:none;border:1px solid rgba(244,63,94,.28);background:rgba(244,63,94,.06);color:#be123c;border-radius:4px;width:18px;height:18px;display:grid;place-items:center;font-size:13px;line-height:1;cursor:pointer;padding:0;}
       .butler-task-completed-close:hover{border-color:rgba(244,63,94,.65);background:rgba(244,63,94,.15);}
       .butler-clear-completed{appearance:none;border:1px solid rgba(244,63,94,.5);background:rgba(244,63,94,.12);color:#e11d48;border-radius:6px;padding:2px 7px;font:inherit;font-size:9px;font-weight:700;letter-spacing:0;text-transform:none;cursor:pointer;white-space:nowrap;}
       .butler-clear-completed:hover{border-color:rgba(244,63,94,.85);background:rgba(244,63,94,.2);}

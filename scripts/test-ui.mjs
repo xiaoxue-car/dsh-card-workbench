@@ -152,6 +152,8 @@ const completedArchive = /function CompletedArchivePage[\s\S]*?butler-archive-de
 const completedArchiveSort = /\.sort\(\(a, b\) => b\.at - a\.at\)/
 const flatCompletedList = /\.butler-task-completed-list\{[^}]*gap:0[^}]*border:1px/
 const completedPreview = /completed\.slice\(0, 3\)[\s\S]*?butler-task-completed-more/
+const completedCloseContained = /\.butler-task-completed-row\{[^}]*box-sizing:border-box[^}]*padding:6px 27px 6px 4px/
+const completedCloseAbsolute = /\.butler-task-completed-close\{[^}]*position:absolute[^}]*right:4px/
 const archiveRecordActions = /butler-archive-item-close[\s\S]*?onCloseRecord[\s\S]*?butler-archive-clear[\s\S]*?onClearAll/
 const archiveHeaderButton = /title: t\('archiveButton'\)/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
@@ -264,6 +266,8 @@ assert.ok(completedArchive.test(source), 'completed rows must open the archive p
 assert.ok(completedArchiveSort.test(source), 'archive items must be sorted newest first')
 assert.ok(flatCompletedList.test(source), 'the completed lane must use the flat separated list')
 assert.ok(completedPreview.test(source), 'the completed lane must preview three rows plus a view-all action')
+assert.ok(completedCloseContained.test(source), 'completed row close button must stay inside the card')
+assert.ok(completedCloseAbsolute.test(source), 'completed row close button must be anchored inside the row')
 assert.ok(archiveRecordActions.test(source), 'archive must expose per-record close and clear-all actions')
 assert.ok(archiveHeaderButton.test(source), 'the header must expose the completed archive button')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')
@@ -328,6 +332,7 @@ console.log('PASS task board: completed rows and lane animate out')
 console.log('PASS completed archive: two-column page and newest-first ordering')
 console.log('PASS completed lane: flat separated rows replace stacked mini-cards')
 console.log('PASS completed lane: only three rows are previewed with a view-all action')
+console.log('PASS completed lane: close button is contained inside the row')
 console.log('PASS completed archive: per-record close and clear-all actions')
 console.log('PASS completed archive: header entry button is present')
 console.log('PASS mode: per-conversation selector wired to selectPreset')
