@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 /** Static marketplace/readiness checks for the card workbench package. */
 
 import assert from 'node:assert/strict'
@@ -26,7 +26,6 @@ assert.match(client, /butler-board/, 'board view must be present')
 assert.match(client, /modeStandard: '标准模式'/, 'mode labels must be Chinese')
 assert.match(engine, /MAX_SESSION_META/, 'session metadata cache must be bounded')
 assert.match(engine, /MAX_ACCESS_APPLIED/, 'access-applied set must be bounded')
-assert.match(client, /setImportantIfChanged/, 'global overlay style writes must be guarded')
 assert.doesNotMatch(
   engine,
   /job\.brief = `工作对话：[\s\S]{0,160}board\.autoJump/,

@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 /**
  * Static UI contract for this change:
  *   - the butler page is a full-viewport panel below the top chrome;
@@ -28,7 +28,8 @@ const fullPage =
   /\.butler-page\{position:fixed;inset:var\(--dsh-frame-chrome-top,0px\) 0 0 0;z-index:900;height:auto/
 const conversationFullscreen =
   /\[class\*="_sidebarCol"\]\{visibility:hidden!important[\s\S]*?div\[class\*="_frame"\]\{grid-template-columns:0 minmax\(0,1fr\) 0!important;/
-const permanentFull = /new MutationObserver[\s\S]*?setInterval\(apply, 2000\)/
+const permanentFull =
+  /body\[data-butler-page="1"\] \[data-shell-overlay\]\{position:fixed!important/
 const persistentCss =
   /\[class\*="_sidebarCol"\]\{visibility:hidden!important/
 const pluginOnlySidebarHide = /style\.remove\(\)/
@@ -124,7 +125,6 @@ const chineseModeLabels =
   /modeStandard: '标准模式'[\s\S]*?modePtc: 'PTC 模式'[\s\S]*?modeMinimal: '精简模式'[\s\S]*?modeCreative: '创造模式'/
 const boardView = /function BoardView[\s\S]*?butler-board/
 const dependencyBadge = /dependsOn\?\.length/
-const guardedOverlayWrites = /setImportantIfChanged[\s\S]*?document\.visibilityState === 'hidden'/
 const guardedAccountWrites = /if \(account\.title !== title\)/
 const activeTaskCard =
   /function ActiveTaskCard[\s\S]*?activeTaskKicker[\s\S]*?taskCompleted[\s\S]*?h\(ActiveTaskCard[\s\S]*?h\(Intake/
@@ -146,7 +146,6 @@ const intakeModeControls = /butler-intake-settings[\s\S]*?setPreset[\s\S]*?setPe
 const intakeModelControls = /h\(ComposerControls[\s\S]*?catalog: modelCatalog[\s\S]*?onChange: onModelChange/
 const fullAccessWarning = /butler-permission-warning[\s\S]*?danger-full-access/
 const jobModeControls = /function JobModeControls[\s\S]*?onPermission/
-const pluginDisableRestore = /overlayStyles\.forEach[\s\S]*?node\.style\.setProperty/
 const taskAnimations = /butler-deck-enter[\s\S]*?butler-deck-open[\s\S]*?butler-row-in/
 const taskExitAnimations = /butler-row-out[\s\S]*?butler-lane-out/
 const completedArchive = /function CompletedArchivePage[\s\S]*?butler-archive-detail/
@@ -183,7 +182,7 @@ const hideEmptyCompletedLane = /completed\.length\s*\?\s*h\(\s*'section'[\s\S]*?
 
 assert.ok(fullPage.test(source), 'butler page must be fixed below the top chrome and fill the viewport')
 assert.ok(conversationFullscreen.test(source), 'the app layout must hide the sidebar and fill the grid')
-assert.ok(permanentFull.test(source), 'full-width layout must react to route and DOM changes')
+assert.ok(permanentFull.test(source), 'shell overlay layout must be scoped by the workbench page marker')
 assert.ok(persistentCss.test(source), 'a persistent stylesheet must hide the sidebar immediately')
 assert.ok(pluginOnlySidebarHide.test(source), 'removing the plugin must remove the sidebar style')
 assert.ok(noInlineSidebarRestore, 'no route transition may restore the sidebar')
@@ -247,7 +246,6 @@ assert.ok(presetAction.test(source), 'mode selector must call the selectPreset a
 assert.ok(chineseModeLabels.test(source), 'mode options must display Chinese labels')
 assert.ok(boardView.test(source), 'the workbench must provide a board view')
 assert.ok(dependencyBadge.test(source), 'cards must display dependency metadata')
-assert.ok(guardedOverlayWrites.test(source), 'overlay layout writes must be change-guarded and skip hidden tabs')
 assert.ok(guardedAccountWrites.test(source), 'account badge writes must not run unconditionally')
 assert.ok(activeTaskCard.test(source), 'active task card must render above Intake and expose completion state')
 assert.ok(activeTaskClick.test(source), 'clicking the active task card must open its conversation')
@@ -266,7 +264,6 @@ assert.ok(intakeModeControls.test(source), 'the intake must expose mode and perm
 assert.ok(intakeModelControls.test(source), 'the intake must expose model and reasoning controls')
 assert.ok(fullAccessWarning.test(source), 'the intake must warn when full access is selected')
 assert.ok(jobModeControls.test(source), 'conversation groups must expose always-visible mode and permission controls')
-assert.ok(pluginDisableRestore.test(source), 'disabling the plugin must restore shell overlay styles')
 assert.ok(taskAnimations.test(source), 'task deck and completed rows must animate')
 assert.ok(taskExitAnimations.test(source), 'completed rows and lane must animate out')
 assert.ok(completedArchive.test(source), 'completed rows must open the archive page')
@@ -303,7 +300,7 @@ assert.ok(noAnalysisAutoOpen, 'analysis completion must not auto-open a conversa
 
 console.log('PASS page: fixed full viewport below top chrome')
 console.log('PASS layout: sidebar hidden and frame grid full width while plugin is enabled')
-console.log('PASS layout: full-width CSS stays active across conversation navigation')
+console.log('PASS layout: shell overlay layout is CSS-scoped to the workbench page')
 console.log('PASS layout: only plugin disposal removes the sidebar style')
 console.log('PASS topbar interaction: no-drag + click-only Manage')
 console.log('PASS topbar: 卡片工坊 + 管理 + 账号 in the application row')

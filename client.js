@@ -5314,7 +5314,8 @@ window.__ModuleLoader__.load({
               event.stopPropagation()
               run(() => {
                 exitFullscreen()
-                ctx.layout.selectPanel('butler')
+                window.__butlerActivate?.()
+                  ctx.layout.selectPanel('butler')
               })
             },
           },
@@ -5549,81 +5550,30 @@ window.__ModuleLoader__.load({
             )
           }
         })
-        const overlayStyles = new Map()
         const style = document.createElement('style')
         style.dataset.butlerFullWidth = '1'
         style.textContent =
           '[class*="_sidebarCol"]{visibility:hidden!important;pointer-events:none!important;}' +
-          'div[class*="_frame"]{grid-template-columns:0 minmax(0,1fr) 0!important;}'
+          'div[class*="_frame"]{grid-template-columns:0 minmax(0,1fr) 0!important;}' +
+          'body[data-butler-page="1"] [data-shell-overlay]{position:fixed!important;inset:0!important;z-index:2147483647!important;overflow:visible!important;pointer-events:none!important;}'
         document.head.appendChild(style)
-        const restore = () => {
-          overlayStyles.forEach((styles, node) => {
-            for (const [name, entry] of Object.entries(styles)) {
-              if (entry.value) node.style.setProperty(name, entry.value, entry.priority)
-              else node.style.removeProperty(name)
-            }
-          })
-          overlayStyles.clear()
+        const prepareConversation = () => {
+          delete document.body.dataset.butlerPage
         }
-        const setImportantIfChanged = (node, name, value) => {
-          if (
-            node.style.getPropertyValue(name) === value &&
-            node.style.getPropertyPriority(name) === 'important'
-          ) {
-            return
-          }
-          node.style.setProperty(name, value, 'important')
+        const activateButler = () => {
+          document.body.dataset.butlerPage = '1'
         }
-        const apply = () => {
-          if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
-          const active = document.body?.dataset?.butlerPage === '1'
-          if (!active) {
-            if (overlayStyles.size) restore()
-            return
-          }
-          document.querySelectorAll('[data-shell-overlay]').forEach((node) => {
-            if (!overlayStyles.has(node)) {
-              const snapshot = {}
-              for (const name of ['position', 'inset', 'z-index', 'overflow', 'pointer-events']) {
-                snapshot[name] = {
-                  value: node.style.getPropertyValue(name),
-                  priority: node.style.getPropertyPriority(name),
-                }
-              }
-              overlayStyles.set(node, snapshot)
-            }
-            setImportantIfChanged(node, 'position', 'fixed')
-            setImportantIfChanged(node, 'inset', '0')
-            setImportantIfChanged(node, 'z-index', '2147483647')
-            setImportantIfChanged(node, 'overflow', 'visible')
-            setImportantIfChanged(node, 'pointer-events', 'none')
-          })
-        }
-        apply()
-        let scheduled = 0
-        const schedule = () => {
-          if (scheduled) return
-          scheduled = setTimeout(() => {
-            scheduled = 0
-            apply()
-          }, 60)
-        }
-        const observer = new MutationObserver(() => {
-          if (document.body?.dataset?.butlerPage === '1' || overlayStyles.size) schedule()
-        })
-        observer.observe(document.documentElement, {
-          subtree: true,
-          childList: true,
-          attributes: true,
-          attributeFilter: ['class', 'data-butler-page'],
-        })
-        const timer = setInterval(apply, 2000)
+        window.__butlerPrepareConversation = prepareConversation
+        window.__butlerActivate = activateButler
         return () => {
-          clearInterval(timer)
-          clearTimeout(scheduled)
-          observer.disconnect()
+          if (window.__butlerPrepareConversation === prepareConversation) {
+            delete window.__butlerPrepareConversation
+          }
+          if (window.__butlerActivate === activateButler) {
+            delete window.__butlerActivate
+          }
+          delete document.body.dataset.butlerPage
           style.remove()
-          restore()
         }
       }, 'butler: permanent full width layout')
 
@@ -5686,7 +5636,8 @@ window.__ModuleLoader__.load({
           if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 'b') {
             event.preventDefault()
             exitConversationFullscreen()
-            ctx.layout.selectPanel('butler')
+            window.__butlerActivate?.()
+                  ctx.layout.selectPanel('butler')
           }
         }
         window.addEventListener('keydown', onKeyDown)
@@ -5712,6 +5663,7 @@ window.__ModuleLoader__.load({
                 }),
               openSession: (sessionId) => {
                 console.log('[butler] ButlerPage openSession', sessionId)
+                window.__butlerPrepareConversation?.()
                 enterConversationFullscreen()
                 try {
                   const result = ctx.uiWorkspace.openSession(sessionId)
@@ -5724,6 +5676,7 @@ window.__ModuleLoader__.load({
               returnToButler: () => {
                 try {
                   exitConversationFullscreen()
+                  window.__butlerActivate?.()
                   ctx.layout.selectPanel('butler')
                 } catch {
                   /* the layout service may be unavailable */
@@ -5776,6 +5729,7 @@ window.__ModuleLoader__.load({
                 type: 'button',
                 onClick: () => {
                   exitConversationFullscreen()
+                  window.__butlerActivate?.()
                   ctx.layout.selectPanel('butler')
                 },
                 title: t('managementButler'),
