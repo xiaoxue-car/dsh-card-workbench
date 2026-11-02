@@ -141,6 +141,7 @@ window.__ModuleLoader__.load({
       permissionWorkspaceWrite: '工作区可写',
       permissionFullAccess: '最高权限',
       permissionCustom: '自定义',
+      fullAccessWarning: '当前为最高权限：管家可直接修改文件、执行命令，请确认这是你要的权限。',
       management: '管理',
       managementMenu: '管理菜单',
       managementHint: '鼠标悬浮展开侧栏功能',
@@ -369,6 +370,7 @@ window.__ModuleLoader__.load({
       permissionWorkspaceWrite: 'Workspace write',
       permissionFullAccess: 'Full access',
       permissionCustom: 'Custom',
+      fullAccessWarning: 'Full access is active: the butler can modify files and run commands directly. Continue only if intended.',
       management: 'Manage',
       managementMenu: 'Manage menu',
       managementHint: 'Hover to reveal sidebar functions',
@@ -570,6 +572,9 @@ window.__ModuleLoader__.load({
       .butler-workdir-row{display:flex;gap:6px;align-items:center;}
       .butler-intake-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:2px;}
       .butler-intake-settings .butler-select-field{font-size:10.5px;}
+      .butler-permission-warning{display:flex;align-items:flex-start;gap:8px;border:1px solid rgba(244,63,94,.55);background:rgba(244,63,94,.10);color:#be123c;border-radius:8px;padding:7px 9px;font-size:10.5px;line-height:1.45;}
+      .butler-permission-warning b{flex:none;font-size:10px;letter-spacing:.04em;}
+      .butler-permission-warning span{min-width:0;}
       .butler-intake > .butler-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;min-width:0;width:100%;box-sizing:border-box;}
       .butler-intake > .butler-row > .butler-field{flex:1 1 auto;min-width:0;}
       .butler-intake .butler-workdir-row{min-width:0;}
@@ -635,6 +640,7 @@ window.__ModuleLoader__.load({
       .butler-job-side{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
       .butler-job-mode-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
       .butler-job-mode-controls .butler-select{height:26px;max-width:150px;font-size:10.5px;}
+      .butler-permission-danger{flex:none;border:1px solid rgba(244,63,94,.5);background:rgba(244,63,94,.12);color:#be123c;border-radius:999px;padding:2px 7px;font-size:9px;font-weight:700;white-space:nowrap;}
       .butler-job-side .butler-action-strong{height:28px;padding:4px 10px;border-radius:7px;border-color:rgba(34,211,238,.48);background:rgba(34,211,238,.10);color:#0e7490;font-size:11.5px;font-weight:700;box-shadow:0 0 0 1px rgba(34,211,238,.08);}
       .butler-job-side .butler-action-strong:hover:not(:disabled){border-color:rgba(34,211,238,.8);background:rgba(34,211,238,.16);}
       .butler-job-side .butler-action-strong.is-warn{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.10);color:#b45309;}
@@ -1190,6 +1196,13 @@ window.__ModuleLoader__.load({
                   ),
                 ),
               ),
+            )
+          : null,
+        job.permission === 'danger-full-access'
+          ? h(
+              'span',
+              { className: 'butler-permission-danger', role: 'status' },
+              t('permissionFullAccess'),
             )
           : null,
       )
@@ -2286,6 +2299,14 @@ window.__ModuleLoader__.load({
       }
     }
     const clearDraft = (key) => writeDraft(key, '')
+    const readJsonDraft = (key) => {
+      try {
+        const raw = readDraft(key)
+        return raw ? JSON.parse(raw) : null
+      } catch {
+        return null
+      }
+    }
 
     // --- session chat store -------------------------------------------------
     // Every conversation dialog (a group's direct chat and a task card's chat)
@@ -3214,6 +3235,14 @@ window.__ModuleLoader__.load({
             onPreset: setPreset,
           }),
         ),
+        permission === 'danger-full-access'
+          ? h(
+              'div',
+              { className: 'butler-permission-warning', role: 'alert' },
+              h('b', null, t('permissionFullAccess')),
+              h('span', null, t('fullAccessWarning')),
+            )
+          : null,
       )
     }
 
@@ -4017,9 +4046,11 @@ window.__ModuleLoader__.load({
       const [notice, setNotice] = React.useState('')
       const [brief, setBrief] = React.useState(() => readDraft('intake:brief'))
       const [cwd, setCwd] = React.useState(() => readDraft('intake:cwd'))
-      const [newPreset, setNewPreset] = React.useState('')
-      const [newPermission, setNewPermission] = React.useState('')
-      const [newModelSelection, setNewModelSelection] = React.useState(null)
+      const [newPreset, setNewPreset] = React.useState(() => readDraft('intake:preset'))
+      const [newPermission, setNewPermission] = React.useState(() => readDraft('intake:permission'))
+      const [newModelSelection, setNewModelSelection] = React.useState(() =>
+        readJsonDraft('intake:model'),
+      )
       const [filter, setFilter] = React.useState('all')
       const [viewMode, setViewMode] = React.useState('timeline')
       const [completedTasks, setCompletedTasks] = React.useState([])
@@ -4048,6 +4079,18 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         writeDraft('intake:cwd', cwd)
       }, [cwd])
+
+      React.useEffect(() => {
+        writeDraft('intake:preset', newPreset)
+      }, [newPreset])
+
+      React.useEffect(() => {
+        writeDraft('intake:permission', newPermission)
+      }, [newPermission])
+
+      React.useEffect(() => {
+        writeDraft('intake:model', newModelSelection ? JSON.stringify(newModelSelection) : '')
+      }, [newModelSelection])
 
       React.useEffect(() => {
         if (newPreset) return
@@ -4217,6 +4260,18 @@ window.__ModuleLoader__.load({
         setCwd(value)
         writeDraft('intake:cwd', value)
       }
+      const updatePresetChoice = (value) => {
+        setNewPreset(value)
+        writeDraft('intake:preset', value)
+      }
+      const updatePermissionChoice = (value) => {
+        setNewPermission(value)
+        writeDraft('intake:permission', value)
+      }
+      const updateModelChoice = (selection) => {
+        setNewModelSelection(selection)
+        writeDraft('intake:model', selection ? JSON.stringify(selection) : '')
+      }
 
       const toggleSetting = (key, value) => {
         const current = data?.settings || {}
@@ -4378,11 +4433,11 @@ window.__ModuleLoader__.load({
               permissionCatalog: data?.permissionCatalog || null,
               modelCatalog: data?.modelCatalog || null,
               modelSelection: newModelSelection,
-              onModelChange: setNewModelSelection,
+              onModelChange: updateModelChoice,
               preset: newPreset,
-              setPreset: setNewPreset,
+              setPreset: updatePresetChoice,
               permission: newPermission,
-              setPermission: setNewPermission,
+              setPermission: updatePermissionChoice,
               busy: busy === 'create',
               error: error || status.error,
               onSubmit: submit,

@@ -45,6 +45,9 @@ firstPage.writeDraft('group:job-1', '未发送的对话组问题')
 firstPage.writeDraft('card:card-1', '未发送的卡片补充')
 firstPage.writeDraft('intake:brief', '未交办的工作内容')
 firstPage.writeDraft('intake:cwd', 'D:\\Project\\Demo')
+firstPage.writeDraft('intake:preset', 'ptc')
+firstPage.writeDraft('intake:permission', 'danger-full-access')
+firstPage.writeDraft('intake:model', JSON.stringify({ provider: 'deepseek', model: 'deepseek-chat', reasoningEffort: 'high' }))
 
 // Simulate closing the page and opening a fresh page with the same storage.
 const reopenedPage = load()
@@ -52,6 +55,12 @@ assert.equal(reopenedPage.readDraft('group:job-1'), '未发送的对话组问题
 assert.equal(reopenedPage.readDraft('card:card-1'), '未发送的卡片补充')
 assert.equal(reopenedPage.readDraft('intake:brief'), '未交办的工作内容')
 assert.equal(reopenedPage.readDraft('intake:cwd'), 'D:\\Project\\Demo')
+assert.equal(reopenedPage.readDraft('intake:preset'), 'ptc')
+assert.equal(reopenedPage.readDraft('intake:permission'), 'danger-full-access')
+assert.equal(
+  JSON.parse(reopenedPage.readDraft('intake:model')).reasoningEffort,
+  'high',
+)
 
 reopenedPage.clearDraft('group:job-1')
 assert.equal(reopenedPage.readDraft('group:job-1'), '')
@@ -64,11 +73,18 @@ assert.match(source, /writeDraft\(`card:\$\{id\}`, value\)/)
 
 assert.match(source, /React\.useState\(\(\) => readDraft\('intake:brief'\)\)/)
 assert.match(source, /React\.useState\(\(\) => readDraft\('intake:cwd'\)\)/)
+assert.match(source, /readDraft\('intake:preset'\)/)
+assert.match(source, /readDraft\('intake:permission'\)/)
+assert.match(source, /readJsonDraft\('intake:model'\)/)
+assert.match(source, /writeDraft\('intake:preset', newPreset\)/)
+assert.match(source, /writeDraft\('intake:permission', newPermission\)/)
+assert.match(source, /writeDraft\('intake:model', newModelSelection/)
 assert.match(source, /writeDraft\('intake:brief', brief\)/)
 assert.match(source, /writeDraft\('intake:cwd', cwd\)/)
 
 console.log('PASS drafts: group and card text survives a simulated page close/reopen')
 console.log('PASS drafts: intake brief and cwd survive a simulated page close/reopen')
+console.log('PASS drafts: intake mode, permission, model and reasoning survive a simulated page close/reopen')
 console.log('PASS drafts: successful send clears only the corresponding draft')
 console.log('PASS drafts: both group and card composers read/write localStorage')
 console.log(

@@ -143,6 +143,7 @@ const noNativeFolderPicker = !/chooseFolder|pickDirectory/.test(source)
 const noWorkspaceSelect = !/butler-workspace-select/.test(source)
 const intakeModeControls = /butler-intake-settings[\s\S]*?setPreset[\s\S]*?setPermission/
 const intakeModelControls = /h\(ComposerControls[\s\S]*?catalog: modelCatalog[\s\S]*?onChange: onModelChange/
+const fullAccessWarning = /butler-permission-warning[\s\S]*?danger-full-access/
 const jobModeControls = /function JobModeControls[\s\S]*?onPermission/
 const pluginDisableRestore = /overlayStyles\.forEach[\s\S]*?node\.style\.setProperty/
 const taskAnimations = /butler-deck-enter[\s\S]*?butler-deck-open[\s\S]*?butler-row-in/
@@ -248,6 +249,7 @@ assert.ok(noNativeFolderPicker, 'the native choose-folder entry point must be re
 assert.ok(noWorkspaceSelect, 'the workdir field must keep only the directory tree picker')
 assert.ok(intakeModeControls.test(source), 'the intake must expose mode and permission controls')
 assert.ok(intakeModelControls.test(source), 'the intake must expose model and reasoning controls')
+assert.ok(fullAccessWarning.test(source), 'the intake must warn when full access is selected')
 assert.ok(jobModeControls.test(source), 'conversation groups must expose always-visible mode and permission controls')
 assert.ok(pluginDisableRestore.test(source), 'disabling the plugin must restore shell overlay styles')
 assert.ok(taskAnimations.test(source), 'task deck and completed rows must animate')
@@ -306,6 +308,7 @@ console.log('PASS workdir: empty by default with a click-to-pick trigger')
 console.log('PASS workdir: only the directory tree picker remains')
 console.log('PASS intake: mode and permission are selectable before creating a job')
 console.log('PASS intake: model and reasoning are selectable before creating a job')
+console.log('PASS intake: full access shows a prominent warning')
 console.log('PASS conversation groups: mode and permission controls are always visible')
 console.log('PASS plugin lifecycle: shell overlay styles are restored on disable')
 console.log('PASS task board: deck and completed rows use staggered motion')
