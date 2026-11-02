@@ -150,6 +150,7 @@ const taskAnimations = /butler-deck-enter[\s\S]*?butler-deck-open[\s\S]*?butler-
 const taskExitAnimations = /butler-row-out[\s\S]*?butler-lane-out/
 const completedArchive = /function CompletedArchivePage[\s\S]*?butler-archive-detail/
 const completedArchiveSort = /\.sort\(\(a, b\) => b\.at - a\.at\)/
+const flatCompletedList = /\.butler-task-completed-list\{[^}]*gap:0[^}]*border:1px/
 const archiveRecordActions = /butler-archive-item-close[\s\S]*?onCloseRecord[\s\S]*?butler-archive-clear[\s\S]*?onClearAll/
 const archiveHeaderButton = /title: t\('archiveButton'\)/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
@@ -260,6 +261,7 @@ assert.ok(taskAnimations.test(source), 'task deck and completed rows must animat
 assert.ok(taskExitAnimations.test(source), 'completed rows and lane must animate out')
 assert.ok(completedArchive.test(source), 'completed rows must open the archive page')
 assert.ok(completedArchiveSort.test(source), 'archive items must be sorted newest first')
+assert.ok(flatCompletedList.test(source), 'the completed lane must use the flat separated list')
 assert.ok(archiveRecordActions.test(source), 'archive must expose per-record close and clear-all actions')
 assert.ok(archiveHeaderButton.test(source), 'the header must expose the completed archive button')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')
@@ -322,6 +324,7 @@ console.log('PASS plugin lifecycle: shell overlay styles are restored on disable
 console.log('PASS task board: deck and completed rows use staggered motion')
 console.log('PASS task board: completed rows and lane animate out')
 console.log('PASS completed archive: two-column page and newest-first ordering')
+console.log('PASS completed lane: flat separated rows replace stacked mini-cards')
 console.log('PASS completed archive: per-record close and clear-all actions')
 console.log('PASS completed archive: header entry button is present')
 console.log('PASS mode: per-conversation selector wired to selectPreset')

@@ -525,10 +525,11 @@ window.__ModuleLoader__.load({
       .butler-task-deck.is-expanded{max-height:390px;overflow:auto;padding-right:2px;}
       .butler-task-deck.is-expanded .butler-active-task:hover{transform:translateY(-2px);}
       .butler-task-deck-item{min-width:0;}      .butler-task-deck-item .butler-active-task{margin-bottom:0;}
-      .butler-task-completed-list{display:flex;flex-direction:column;gap:5px;max-height:170px;overflow:auto;padding-right:2px;}
-      .butler-task-completed-row{appearance:none;border:1px solid rgba(52,211,153,.18);background:rgba(52,211,153,.045);color:inherit;border-radius:8px;padding:7px 8px;display:flex;align-items:center;gap:7px;text-align:left;cursor:pointer;min-width:0;overflow:hidden;transition:transform .16s ease,border-color .16s ease,background .16s ease;animation:butler-row-in .24s cubic-bezier(.22,.8,.3,1) both;animation-delay:calc(var(--row-index) * 28ms);}
-      .butler-task-completed-row:hover{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.09);transform:translateX(2px);}
-      .butler-task-completed-row:active{transform:translateX(1px) scale(.995);}
+      .butler-task-completed-list{display:flex;flex-direction:column;gap:0;max-height:188px;overflow:auto;padding:2px 5px;border:1px solid rgba(52,211,153,.18);border-radius:9px;background:rgba(52,211,153,.035);}
+      .butler-task-completed-row{appearance:none;width:100%;border:0;border-bottom:1px solid rgba(148,163,184,.13);background:transparent;color:inherit;border-radius:0;padding:8px 4px;display:flex;align-items:center;gap:7px;text-align:left;cursor:pointer;min-width:0;overflow:hidden;transition:background .16s ease,color .16s ease;animation:butler-row-in .22s cubic-bezier(.22,.8,.3,1) both;animation-delay:calc(var(--row-index) * 24ms);}
+      .butler-task-completed-row:last-child{border-bottom:0;}
+      .butler-task-completed-row:hover{border-bottom-color:rgba(52,211,153,.3);background:rgba(52,211,153,.08);}
+      .butler-task-completed-row:active{background:rgba(52,211,153,.12);}
       .butler-task-completed-row.is-removing{pointer-events:none;animation:butler-row-out .16s ease forwards;}
       .butler-task-lane.is-clearing{animation:butler-lane-out .18s ease forwards;pointer-events:none;}
       @keyframes butler-deck-enter{from{opacity:0;transform:translateY(calc(var(--deck-index) * 34px + 8px)) rotate(calc((var(--deck-index) - 1) * -0.35deg)) scale(.985);}to{opacity:1;transform:translateY(calc(var(--deck-index) * 34px)) rotate(calc((var(--deck-index) - 1) * -0.35deg)) scale(1);}}
