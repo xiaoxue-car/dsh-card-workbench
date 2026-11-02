@@ -46,6 +46,8 @@ window.__ModuleLoader__.load({
       archiveEvidence: '证据',
       archiveOpen: '打开对应对话',
       archiveCount: '{n} 项已完成',
+      archiveClearAll: '全部清理',
+      archiveCloseRecord: '关闭这条已完成记录',
       taskBlocked: '待处理',
       taskCompleted: '任务已完成',
       taskCompletedHint: '点击查看结果，或关闭此提示',
@@ -286,6 +288,8 @@ window.__ModuleLoader__.load({
       archiveEvidence: 'Evidence',
       archiveOpen: 'Open conversation',
       archiveCount: '{n} completed',
+      archiveClearAll: 'Clear all',
+      archiveCloseRecord: 'Close this completed record',
       taskBlocked: 'Needs attention',
       taskCompleted: 'Task complete',
       taskCompletedHint: 'Open the result or dismiss this notice',
@@ -548,15 +552,21 @@ window.__ModuleLoader__.load({
       .butler-archive-title-wrap h2{margin:0;font-size:20px;line-height:1.25;color:var(--dsw-alias-label-primary);}
       .butler-archive-title-wrap p{margin:0;font-size:11px;color:var(--dsw-alias-label-secondary);}
       .butler-archive-count{align-self:center;border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.08);color:#059669;border-radius:999px;padding:3px 9px;font-size:10px;font-weight:700;white-space:nowrap;}
+      .butler-archive-head-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+      .butler-archive-clear{appearance:none;border:1px solid rgba(244,63,94,.5);background:rgba(244,63,94,.10);color:#be123c;border-radius:6px;padding:4px 9px;font:inherit;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap;}
+      .butler-archive-clear:hover:not(:disabled){border-color:rgba(244,63,94,.85);background:rgba(244,63,94,.18);}
+      .butler-archive-clear:disabled{opacity:.45;cursor:default;}
       .butler-archive-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(250px,.72fr) minmax(0,1.28fr);gap:12px;}
       .butler-archive-list,.butler-archive-detail{border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1);min-height:0;overflow:auto;padding:9px;}
       .butler-archive-list{display:flex;flex-direction:column;gap:5px;}
-      .butler-archive-item{appearance:none;width:100%;border:1px solid transparent;background:transparent;color:inherit;border-radius:8px;padding:8px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;cursor:pointer;transition:background .16s ease,border-color .16s ease,transform .16s ease;}
+      .butler-archive-item{position:relative;appearance:none;width:100%;border:1px solid transparent;background:transparent;color:inherit;border-radius:8px;padding:8px 28px 8px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;cursor:pointer;transition:background .16s ease,border-color .16s ease,transform .16s ease;}
       .butler-archive-item:hover{border-color:rgba(52,211,153,.24);background:rgba(52,211,153,.06);transform:translateX(2px);}
       .butler-archive-item.is-active{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.1);}
       .butler-archive-item-time{font-size:9px;color:var(--dsw-alias-label-tertiary);font-family:ui-monospace,Consolas,monospace;}
       .butler-archive-item strong{font-size:12px;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
       .butler-archive-item small{font-size:9.5px;color:var(--dsw-alias-label-tertiary);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      .butler-archive-item-close{position:absolute;top:4px;right:4px;appearance:none;border:1px solid transparent;background:transparent;color:var(--dsw-alias-label-tertiary);border-radius:5px;width:20px;height:20px;display:grid;place-items:center;font-size:15px;line-height:1;cursor:pointer;}
+      .butler-archive-item-close:hover{border-color:rgba(244,63,94,.4);background:rgba(244,63,94,.1);color:#be123c;}
       .butler-archive-detail{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px 18px;}
       .butler-archive-detail-head h3{margin:2px 0 4px;font-size:18px;line-height:1.3;}
       .butler-archive-detail-head p{margin:0;font-size:11px;color:var(--dsw-alias-label-secondary);}
@@ -3462,19 +3472,56 @@ window.__ModuleLoader__.load({
       return items.slice(0, limit)
     }
 
-    function completedArchiveItems(jobs, clearedAt = 0, dismissed = null, limit = 300) {
-      const items = []
-      for (const job of jobs || []) {
-        for (const card of job.cards || []) {
-          if (card.status !== 'done') continue
-          if (dismissed?.has(`${job.id}:${card.id}`)) continue
-          const at = completedTaskAt(card)
-          if (clearedAt > 0 && at <= clearedAt) continue
-          items.push({ job, card, at })
-        }
+    const COMPLETED_ARCHIVE_KEY = 'butler:completed-archive'
+    const COMPLETED_ARCHIVE_CLOSED_KEY = 'butler:completed-archive-closed'
+    const archiveKeyOf = (job, card) => `${job.id}:${card.id}`
+    const archiveRecordFrom = (job, card) => ({
+      key: archiveKeyOf(job, card),
+      jobId: job.id,
+      cardId: card.id,
+      jobTitle: job.title || '',
+      title: card.title || job.title || '',
+      at: completedTaskAt(card),
+      summary: job.summary || '',
+      resultSummary: card.result?.summary || '',
+      verifySummary: card.verify?.summary || '',
+      evidence: Array.isArray(card.result?.evidence) ? card.result.evidence : [],
+      gaps: Array.isArray(card.verify?.gaps) ? card.verify.gaps : [],
+      note: card.butlerNote || '',
+      sessionId: card.sessionId || job.sessionId || '',
+    })
+    const readArchiveRecords = () => {
+      try {
+        const raw = JSON.parse(window.localStorage.getItem(COMPLETED_ARCHIVE_KEY) || '[]')
+        return Array.isArray(raw) ? raw.filter((record) => record?.key) : []
+      } catch {
+        return []
       }
-      items.sort((a, b) => b.at - a.at)
-      return items.slice(0, limit)
+    }
+    const writeArchiveRecords = (records) => {
+      try {
+        window.localStorage.setItem(COMPLETED_ARCHIVE_KEY, JSON.stringify(records))
+      } catch {
+        /* storage may be unavailable */
+      }
+    }
+    const readArchiveClosed = () => {
+      try {
+        const raw = JSON.parse(window.localStorage.getItem(COMPLETED_ARCHIVE_CLOSED_KEY) || '[]')
+        return new Set(Array.isArray(raw) ? raw.filter((key) => typeof key === 'string') : [])
+      } catch {
+        return new Set()
+      }
+    }
+    const writeArchiveClosed = (closed) => {
+      try {
+        window.localStorage.setItem(
+          COMPLETED_ARCHIVE_CLOSED_KEY,
+          JSON.stringify([...closed].slice(-1000)),
+        )
+      } catch {
+        /* storage may be unavailable */
+      }
     }
 
     function ActiveTaskCard({ t, active, completed, compact, queued, accent, nowTime, onOpen, onDismiss }) {
@@ -3738,18 +3785,13 @@ window.__ModuleLoader__.load({
       )
     }
 
-    function CompletedArchivePage({ t, jobs, initialKey, clearedAt, dismissed, onBack, onOpenSession }) {
-      const items = React.useMemo(
-        () => completedArchiveItems(jobs, clearedAt, dismissed),
-        [jobs, clearedAt, dismissed],
-      )
+    function CompletedArchivePage({ t, records, initialKey, onBack, onOpenSession, onCloseRecord, onClearAll }) {
+      const items = records || []
       const [selectedKey, setSelectedKey] = React.useState(initialKey || '')
       const selected =
-        items.find((item) => `${item.job.id}:${item.card.id}` === selectedKey) || items[0] || null
+        items.find((item) => item.key === selectedKey) || items[0] || null
       React.useEffect(() => {
-        if (!selected && items.length) {
-          setSelectedKey(`${items[0].job.id}:${items[0].card.id}`)
-        }
+        if (!selected && items.length) setSelectedKey(items[0].key)
       }, [items, selected])
       const when = (item) => {
         if (!item?.at) return '—'
@@ -3777,7 +3819,21 @@ window.__ModuleLoader__.load({
             h('h2', null, t('archiveTitle')),
             h('p', null, t('archiveSub')),
           ),
-          h('span', { className: 'butler-archive-count' }, t('archiveCount').replace('{n}', items.length)),
+          h(
+            'div',
+            { className: 'butler-archive-head-actions' },
+            h('span', { className: 'butler-archive-count' }, t('archiveCount').replace('{n}', items.length)),
+            h(
+              'button',
+              {
+                type: 'button',
+                className: 'butler-archive-clear',
+                disabled: !items.length,
+                onClick: onClearAll,
+              },
+              t('archiveClearAll'),
+            ),
+          ),
         ),
         h(
           'div',
@@ -3786,21 +3842,41 @@ window.__ModuleLoader__.load({
             'aside',
             { className: 'butler-archive-list', 'aria-label': t('archiveTitle') },
             items.length
-              ? items.map((item) => {
-                  const key = `${item.job.id}:${item.card.id}`
-                  return h(
-                    'button',
+              ? items.map((item) =>
+                  h(
+                    'div',
                     {
-                      type: 'button',
-                      key,
-                      className: `butler-archive-item${selected && `${selected.job.id}:${selected.card.id}` === key ? ' is-active' : ''}`,
-                      onClick: () => setSelectedKey(key),
+                      key: item.key,
+                      role: 'button',
+                      tabIndex: 0,
+                      className: `butler-archive-item${selected?.key === item.key ? ' is-active' : ''}`,
+                      onClick: () => setSelectedKey(item.key),
+                      onKeyDown: (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault()
+                          setSelectedKey(item.key)
+                        }
+                      },
                     },
                     h('span', { className: 'butler-archive-item-time' }, when(item)),
-                    h('strong', null, item.card.title || item.job.title),
-                    h('small', null, item.job.title),
-                  )
-                })
+                    h('strong', null, item.title),
+                    h('small', null, item.jobTitle),
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'butler-archive-item-close',
+                        title: t('archiveCloseRecord'),
+                        'aria-label': t('archiveCloseRecord'),
+                        onClick: (event) => {
+                          event.stopPropagation()
+                          onCloseRecord(item.key)
+                        },
+                      },
+                      '×',
+                    ),
+                  ),
+                )
               : h('div', { className: 'butler-task-empty' }, t('archiveEmpty')),
           ),
           h(
@@ -3814,31 +3890,29 @@ window.__ModuleLoader__.load({
                     'div',
                     { className: 'butler-archive-detail-head' },
                     h('span', { className: 'butler-archive-kicker' }, when(selected)),
-                    h('h3', null, selected.card.title || selected.job.title),
-                    h('p', null, selected.job.title),
+                    h('h3', null, selected.title),
+                    h('p', null, selected.jobTitle),
                   ),
                   h(
                     'div',
                     { className: 'butler-archive-block' },
                     h('h4', null, t('archiveSummary')),
-                    h('p', null, selected.job.summary || selected.card.result?.summary || selected.card.verify?.summary || '—'),
+                    h('p', null, selected.summary || selected.resultSummary || selected.verifySummary || '—'),
                   ),
                   h(
                     'div',
                     { className: 'butler-archive-block' },
                     h('h4', null, t('archiveResult')),
-                    h('p', null, selected.card.result?.summary || selected.card.verify?.summary || '—'),
-                    selected.card.verify?.gaps?.length
+                    h('p', null, selected.resultSummary || selected.verifySummary || selected.note || '—'),
+                    selected.gaps?.length
                       ? h(
                           'ul',
                           null,
-                          selected.card.verify.gaps.map((gap, index) =>
-                            h('li', { key: index }, gap),
-                          ),
+                          selected.gaps.map((gap, index) => h('li', { key: index }, gap)),
                         )
                       : null,
                   ),
-                  selected.card.result?.evidence?.length
+                  selected.evidence?.length
                     ? h(
                         'div',
                         { className: 'butler-archive-block' },
@@ -3846,19 +3920,19 @@ window.__ModuleLoader__.load({
                         h(
                           'ul',
                           null,
-                          selected.card.result.evidence.map((entry, index) =>
+                          selected.evidence.map((entry, index) =>
                             h('li', { key: index }, typeof entry === 'string' ? entry : JSON.stringify(entry)),
                           ),
                         ),
                       )
                     : null,
-                  selected.card.sessionId || selected.job.sessionId
+                  selected.sessionId
                     ? h(
                         'button',
                         {
                           type: 'button',
                           className: 'butler-btn small',
-                          onClick: () => onOpenSession(selected.card.sessionId || selected.job.sessionId),
+                          onClick: () => onOpenSession(selected.sessionId),
                         },
                         t('archiveOpen'),
                       )
@@ -4239,6 +4313,8 @@ window.__ModuleLoader__.load({
       const [filter, setFilter] = React.useState('all')
       const [viewMode, setViewMode] = React.useState('timeline')
       const [archiveKey, setArchiveKey] = React.useState('')
+      const [archiveRecords, setArchiveRecords] = React.useState(readArchiveRecords)
+      const archiveClosed = React.useRef(readArchiveClosed())
       const [completedTasks, setCompletedTasks] = React.useState([])
       const dismissedCompleted = React.useRef(readDismissedCompleted())
       const completedClearedAt = React.useRef(readCompletedClearedAt())
@@ -4256,6 +4332,29 @@ window.__ModuleLoader__.load({
           completedClearedAt.current,
         )
         if (recent.length) setCompletedTasks((previous) => (previous.length ? previous : recent))
+      }, [data])
+
+      React.useEffect(() => {
+        if (!data) return
+        setArchiveRecords((previous) => {
+          const merged = new Map(previous.map((record) => [record.key, record]))
+          let changed = false
+          for (const job of data.jobs || []) {
+            for (const card of job.cards || []) {
+              if (card.status !== 'done') continue
+              const key = archiveKeyOf(job, card)
+              if (merged.has(key) || archiveClosed.current.has(key)) continue
+              merged.set(key, archiveRecordFrom(job, card))
+              changed = true
+            }
+          }
+          if (!changed) return previous
+          const next = [...merged.values()]
+            .sort((a, b) => b.at - a.at)
+            .slice(0, 500)
+          writeArchiveRecords(next)
+          return next
+        })
       }, [data])
 
       React.useEffect(() => {
@@ -4510,7 +4609,31 @@ window.__ModuleLoader__.load({
       const visibleJobs = filter === 'all' ? jobs : jobs.filter((job) => (job.kind || 'brief') === filter)
       const activeTasks = allActiveTasks(jobs)
       const openCompletedArchive = (item) => {
-        setArchiveKey(`${item.job.id}:${item.card.id}`)
+        const key = archiveKeyOf(item.job, item.card)
+        setArchiveRecords((previous) => {
+          if (previous.some((record) => record.key === key)) return previous
+          const next = [archiveRecordFrom(item.job, item.card), ...previous].sort(
+            (a, b) => b.at - a.at,
+          )
+          writeArchiveRecords(next)
+          return next
+        })
+        setArchiveKey(key)
+      }
+      const closeArchiveRecord = (key) => {
+        archiveClosed.current.add(key)
+        writeArchiveClosed(archiveClosed.current)
+        setArchiveRecords((previous) => {
+          const next = previous.filter((record) => record.key !== key)
+          writeArchiveRecords(next)
+          return next
+        })
+      }
+      const clearArchiveRecords = () => {
+        for (const record of archiveRecords) archiveClosed.current.add(record.key)
+        writeArchiveClosed(archiveClosed.current)
+        writeArchiveRecords([])
+        setArchiveRecords([])
       }
       const clearCompleted = () => {
         const clearedAt = latestCompletedAt(data?.jobs || [])
@@ -4526,12 +4649,12 @@ window.__ModuleLoader__.load({
           props.topbar ? props.topbar() : null,
           h(CompletedArchivePage, {
             t,
-            jobs,
+            records: archiveRecords,
             initialKey: archiveKey,
-            clearedAt: completedClearedAt.current,
-            dismissed: dismissedCompleted.current,
             onBack: () => setArchiveKey(''),
             onOpenSession: openSession,
+            onCloseRecord: closeArchiveRecord,
+            onClearAll: clearArchiveRecords,
           }),
         )
       }
