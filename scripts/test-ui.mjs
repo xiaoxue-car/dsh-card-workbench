@@ -155,6 +155,8 @@ const completedPreview = /completed\.slice\(0, 3\)[\s\S]*?butler-task-completed-
 const completedCloseContained = /\.butler-task-completed-row\{[^}]*box-sizing:border-box[^}]*padding:6px 27px 6px 4px/
 const completedCloseAbsolute = /\.butler-task-completed-close\{[^}]*position:absolute[^}]*right:4px/
 const archiveRecordActions = /butler-archive-item-close[\s\S]*?onCloseRecord[\s\S]*?butler-archive-clear[\s\S]*?onClearAll/
+const archiveContained = /\.butler-archive-item\{[^}]*box-sizing:border-box[^}]*padding:8px 48px/
+const archiveDetailContained = /\.butler-archive-detail-head\{[^}]*box-sizing:border-box/
 const archiveHeaderButton = /title: t\('archiveButton'\)/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
 const completedClickRemoval = /setCompletedTasks[\s\S]*?openSession\(sessionId\)/
@@ -269,6 +271,8 @@ assert.ok(completedPreview.test(source), 'the completed lane must preview three 
 assert.ok(completedCloseContained.test(source), 'completed row close button must stay inside the card')
 assert.ok(completedCloseAbsolute.test(source), 'completed row close button must be anchored inside the row')
 assert.ok(archiveRecordActions.test(source), 'archive must expose per-record close and clear-all actions')
+assert.ok(archiveContained.test(source), 'archive item close button must stay inside the summary')
+assert.ok(archiveDetailContained.test(source), 'archive detail close button must stay inside the summary')
 assert.ok(archiveHeaderButton.test(source), 'the header must expose the completed archive button')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')
 assert.ok(completedClickRemoval.test(source), 'clicking a completed task must remove it and open its conversation')
@@ -334,6 +338,7 @@ console.log('PASS completed lane: flat separated rows replace stacked mini-cards
 console.log('PASS completed lane: only three rows are previewed with a view-all action')
 console.log('PASS completed lane: close button is contained inside the row')
 console.log('PASS completed archive: per-record close and clear-all actions')
+console.log('PASS completed archive: close controls are contained inside summaries')
 console.log('PASS completed archive: header entry button is present')
 console.log('PASS mode: per-conversation selector wired to selectPreset')
 console.log('PASS mode: Chinese labels 标准/PTC/精简/创造')
