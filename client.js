@@ -549,6 +549,8 @@ window.__ModuleLoader__.load({
       .butler-task-completed-title{font-size:11px;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
       .butler-task-completed-sub{font-size:9px;color:var(--dsw-alias-label-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
       .butler-task-completed-arrow{flex:none;color:#6ee7b7;font-size:12px;}
+      .butler-task-completed-close{flex:none;appearance:none;border:1px solid rgba(244,63,94,.28);background:rgba(244,63,94,.06);color:#be123c;border-radius:4px;width:18px;height:18px;display:grid;place-items:center;font-size:13px;line-height:1;cursor:pointer;padding:0;}
+      .butler-task-completed-close:hover{border-color:rgba(244,63,94,.65);background:rgba(244,63,94,.15);}
       .butler-clear-completed{appearance:none;border:1px solid rgba(244,63,94,.5);background:rgba(244,63,94,.12);color:#e11d48;border-radius:6px;padding:2px 7px;font:inherit;font-size:9px;font-weight:700;letter-spacing:0;text-transform:none;cursor:pointer;white-space:nowrap;}
       .butler-clear-completed:hover{border-color:rgba(244,63,94,.85);background:rgba(244,63,94,.2);}
       .butler-task-empty{font-size:10.5px;color:var(--dsw-alias-label-tertiary);padding:12px 4px;text-align:center;}
@@ -572,7 +574,7 @@ window.__ModuleLoader__.load({
       .butler-archive-item-time{font-size:9px;color:var(--dsw-alias-label-tertiary);font-family:ui-monospace,Consolas,monospace;}
       .butler-archive-item strong{font-size:12px;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
       .butler-archive-item small{font-size:9.5px;color:var(--dsw-alias-label-tertiary);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-      .butler-archive-item-close{position:absolute;top:4px;right:4px;appearance:none;border:1px solid rgba(244,63,94,.24);background:rgba(244,63,94,.05);color:#be123c;border-radius:5px;width:20px;height:20px;display:grid;place-items:center;font-size:15px;line-height:1;cursor:pointer;}
+      .butler-archive-item-close{position:absolute;top:4px;right:4px;appearance:none;border:1px solid rgba(244,63,94,.28);background:rgba(244,63,94,.06);color:#be123c;border-radius:5px;min-width:30px;height:20px;display:grid;place-items:center;font-size:9px;font-weight:700;line-height:1;cursor:pointer;padding:0 4px;}
       .butler-archive-item-close:hover{border-color:rgba(244,63,94,.4);background:rgba(244,63,94,.1);color:#be123c;}
       .butler-archive-detail{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px 18px;}
       .butler-archive-detail-head{position:relative;width:100%;padding-right:62px;}
@@ -3645,7 +3647,7 @@ window.__ModuleLoader__.load({
 
     const TASK_ACCENTS = ['#22d3ee', '#a78bfa', '#f59e0b', '#f472b6', '#34d399']
 
-    function TaskBoard({ t, activeTasks, completedTasks, nowTime, onOpen, onOpenArchive, onOpenArchiveAll, onClearCompleted }) {
+    function TaskBoard({ t, activeTasks, completedTasks, nowTime, onOpen, onOpenArchive, onOpenArchiveAll, onCloseLane, onClearCompleted }) {
       const [expanded, setExpanded] = React.useState(false)
       const [clearing, setClearing] = React.useState(false)
       const clearTimer = React.useRef(null)
@@ -3770,14 +3772,21 @@ window.__ModuleLoader__.load({
                 { className: 'butler-task-completed-list' },
                 completed.slice(0, 3).map((item, index) =>
                   h(
-                    'button',
+                    'div',
                     {
                       key: `${item.job.id}:${item.card.id}`,
-                      type: 'button',
+                      role: 'button',
+                      tabIndex: 0,
                       className: 'butler-task-completed-row',
                       style: { '--row-index': index },
                       title: `${item.card.title || item.job.title} 路 ${item.job.title}`,
                       onClick: () => openArchive(item),
+                      onKeyDown: (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault()
+                          openArchive(item)
+                        }
+                      },
                     },
                     h('span', { className: 'butler-task-completed-check' }, '✓'),
                     h(
@@ -3787,6 +3796,20 @@ window.__ModuleLoader__.load({
                       h('span', { className: 'butler-task-completed-sub' }, item.job.title),
                     ),
                     h('span', { className: 'butler-task-completed-arrow', 'aria-hidden': true }, '↗'),
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'butler-task-completed-close',
+                        title: t('archiveCloseRecord'),
+                        'aria-label': t('archiveCloseRecord'),
+                        onClick: (event) => {
+                          event.stopPropagation()
+                          onCloseLane(item)
+                        },
+                      },
+                      '×',
+                    ),
                   ),
                 ),
                 completed.length > 3
@@ -3894,7 +3917,7 @@ window.__ModuleLoader__.load({
                           onCloseRecord(item.key)
                         },
                       },
-                      '×',
+                      t('archiveClose'),
                     ),
                   ),
                 )
@@ -4638,16 +4661,30 @@ window.__ModuleLoader__.load({
       }
       const visibleJobs = filter === 'all' ? jobs : jobs.filter((job) => (job.kind || 'brief') === filter)
       const activeTasks = allActiveTasks(jobs)
+      const dismissTaskLane = (item) => {
+        const key = archiveKeyOf(item.job, item.card)
+        dismissedCompleted.current.add(key)
+        writeDismissedCompleted(dismissedCompleted.current)
+        setCompletedTasks((previous) =>
+          previous.filter((entry) => !(entry.job.id === item.job.id && entry.card.id === item.card.id)),
+        )
+      }
+      const closeTaskLane = (item) => {
+        dismissTaskLane(item)
+      }
       const openCompletedArchive = (item) => {
         const key = archiveKeyOf(item.job, item.card)
-        setArchiveRecords((previous) => {
-          if (previous.some((record) => record.key === key)) return previous
-          const next = [archiveRecordFrom(item.job, item.card), ...previous].sort(
-            (a, b) => b.at - a.at,
-          )
-          writeArchiveRecords(next)
-          return next
-        })
+        dismissTaskLane(item)
+        if (!archiveClosed.current.has(key)) {
+          setArchiveRecords((previous) => {
+            if (previous.some((record) => record.key === key)) return previous
+            const next = [archiveRecordFrom(item.job, item.card), ...previous].sort(
+              (a, b) => b.at - a.at,
+            )
+            writeArchiveRecords(next)
+            return next
+          })
+        }
         setArchiveKey(key)
       }
       const openCompletedArchiveList = () => setArchiveKey('__archive__')
@@ -4781,6 +4818,7 @@ window.__ModuleLoader__.load({
               onOpen: openSession,
               onOpenArchive: openCompletedArchive,
               onOpenArchiveAll: openCompletedArchiveList,
+              onCloseLane: closeTaskLane,
               onClearCompleted: clearCompleted,
             }),
             h(Intake, {
