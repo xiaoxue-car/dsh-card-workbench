@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 /**
  * Static UI contract for this change:
  *   - the butler page is a full-viewport panel below the top chrome;
@@ -155,8 +155,8 @@ const completedPreview = /completed\.slice\(0, 3\)[\s\S]*?butler-task-completed-
 const completedCloseContained = /\.butler-task-completed-row\{[^}]*box-sizing:border-box[^}]*padding:6px 27px 6px 4px/
 const completedCloseAbsolute = /\.butler-task-completed-close\{[^}]*position:absolute[^}]*right:4px/
 const archiveRecordActions = /butler-archive-item-close[\s\S]*?onCloseRecord[\s\S]*?butler-archive-clear[\s\S]*?onClearAll/
-const archiveContained = /\.butler-archive-item\{[^}]*box-sizing:border-box[^}]*padding:10px 42px 14px/
-const archiveTopRow = /\.butler-archive-item-close\{[^}]*position:absolute/
+const archiveContained = /\.butler-archive-item\{[^}]*box-sizing:border-box[^}]*padding:10px 10px 14px/
+const archiveTopRow = /\.butler-archive-item-top\{[^}]*display:flex/
 const archiveDetailContained = /\.butler-archive-detail-head\{[^}]*display:flex/
 const archiveEllipsis = /\.butler-archive-item-title\{[^}]*white-space:nowrap[^}]*text-overflow:ellipsis/
 const archiveTooltip = /\.butler-archive-tip\{[^}]*position:fixed/
