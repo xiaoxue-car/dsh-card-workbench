@@ -35,6 +35,16 @@ window.__ModuleLoader__.load({
       taskNoCompleted: '暂无已完成任务',
       taskClearCompleted: '清空已完成',
       taskExpandHint: '悬浮或点击展开全部',
+      archiveTitle: '已完成工作',
+      archiveSub: '按完成时间倒序排列；选择左侧事项查看回复结果',
+      archiveBack: '返回卡片工坊',
+      archiveEmpty: '暂无已完成工作',
+      archiveSelect: '从左侧选择一项已完成工作',
+      archiveSummary: '完成摘要',
+      archiveResult: '回复结果',
+      archiveEvidence: '证据',
+      archiveOpen: '打开对应对话',
+      archiveCount: '{n} 项已完成',
       taskBlocked: '待处理',
       taskCompleted: '任务已完成',
       taskCompletedHint: '点击查看结果，或关闭此提示',
@@ -264,6 +274,16 @@ window.__ModuleLoader__.load({
       taskNoCompleted: 'No completed tasks',
       taskClearCompleted: 'Clear completed',
       taskExpandHint: 'Hover or click to expand',
+      archiveTitle: 'Completed work',
+      archiveSub: 'Newest first; choose an item on the left to read its result',
+      archiveBack: 'Back to workbench',
+      archiveEmpty: 'No completed work yet',
+      archiveSelect: 'Choose a completed item on the left',
+      archiveSummary: 'Summary',
+      archiveResult: 'Result',
+      archiveEvidence: 'Evidence',
+      archiveOpen: 'Open conversation',
+      archiveCount: '{n} completed',
       taskBlocked: 'Needs attention',
       taskCompleted: 'Task complete',
       taskCompletedHint: 'Open the result or dismiss this notice',
@@ -520,6 +540,31 @@ window.__ModuleLoader__.load({
       .butler-clear-completed:hover{border-color:rgba(244,63,94,.85);background:rgba(244,63,94,.2);}
       .butler-task-empty{font-size:10.5px;color:var(--dsw-alias-label-tertiary);padding:12px 4px;text-align:center;}
       @media (max-width:850px){.butler-task-board{grid-template-columns:minmax(0,1fr);}.butler-task-lane.is-completed{border-left:0;border-top:1px solid rgba(148,163,184,.16);padding-left:0;padding-top:10px;}}
+      .butler-archive{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;padding:20px 24px 28px;max-width:1120px;width:100%;margin:0 auto;box-sizing:border-box;overflow:hidden;}
+      .butler-archive-head{flex:none;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+      .butler-archive-title-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:5px;}
+      .butler-archive-title-wrap h2{margin:0;font-size:20px;line-height:1.25;color:var(--dsw-alias-label-primary);}
+      .butler-archive-title-wrap p{margin:0;font-size:11px;color:var(--dsw-alias-label-secondary);}
+      .butler-archive-count{align-self:center;border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.08);color:#059669;border-radius:999px;padding:3px 9px;font-size:10px;font-weight:700;white-space:nowrap;}
+      .butler-archive-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(250px,.72fr) minmax(0,1.28fr);gap:12px;}
+      .butler-archive-list,.butler-archive-detail{border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1);min-height:0;overflow:auto;padding:9px;}
+      .butler-archive-list{display:flex;flex-direction:column;gap:5px;}
+      .butler-archive-item{appearance:none;width:100%;border:1px solid transparent;background:transparent;color:inherit;border-radius:8px;padding:8px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;cursor:pointer;transition:background .16s ease,border-color .16s ease,transform .16s ease;}
+      .butler-archive-item:hover{border-color:rgba(52,211,153,.24);background:rgba(52,211,153,.06);transform:translateX(2px);}
+      .butler-archive-item.is-active{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.1);}
+      .butler-archive-item-time{font-size:9px;color:var(--dsw-alias-label-tertiary);font-family:ui-monospace,Consolas,monospace;}
+      .butler-archive-item strong{font-size:12px;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      .butler-archive-item small{font-size:9.5px;color:var(--dsw-alias-label-tertiary);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      .butler-archive-detail{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px 18px;}
+      .butler-archive-detail-head h3{margin:2px 0 4px;font-size:18px;line-height:1.3;}
+      .butler-archive-detail-head p{margin:0;font-size:11px;color:var(--dsw-alias-label-secondary);}
+      .butler-archive-kicker{font-size:9px;letter-spacing:.06em;color:#059669;font-family:ui-monospace,Consolas,monospace;}
+      .butler-archive-block{width:100%;border-top:1px solid var(--dsw-alias-border-l1);padding-top:10px;}
+      .butler-archive-block h4{margin:0 0 5px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--dsw-alias-label-secondary);}
+      .butler-archive-block p,.butler-archive-block li{font-size:12px;line-height:1.65;color:var(--dsw-alias-label-primary);white-space:pre-wrap;overflow-wrap:anywhere;}
+      .butler-archive-block ul{margin:0;padding-left:18px;}
+      .butler-archive-placeholder{display:grid;place-items:center;min-height:180px;width:100%;color:var(--dsw-alias-label-tertiary);font-size:11px;}
+      @media (max-width:850px){.butler-archive-grid{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(150px,.65fr) minmax(0,1.35fr);}}
       .butler-active-task.is-compact{padding:10px 14px 9px;}
       .butler-active-task.is-compact .butler-active-top{margin-bottom:5px;}
       .butler-active-task.is-compact .butler-active-title{font-size:14px;}
@@ -3415,6 +3460,21 @@ window.__ModuleLoader__.load({
       return items.slice(0, limit)
     }
 
+    function completedArchiveItems(jobs, clearedAt = 0, dismissed = null, limit = 300) {
+      const items = []
+      for (const job of jobs || []) {
+        for (const card of job.cards || []) {
+          if (card.status !== 'done') continue
+          if (dismissed?.has(`${job.id}:${card.id}`)) continue
+          const at = completedTaskAt(card)
+          if (clearedAt > 0 && at <= clearedAt) continue
+          items.push({ job, card, at })
+        }
+      }
+      items.sort((a, b) => b.at - a.at)
+      return items.slice(0, limit)
+    }
+
     function ActiveTaskCard({ t, active, completed, compact, queued, accent, nowTime, onOpen, onDismiss }) {
       const source = completed || active
       if (!source) return null
@@ -3526,17 +3586,14 @@ window.__ModuleLoader__.load({
 
     const TASK_ACCENTS = ['#22d3ee', '#a78bfa', '#f59e0b', '#f472b6', '#34d399']
 
-    function TaskBoard({ t, activeTasks, completedTasks, nowTime, onOpen, onComplete, onClearCompleted }) {
+    function TaskBoard({ t, activeTasks, completedTasks, nowTime, onOpen, onOpenArchive, onClearCompleted }) {
       const [expanded, setExpanded] = React.useState(false)
-      const [removingKey, setRemovingKey] = React.useState('')
       const [clearing, setClearing] = React.useState(false)
-      const removalTimer = React.useRef(null)
       const clearTimer = React.useRef(null)
       const active = activeTasks || []
       const completed = completedTasks || []
       React.useEffect(
         () => () => {
-          if (removalTimer.current) clearTimeout(removalTimer.current)
           if (clearTimer.current) clearTimeout(clearTimer.current)
         },
         [],
@@ -3547,15 +3604,9 @@ window.__ModuleLoader__.load({
       const collapseOnBlur = (event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setExpanded(false)
       }
-      const removeCompleted = (item) => {
-        const key = `${item.job.id}:${item.card.id}`
-        if (removingKey || clearing) return
-        setRemovingKey(key)
-        removalTimer.current = setTimeout(() => {
-          removalTimer.current = null
-          setRemovingKey('')
-          onComplete(item)
-        }, 160)
+      const openArchive = (item) => {
+        if (clearing) return
+        onOpenArchive(item)
       }
       const clearAllCompleted = () => {
         if (!completed.length || clearing) return
@@ -3664,10 +3715,10 @@ window.__ModuleLoader__.load({
                     {
                       key: `${item.job.id}:${item.card.id}`,
                       type: 'button',
-                      className: `butler-task-completed-row${removingKey === `${item.job.id}:${item.card.id}` ? ' is-removing' : ''}`,
+                      className: 'butler-task-completed-row',
                       style: { '--row-index': index },
                       title: `${item.card.title || item.job.title} 路 ${item.job.title}`,
-                      onClick: () => removeCompleted(item),
+                      onClick: () => openArchive(item),
                     },
                     h('span', { className: 'butler-task-completed-check' }, '✓'),
                     h(
@@ -3682,6 +3733,138 @@ window.__ModuleLoader__.load({
               )
             : h('div', { className: 'butler-task-empty' }, t('taskNoCompleted')),
         ) : null,
+      )
+    }
+
+    function CompletedArchivePage({ t, jobs, initialKey, clearedAt, dismissed, onBack, onOpenSession }) {
+      const items = React.useMemo(
+        () => completedArchiveItems(jobs, clearedAt, dismissed),
+        [jobs, clearedAt, dismissed],
+      )
+      const [selectedKey, setSelectedKey] = React.useState(initialKey || '')
+      const selected =
+        items.find((item) => `${item.job.id}:${item.card.id}` === selectedKey) || items[0] || null
+      React.useEffect(() => {
+        if (!selected && items.length) {
+          setSelectedKey(`${items[0].job.id}:${items[0].card.id}`)
+        }
+      }, [items, selected])
+      const when = (item) => {
+        if (!item?.at) return '—'
+        try {
+          return new Date(item.at).toLocaleString('zh-CN', {
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+        } catch {
+          return clock(item.at)
+        }
+      }
+      return h(
+        'div',
+        { className: 'butler-archive' },
+        h(
+          'header',
+          { className: 'butler-archive-head' },
+          h(
+            'div',
+            { className: 'butler-archive-title-wrap' },
+            h('button', { type: 'button', className: 'butler-btn small ghost', onClick: onBack }, `← ${t('archiveBack')}`),
+            h('h2', null, t('archiveTitle')),
+            h('p', null, t('archiveSub')),
+          ),
+          h('span', { className: 'butler-archive-count' }, t('archiveCount').replace('{n}', items.length)),
+        ),
+        h(
+          'div',
+          { className: 'butler-archive-grid' },
+          h(
+            'aside',
+            { className: 'butler-archive-list', 'aria-label': t('archiveTitle') },
+            items.length
+              ? items.map((item) => {
+                  const key = `${item.job.id}:${item.card.id}`
+                  return h(
+                    'button',
+                    {
+                      type: 'button',
+                      key,
+                      className: `butler-archive-item${selected && `${selected.job.id}:${selected.card.id}` === key ? ' is-active' : ''}`,
+                      onClick: () => setSelectedKey(key),
+                    },
+                    h('span', { className: 'butler-archive-item-time' }, when(item)),
+                    h('strong', null, item.card.title || item.job.title),
+                    h('small', null, item.job.title),
+                  )
+                })
+              : h('div', { className: 'butler-task-empty' }, t('archiveEmpty')),
+          ),
+          h(
+            'section',
+            { className: 'butler-archive-detail' },
+            selected
+              ? h(
+                  React.Fragment,
+                  null,
+                  h(
+                    'div',
+                    { className: 'butler-archive-detail-head' },
+                    h('span', { className: 'butler-archive-kicker' }, when(selected)),
+                    h('h3', null, selected.card.title || selected.job.title),
+                    h('p', null, selected.job.title),
+                  ),
+                  h(
+                    'div',
+                    { className: 'butler-archive-block' },
+                    h('h4', null, t('archiveSummary')),
+                    h('p', null, selected.job.summary || selected.card.result?.summary || selected.card.verify?.summary || '—'),
+                  ),
+                  h(
+                    'div',
+                    { className: 'butler-archive-block' },
+                    h('h4', null, t('archiveResult')),
+                    h('p', null, selected.card.result?.summary || selected.card.verify?.summary || '—'),
+                    selected.card.verify?.gaps?.length
+                      ? h(
+                          'ul',
+                          null,
+                          selected.card.verify.gaps.map((gap, index) =>
+                            h('li', { key: index }, gap),
+                          ),
+                        )
+                      : null,
+                  ),
+                  selected.card.result?.evidence?.length
+                    ? h(
+                        'div',
+                        { className: 'butler-archive-block' },
+                        h('h4', null, t('archiveEvidence')),
+                        h(
+                          'ul',
+                          null,
+                          selected.card.result.evidence.map((entry, index) =>
+                            h('li', { key: index }, typeof entry === 'string' ? entry : JSON.stringify(entry)),
+                          ),
+                        ),
+                      )
+                    : null,
+                  selected.card.sessionId || selected.job.sessionId
+                    ? h(
+                        'button',
+                        {
+                          type: 'button',
+                          className: 'butler-btn small',
+                          onClick: () => onOpenSession(selected.card.sessionId || selected.job.sessionId),
+                        },
+                        t('archiveOpen'),
+                      )
+                    : null,
+                )
+              : h('div', { className: 'butler-archive-placeholder' }, t('archiveSelect')),
+          ),
+        ),
       )
     }
 
@@ -4053,6 +4236,7 @@ window.__ModuleLoader__.load({
       )
       const [filter, setFilter] = React.useState('all')
       const [viewMode, setViewMode] = React.useState('timeline')
+      const [archiveKey, setArchiveKey] = React.useState('')
       const [completedTasks, setCompletedTasks] = React.useState([])
       const dismissedCompleted = React.useRef(readDismissedCompleted())
       const completedClearedAt = React.useRef(readCompletedClearedAt())
@@ -4323,22 +4507,31 @@ window.__ModuleLoader__.load({
       }
       const visibleJobs = filter === 'all' ? jobs : jobs.filter((job) => (job.kind || 'brief') === filter)
       const activeTasks = allActiveTasks(jobs)
-      const completeTask = (item) => {
-        dismissedCompleted.current.add(completedTaskKey(item))
-        writeDismissedCompleted(dismissedCompleted.current)
-        setCompletedTasks((previous) =>
-          previous.filter(
-            (entry) => !(entry.job.id === item.job.id && entry.card.id === item.card.id),
-          ),
-        )
-        const sessionId = item.card.sessionId || item.job.sessionId
-        if (sessionId) openSession(sessionId)
+      const openCompletedArchive = (item) => {
+        setArchiveKey(`${item.job.id}:${item.card.id}`)
       }
       const clearCompleted = () => {
         const clearedAt = latestCompletedAt(data?.jobs || [])
         completedClearedAt.current = clearedAt
         writeCompletedClearedAt(clearedAt)
         setCompletedTasks([])
+      }
+      if (archiveKey) {
+        return h(
+          'div',
+          { className: 'butler-page' },
+          h('style', { key: 'butler-style' }, CSS),
+          props.topbar ? props.topbar() : null,
+          h(CompletedArchivePage, {
+            t,
+            jobs,
+            initialKey: archiveKey,
+            clearedAt: completedClearedAt.current,
+            dismissed: dismissedCompleted.current,
+            onBack: () => setArchiveKey(''),
+            onOpenSession: openSession,
+          }),
+        )
       }
       const filterLabels = { all: 'filterAll', brief: 'filterBrief', session: 'filterSession' }
 
@@ -4420,7 +4613,7 @@ window.__ModuleLoader__.load({
               completedTasks,
               nowTime: Date.now(),
               onOpen: openSession,
-              onComplete: completeTask,
+              onOpenArchive: openCompletedArchive,
               onClearCompleted: clearCompleted,
             }),
             h(Intake, {

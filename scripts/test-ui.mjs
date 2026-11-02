@@ -148,6 +148,8 @@ const jobModeControls = /function JobModeControls[\s\S]*?onPermission/
 const pluginDisableRestore = /overlayStyles\.forEach[\s\S]*?node\.style\.setProperty/
 const taskAnimations = /butler-deck-enter[\s\S]*?butler-deck-open[\s\S]*?butler-row-in/
 const taskExitAnimations = /butler-row-out[\s\S]*?butler-lane-out/
+const completedArchive = /function CompletedArchivePage[\s\S]*?completedArchiveItems[\s\S]*?butler-archive-detail/
+const completedArchiveSort = /items\.sort\(\(a, b\) => b\.at - a\.at\)/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
 const completedClickRemoval = /setCompletedTasks[\s\S]*?openSession\(sessionId\)/
 const planningPlaceholder = /job\.status === 'planning'[\s\S]*?planning:\$\{job\.id\}/
@@ -156,7 +158,7 @@ const persistedWorkspaceOrder = /const WORKSPACE_ORDER_KEY = 'butler:workspace-o
 const strongJobActions = /butler-action-strong[\s\S]*?openConversation[\s\S]*?pauseJob[\s\S]*?deleteJob/
 const clearCompleted = /butler-clear-completed[\s\S]*?onClearCompleted/
 const clearCompletedReset = /const clearCompleted = \(\) => \{[\s\S]*?setCompletedTasks\(\[\]\)/
-const persistentCompletedDismiss = /dismissedCompleted\.current\.add[\s\S]*?writeDismissedCompleted/
+const archiveOpen = /onOpenArchive: openCompletedArchive/
 const completedClearBoundary =
   /const COMPLETED_CLEARED_AT_KEY = 'butler:completed-cleared-at'[\s\S]*?const latestCompletedAt =[\s\S]*?return latest \|\| Date\.now\(\)/
 const clearCompletedPersistsBoundary =
@@ -254,6 +256,8 @@ assert.ok(jobModeControls.test(source), 'conversation groups must expose always-
 assert.ok(pluginDisableRestore.test(source), 'disabling the plugin must restore shell overlay styles')
 assert.ok(taskAnimations.test(source), 'task deck and completed rows must animate')
 assert.ok(taskExitAnimations.test(source), 'completed rows and lane must animate out')
+assert.ok(completedArchive.test(source), 'completed rows must open the archive page')
+assert.ok(completedArchiveSort.test(source), 'archive items must be sorted newest first')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')
 assert.ok(completedClickRemoval.test(source), 'clicking a completed task must remove it and open its conversation')
 assert.ok(planningPlaceholder.test(source), 'a newly created planning job must render immediately')
@@ -262,7 +266,7 @@ assert.ok(persistedWorkspaceOrder.test(source), 'workspace order must persist ac
 assert.ok(strongJobActions.test(source), 'open, pause and remove buttons must use the strong action style')
 assert.ok(clearCompleted.test(source), 'the completed lane must expose a clear-all button')
 assert.ok(clearCompletedReset.test(source), 'clicking clear-all must reset completedTasks')
-assert.ok(persistentCompletedDismiss.test(source), 'opened completed tasks must stay dismissed after remount')
+assert.ok(archiveOpen.test(source), 'completed rows must open the archive instead of being dismissed')
 assert.ok(completedClearBoundary.test(source), 'clear-completed must keep a board-wide cleared boundary')
 assert.ok(clearCompletedPersistsBoundary.test(source), 'clear-completed must persist the boundary and reset the lane')
 assert.ok(completedSeedHonorsBoundary.test(source), 'the completed lane seed must filter by the cleared boundary')
@@ -313,6 +317,7 @@ console.log('PASS conversation groups: mode and permission controls are always v
 console.log('PASS plugin lifecycle: shell overlay styles are restored on disable')
 console.log('PASS task board: deck and completed rows use staggered motion')
 console.log('PASS task board: completed rows and lane animate out')
+console.log('PASS completed archive: two-column page and newest-first ordering')
 console.log('PASS mode: per-conversation selector wired to selectPreset')
 console.log('PASS mode: Chinese labels 标准/PTC/精简/创造')
 console.log('PASS board view: timeline/board toggle with dependency metadata')
@@ -326,7 +331,7 @@ console.log('PASS workspace order: first-seen order is persisted in localStorage
 console.log('PASS conversation actions: open, pause and remove are visually strong')
 console.log('PASS completed lane: clear-all button is present')
 console.log('PASS completed lane: clear-all resets completedTasks to []')
-console.log('PASS completed lane: opened completed tasks stay dismissed after remount')
+console.log('PASS completed lane: completed rows open the archive page')
 console.log('PASS completed lane: clear-all persists a board-wide cleared boundary')
 console.log('PASS completed lane: seed and live completions honor the cleared boundary')
 console.log('PASS completed lane: empty lane is removed after the last item')
