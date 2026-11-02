@@ -74,10 +74,9 @@ function collect(node, className, found = []) {
 }
 
 const rowCloses = collect(tree, 'butler-archive-item-close')
-const summaries = collect(tree, 'butler-archive-item-summary')
-assert.equal(summaries.length, 2, 'every archive record must render its task summary')
-assert.deepEqual(summaries.map((node) => node.children.join('')), ['Summary A', 'Summary B'])
-assert.equal(collect(tree, 'butler-archive-item-title').length, 2)
+const titles = collect(tree, 'butler-archive-item-title')
+assert.equal(titles.length, 2, 'every archive record must render its task title')
+assert.deepEqual(titles.map((node) => node.children.join('')), ['Task A', 'Task B'])
 const detailClose = collect(tree, 'butler-archive-detail-close')
 assert.equal(rowCloses.length, 2, 'every archive record must expose a close button')
 assert.equal(detailClose.length, 1, 'the detail pane must expose a close button for the selected record')
@@ -94,7 +93,7 @@ assert.equal(opened, 's1')
 
 console.log(new Date().toISOString())
 console.log('PASS archive UI: every record has its own close button')
-console.log('PASS archive UI: every record renders its task summary =', JSON.stringify(summaries.map((node) => node.children.join(''))))
+console.log('PASS archive UI: every record renders its task title =', JSON.stringify(titles.map((node) => node.children.join(''))))
 console.log('PASS archive UI: closing one row sends only that key =', JSON.stringify(closed[0]))
 console.log('PASS archive UI: selected detail can also be closed =', JSON.stringify(closed[1]))
 console.log('PASS archive UI: open conversation uses the selected session')

@@ -155,8 +155,8 @@ const completedPreview = /completed\.slice\(0, 3\)[\s\S]*?butler-task-completed-
 const completedCloseContained = /\.butler-task-completed-row\{[^}]*box-sizing:border-box[^}]*padding:6px 27px 6px 4px/
 const completedCloseAbsolute = /\.butler-task-completed-close\{[^}]*position:absolute[^}]*right:4px/
 const archiveRecordActions = /butler-archive-item-close[\s\S]*?onCloseRecord[\s\S]*?butler-archive-clear[\s\S]*?onClearAll/
-const archiveContained = /\.butler-archive-item\{[^}]*box-sizing:border-box[^}]*padding:8px 9px/
-const archiveTopRow = /\.butler-archive-item-top\{[^}]*display:flex/
+const archiveContained = /\.butler-archive-item\{[^}]*box-sizing:border-box[^}]*padding:8px 48px/
+const archiveTopRow = /\.butler-archive-item-close\{[^}]*position:absolute/
 const archiveDetailContained = /\.butler-archive-detail-head\{[^}]*display:flex/
 const archiveHeaderButton = /title: t\('archiveButton'\)/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
@@ -273,7 +273,7 @@ assert.ok(completedCloseContained.test(source), 'completed row close button must
 assert.ok(completedCloseAbsolute.test(source), 'completed row close button must be anchored inside the row')
 assert.ok(archiveRecordActions.test(source), 'archive must expose per-record close and clear-all actions')
 assert.ok(archiveContained.test(source), 'archive item close button must stay inside the summary')
-assert.ok(archiveTopRow.test(source), 'archive close button must sit in a flow header row')
+assert.ok(archiveTopRow.test(source), 'archive close button must be anchored inside the summary')
 assert.ok(archiveDetailContained.test(source), 'archive detail close button must sit in a flow header row')
 assert.ok(archiveHeaderButton.test(source), 'the header must expose the completed archive button')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')

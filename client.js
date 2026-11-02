@@ -568,13 +568,12 @@ window.__ModuleLoader__.load({
       .butler-archive-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(250px,.72fr) minmax(0,1.28fr);gap:12px;}
       .butler-archive-list,.butler-archive-detail{border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1);min-height:0;overflow:auto;padding:9px;box-sizing:border-box;}
       .butler-archive-list{display:flex;flex-direction:column;gap:5px;width:100%;}
-      .butler-archive-item{position:relative;appearance:none;width:100%;box-sizing:border-box;min-width:0;border:1px solid transparent;background:transparent;color:inherit;border-radius:8px;padding:8px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;cursor:pointer;transition:background .16s ease,border-color .16s ease,transform .16s ease;overflow:hidden;}
-      .butler-archive-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;}
-      .butler-archive-item-time{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;color:var(--dsw-alias-label-tertiary);font-family:ui-monospace,Consolas,monospace;}
+      .butler-archive-item{position:relative;appearance:none;width:100%;box-sizing:border-box;min-width:0;min-height:52px;border:1px solid transparent;background:transparent;color:inherit;border-radius:8px;padding:8px 48px 8px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;cursor:pointer;transition:background .16s ease,border-color .16s ease,transform .16s ease;overflow:hidden;}
+      .butler-archive-item-time{display:block;width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;color:var(--dsw-alias-label-tertiary);font-family:ui-monospace,Consolas,monospace;}
       .butler-archive-item-title{display:block;width:100%;min-width:0;font-size:12px;font-weight:650;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-primary);}
       .butler-archive-item-summary{display:block;width:100%;min-width:0;font-size:10px;line-height:1.35;color:var(--dsw-alias-label-secondary);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
       .butler-archive-item small{display:block;width:100%;min-width:0;font-size:9.5px;color:var(--dsw-alias-label-tertiary);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-      .butler-archive-item-close{flex:none;appearance:none;border:1px solid rgba(244,63,94,.28);background:rgba(244,63,94,.06);color:#be123c;border-radius:5px;min-width:30px;height:20px;display:grid;place-items:center;font-size:9px;font-weight:700;line-height:1;cursor:pointer;padding:0 4px;}
+      .butler-archive-item-close{position:absolute;top:4px;right:4px;flex:none;appearance:none;border:1px solid rgba(244,63,94,.28);background:rgba(244,63,94,.06);color:#be123c;border-radius:5px;min-width:30px;height:20px;display:grid;place-items:center;font-size:9px;font-weight:700;line-height:1;cursor:pointer;padding:0 4px;}
       .butler-archive-item-close:hover{border-color:rgba(244,63,94,.4);background:rgba(244,63,94,.1);color:#be123c;}
       .butler-archive-detail{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px 18px;box-sizing:border-box;width:100%;}
       .butler-archive-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;width:100%;box-sizing:border-box;}
@@ -3903,36 +3902,27 @@ window.__ModuleLoader__.load({
                         }
                       },
                     },
-                    h(
-                      'div',
-                      { className: 'butler-archive-item-top' },
-                      h('span', { className: 'butler-archive-item-time' }, when(item)),
-                      h(
-                        'button',
-                        {
-                          type: 'button',
-                          className: 'butler-archive-item-close',
-                          title: t('archiveCloseRecord'),
-                          'aria-label': t('archiveCloseRecord'),
-                          onClick: (event) => {
-                            event.stopPropagation()
-                            onCloseRecord(item.key)
-                          },
-                        },
-                        t('archiveClose'),
-                      ),
-                    ),
+                    h('span', { className: 'butler-archive-item-time' }, when(item)),
                     h(
                       'strong',
                       { className: 'butler-archive-item-title' },
                       item.title || item.summary || item.resultSummary || item.jobTitle || '已完成任务',
                     ),
-                    h(
-                      'span',
-                      { className: 'butler-archive-item-summary' },
-                      item.summary || item.resultSummary || item.verifySummary || item.jobTitle || '—',
-                    ),
                     h('small', null, item.jobTitle),
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'butler-archive-item-close',
+                        title: t('archiveCloseRecord'),
+                        'aria-label': t('archiveCloseRecord'),
+                        onClick: (event) => {
+                          event.stopPropagation()
+                          onCloseRecord(item.key)
+                        },
+                      },
+                      t('archiveClose'),
+                    ),
                   ),
                 )
               : h('div', { className: 'butler-task-empty' }, t('archiveEmpty')),
