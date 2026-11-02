@@ -125,6 +125,9 @@ assert.deepEqual(JSON.parse(afterClose).map((item) => item.key), ['job_b:card_b'
 assert.ok(harness.closed.current.has('job_a:card_a'))
 console.log('PASS completed archive: before close =', beforeClose)
 console.log('PASS completed archive: after close  =', afterClose)
+assert.doesNotThrow(() => harness.api.closeArchiveRecord('job_a:card_a'))
+assert.deepEqual(harness.api.readArchiveRecords().map((item) => item.key), ['job_b:card_b'])
+console.log('PASS completed archive: repeated close is idempotent and keeps other records')
 
 harness.api.clearArchiveRecords()
 assert.deepEqual(harness.api.readArchiveRecords(), [])
