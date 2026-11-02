@@ -498,12 +498,16 @@ window.__ModuleLoader__.load({
       .butler-task-deck.is-expanded .butler-active-task:hover{transform:translateY(-2px);}
       .butler-task-deck-item{min-width:0;}      .butler-task-deck-item .butler-active-task{margin-bottom:0;}
       .butler-task-completed-list{display:flex;flex-direction:column;gap:5px;max-height:170px;overflow:auto;padding-right:2px;}
-      .butler-task-completed-row{appearance:none;border:1px solid rgba(52,211,153,.18);background:rgba(52,211,153,.045);color:inherit;border-radius:8px;padding:7px 8px;display:flex;align-items:center;gap:7px;text-align:left;cursor:pointer;min-width:0;transition:transform .16s ease,border-color .16s ease,background .16s ease;animation:butler-row-in .24s cubic-bezier(.22,.8,.3,1) both;animation-delay:calc(var(--row-index) * 28ms);}
+      .butler-task-completed-row{appearance:none;border:1px solid rgba(52,211,153,.18);background:rgba(52,211,153,.045);color:inherit;border-radius:8px;padding:7px 8px;display:flex;align-items:center;gap:7px;text-align:left;cursor:pointer;min-width:0;overflow:hidden;transition:transform .16s ease,border-color .16s ease,background .16s ease;animation:butler-row-in .24s cubic-bezier(.22,.8,.3,1) both;animation-delay:calc(var(--row-index) * 28ms);}
       .butler-task-completed-row:hover{border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.09);transform:translateX(2px);}
       .butler-task-completed-row:active{transform:translateX(1px) scale(.995);}
+      .butler-task-completed-row.is-removing{pointer-events:none;animation:butler-row-out .16s ease forwards;}
+      .butler-task-lane.is-clearing{animation:butler-lane-out .18s ease forwards;pointer-events:none;}
       @keyframes butler-deck-enter{from{opacity:0;transform:translateY(calc(var(--deck-index) * 34px + 8px)) rotate(calc((var(--deck-index) - 1) * -0.35deg)) scale(.985);}to{opacity:1;transform:translateY(calc(var(--deck-index) * 34px)) rotate(calc((var(--deck-index) - 1) * -0.35deg)) scale(1);}}
       @keyframes butler-deck-open{from{opacity:.35;transform:translateY(-4px);}to{opacity:1;transform:none;}}
       @keyframes butler-row-in{from{opacity:0;transform:translateX(-5px);}to{opacity:1;transform:none;}}
+      @keyframes butler-row-out{to{opacity:0;transform:translateX(14px);max-height:0;padding-top:0;padding-bottom:0;margin-top:-5px;border-width:0;}}
+      @keyframes butler-lane-out{to{opacity:0;transform:translateY(-4px);}}
       @media (prefers-reduced-motion: reduce){.butler-task-deck,.butler-task-deck-item,.butler-task-completed-row,.butler-active-task{animation:none!important;transition:none!important;}}
       .butler-task-completed-check{flex:none;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:rgba(52,211,153,.14);color:#34d399;font-size:10px;}
       .butler-task-completed-copy{min-width:0;display:flex;flex-direction:column;gap:1px;flex:1;}
@@ -3495,13 +3499,43 @@ window.__ModuleLoader__.load({
 
     function TaskBoard({ t, activeTasks, completedTasks, nowTime, onOpen, onComplete, onClearCompleted }) {
       const [expanded, setExpanded] = React.useState(false)
+      const [removingKey, setRemovingKey] = React.useState('')
+      const [clearing, setClearing] = React.useState(false)
+      const removalTimer = React.useRef(null)
+      const clearTimer = React.useRef(null)
       const active = activeTasks || []
       const completed = completedTasks || []
+      React.useEffect(
+        () => () => {
+          if (removalTimer.current) clearTimeout(removalTimer.current)
+          if (clearTimer.current) clearTimeout(clearTimer.current)
+        },
+        [],
+      )
       if (!active.length && !completed.length) return null
       const multi = active.length > 1
       const deckHeight = multi && !expanded ? Math.min(92 + (active.length - 1) * 34, 220) : undefined
       const collapseOnBlur = (event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setExpanded(false)
+      }
+      const removeCompleted = (item) => {
+        const key = `${item.job.id}:${item.card.id}`
+        if (removingKey || clearing) return
+        setRemovingKey(key)
+        removalTimer.current = setTimeout(() => {
+          removalTimer.current = null
+          setRemovingKey('')
+          onComplete(item)
+        }, 160)
+      }
+      const clearAllCompleted = () => {
+        if (!completed.length || clearing) return
+        setClearing(true)
+        clearTimer.current = setTimeout(() => {
+          clearTimer.current = null
+          setClearing(false)
+          onClearCompleted()
+        }, 180)
       }
       return h(
         'div',
@@ -3572,7 +3606,7 @@ window.__ModuleLoader__.load({
         completed.length
           ? h(
           'section',
-          { className: 'butler-task-lane is-completed' },
+          { className: `butler-task-lane is-completed${clearing ? ' is-clearing' : ''}` },
           h(
             'div',
             { className: 'butler-task-lane-head' },
@@ -3583,7 +3617,8 @@ window.__ModuleLoader__.load({
                   {
                     type: 'button',
                     className: 'butler-clear-completed',
-                    onClick: onClearCompleted,
+                    onClick: clearAllCompleted,
+                    disabled: clearing,
                     title: t('taskClearCompleted'),
                   },
                   t('taskClearCompleted'),
@@ -3600,10 +3635,10 @@ window.__ModuleLoader__.load({
                     {
                       key: `${item.job.id}:${item.card.id}`,
                       type: 'button',
-                      className: 'butler-task-completed-row',
+                      className: `butler-task-completed-row${removingKey === `${item.job.id}:${item.card.id}` ? ' is-removing' : ''}`,
                       style: { '--row-index': index },
                       title: `${item.card.title || item.job.title} 路 ${item.job.title}`,
-                      onClick: () => onComplete(item),
+                      onClick: () => removeCompleted(item),
                     },
                     h('span', { className: 'butler-task-completed-check' }, '✓'),
                     h(
