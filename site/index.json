@@ -26,12 +26,12 @@
       },
       "versions": [
         {
-          "version": "1.1.46",
-          "publishTimestamp": 1793603315,
+          "version": "1.1.47",
+          "publishTimestamp": 1793603589,
           "source": {
             "type": "git",
             "url": "https://gitee.com/fglry/dsh-card-workbench",
-            "commit": "0dea6275bc07aff8cfefeb78ac9665bf424782c2"
+            "commit": "7394ba3f2456ab6ef886161c50970db259e7c351"
           },
           "engines": {
             "dsh": ">=0.2.1-rc.2 <0.3.0-0"
