@@ -573,9 +573,9 @@ window.__ModuleLoader__.load({
       .butler-archive-item:hover{background:rgba(52,211,153,.06);transform:none;}
       .butler-archive-item.is-active{background:rgba(52,211,153,.1);box-shadow:inset 2px 0 #34d399;}
       .butler-archive-item-time{display:block;width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;color:var(--dsw-alias-label-tertiary);font-family:ui-monospace,Consolas,monospace;}
-      .butler-archive-item-title{display:block;width:100%;min-width:0;font-size:12px;font-weight:650;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-primary);}
-      .butler-archive-item-summary{display:block;width:100%;min-width:0;font-size:10px;line-height:1.35;color:var(--dsw-alias-label-secondary);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-      .butler-archive-item small{display:block;width:100%;min-width:0;font-size:9.5px;color:var(--dsw-alias-label-tertiary);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      .butler-archive-item-title{display:block;width:100%;min-width:0;font-size:12px;font-weight:650;line-height:1.45;max-width:100%;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;word-break:break-word;color:var(--dsw-alias-label-primary);}
+      .butler-archive-item-summary{display:block;width:100%;min-width:0;font-size:10px;line-height:1.45;color:var(--dsw-alias-label-secondary);max-width:100%;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;word-break:break-word;}
+      .butler-archive-item small{display:block;width:100%;min-width:0;font-size:9.5px;line-height:1.4;color:var(--dsw-alias-label-tertiary);max-width:100%;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;word-break:break-word;}
       .butler-archive-item-close{position:absolute;top:4px;right:4px;flex:none;appearance:none;border:1px solid rgba(244,63,94,.28);background:rgba(244,63,94,.06);color:#be123c;border-radius:5px;min-width:30px;height:20px;display:grid;place-items:center;font-size:9px;font-weight:700;line-height:1;cursor:pointer;padding:0 4px;}
       .butler-archive-item-close:hover{border-color:rgba(244,63,94,.4);background:rgba(244,63,94,.1);color:#be123c;}
       .butler-archive-detail{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px 18px;box-sizing:border-box;width:100%;}
