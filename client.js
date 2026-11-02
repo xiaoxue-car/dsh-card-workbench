@@ -48,6 +48,7 @@ window.__ModuleLoader__.load({
       archiveCount: '{n} 项已完成',
       archiveClearAll: '全部清理',
       archiveCloseRecord: '关闭这条已完成记录',
+      archiveViewAll: '查看全部 {n} 项',
       taskBlocked: '待处理',
       taskCompleted: '任务已完成',
       taskCompletedHint: '点击查看结果，或关闭此提示',
@@ -290,6 +291,7 @@ window.__ModuleLoader__.load({
       archiveCount: '{n} completed',
       archiveClearAll: 'Clear all',
       archiveCloseRecord: 'Close this completed record',
+      archiveViewAll: 'View all {n}',
       taskBlocked: 'Needs attention',
       taskCompleted: 'Task complete',
       taskCompletedHint: 'Open the result or dismiss this notice',
@@ -525,11 +527,13 @@ window.__ModuleLoader__.load({
       .butler-task-deck.is-expanded{max-height:390px;overflow:auto;padding-right:2px;}
       .butler-task-deck.is-expanded .butler-active-task:hover{transform:translateY(-2px);}
       .butler-task-deck-item{min-width:0;}      .butler-task-deck-item .butler-active-task{margin-bottom:0;}
-      .butler-task-completed-list{display:flex;flex-direction:column;gap:0;max-height:188px;overflow:auto;padding:2px 5px;border:1px solid rgba(52,211,153,.18);border-radius:9px;background:rgba(52,211,153,.035);}
-      .butler-task-completed-row{appearance:none;width:100%;border:0;border-bottom:1px solid rgba(148,163,184,.13);background:transparent;color:inherit;border-radius:0;padding:8px 4px;display:flex;align-items:center;gap:7px;text-align:left;cursor:pointer;min-width:0;overflow:hidden;transition:background .16s ease,color .16s ease;animation:butler-row-in .22s cubic-bezier(.22,.8,.3,1) both;animation-delay:calc(var(--row-index) * 24ms);}
-      .butler-task-completed-row:last-child{border-bottom:0;}
+      .butler-task-completed-list{display:flex;flex-direction:column;gap:0;max-height:none;overflow:visible;padding:2px 5px;border:1px solid rgba(52,211,153,.18);border-radius:9px;background:rgba(52,211,153,.035);}
+      .butler-task-completed-row{appearance:none;width:100%;border:0;border-bottom:1px solid rgba(148,163,184,.13);background:transparent;color:inherit;border-radius:0;padding:6px 4px;display:flex;align-items:center;gap:6px;text-align:left;cursor:pointer;min-width:0;overflow:hidden;transition:background .16s ease,color .16s ease;animation:butler-row-in .22s cubic-bezier(.22,.8,.3,1) both;animation-delay:calc(var(--row-index) * 24ms);}
+      .butler-task-completed-row:last-of-type{border-bottom:0;}
       .butler-task-completed-row:hover{border-bottom-color:rgba(52,211,153,.3);background:rgba(52,211,153,.08);}
       .butler-task-completed-row:active{background:rgba(52,211,153,.12);}
+      .butler-task-completed-more{appearance:none;width:100%;border:0;border-top:1px solid rgba(148,163,184,.13);background:transparent;color:#059669;padding:6px 5px 2px;font:inherit;font-size:9.5px;font-weight:650;cursor:pointer;text-align:center;}
+      .butler-task-completed-more:hover{background:rgba(52,211,153,.07);}
       .butler-task-completed-row.is-removing{pointer-events:none;animation:butler-row-out .16s ease forwards;}
       .butler-task-lane.is-clearing{animation:butler-lane-out .18s ease forwards;pointer-events:none;}
       @keyframes butler-deck-enter{from{opacity:0;transform:translateY(calc(var(--deck-index) * 34px + 8px)) rotate(calc((var(--deck-index) - 1) * -0.35deg)) scale(.985);}to{opacity:1;transform:translateY(calc(var(--deck-index) * 34px)) rotate(calc((var(--deck-index) - 1) * -0.35deg)) scale(1);}}
@@ -539,7 +543,7 @@ window.__ModuleLoader__.load({
       @keyframes butler-lane-out{to{opacity:0;transform:translateY(-4px);}}
       @media (prefers-reduced-motion: reduce){.butler-task-deck,.butler-task-deck-item,.butler-task-completed-row,.butler-active-task{animation:none!important;transition:none!important;}}
       .butler-task-completed-check{flex:none;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:rgba(52,211,153,.14);color:#34d399;font-size:10px;}
-      .butler-task-completed-copy{min-width:0;display:flex;flex-direction:column;gap:1px;flex:1;}
+      .butler-task-completed-copy{min-width:0;display:flex;flex-direction:row;align-items:baseline;gap:6px;flex:1;overflow:hidden;}
       .butler-task-completed-title{font-size:11px;font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
       .butler-task-completed-sub{font-size:9px;color:var(--dsw-alias-label-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
       .butler-task-completed-arrow{flex:none;color:#6ee7b7;font-size:12px;}
@@ -3636,7 +3640,7 @@ window.__ModuleLoader__.load({
 
     const TASK_ACCENTS = ['#22d3ee', '#a78bfa', '#f59e0b', '#f472b6', '#34d399']
 
-    function TaskBoard({ t, activeTasks, completedTasks, nowTime, onOpen, onOpenArchive, onClearCompleted }) {
+    function TaskBoard({ t, activeTasks, completedTasks, nowTime, onOpen, onOpenArchive, onOpenArchiveAll, onClearCompleted }) {
       const [expanded, setExpanded] = React.useState(false)
       const [clearing, setClearing] = React.useState(false)
       const clearTimer = React.useRef(null)
@@ -3759,7 +3763,7 @@ window.__ModuleLoader__.load({
             ? h(
                 'div',
                 { className: 'butler-task-completed-list' },
-                completed.map((item, index) =>
+                completed.slice(0, 3).map((item, index) =>
                   h(
                     'button',
                     {
@@ -3780,6 +3784,17 @@ window.__ModuleLoader__.load({
                     h('span', { className: 'butler-task-completed-arrow', 'aria-hidden': true }, '↗'),
                   ),
                 ),
+                completed.length > 3
+                  ? h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'butler-task-completed-more',
+                        onClick: onOpenArchiveAll,
+                      },
+                      t('archiveViewAll').replace('{n}', completed.length),
+                    )
+                  : null,
               )
             : h('div', { className: 'butler-task-empty' }, t('taskNoCompleted')),
         ) : null,
@@ -4621,6 +4636,7 @@ window.__ModuleLoader__.load({
         })
         setArchiveKey(key)
       }
+      const openCompletedArchiveList = () => setArchiveKey('__archive__')
       const closeArchiveRecord = (key) => {
         archiveClosed.current.add(key)
         writeArchiveClosed(archiveClosed.current)
@@ -4719,7 +4735,7 @@ window.__ModuleLoader__.load({
               {
                 small: true,
                 ghost: true,
-                onClick: () => setArchiveKey('__archive__'),
+                onClick: openCompletedArchiveList,
                 title: t('archiveButton'),
               },
               t('archiveButton'),
@@ -4750,6 +4766,7 @@ window.__ModuleLoader__.load({
               nowTime: Date.now(),
               onOpen: openSession,
               onOpenArchive: openCompletedArchive,
+              onOpenArchiveAll: openCompletedArchiveList,
               onClearCompleted: clearCompleted,
             }),
             h(Intake, {
