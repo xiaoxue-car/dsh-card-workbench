@@ -5553,8 +5553,8 @@ window.__ModuleLoader__.load({
         const style = document.createElement('style')
         style.dataset.butlerFullWidth = '1'
         style.textContent =
-          'body[data-butler-page="1"] [class*="_sidebarCol"]{visibility:hidden!important;pointer-events:none!important;}' +
-          'body[data-butler-page="1"] div[class*="_frame"]{grid-template-columns:0 minmax(0,1fr) 0!important;}'
+          '[class*="_sidebarCol"]{visibility:hidden!important;pointer-events:none!important;}' +
+          'div[class*="_frame"]{grid-template-columns:0 minmax(0,1fr) 0!important;}'
         document.head.appendChild(style)
         const restore = () => {
           overlayStyles.forEach((styles, node) => {
