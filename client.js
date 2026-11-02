@@ -48,6 +48,7 @@ window.__ModuleLoader__.load({
       archiveCount: '{n} 项已完成',
       archiveClearAll: '全部清理',
       archiveCloseRecord: '关闭这条已完成记录',
+      archiveClose: '关闭',
       archiveViewAll: '查看全部 {n} 项',
       taskBlocked: '待处理',
       taskCompleted: '任务已完成',
@@ -291,6 +292,7 @@ window.__ModuleLoader__.load({
       archiveCount: '{n} completed',
       archiveClearAll: 'Clear all',
       archiveCloseRecord: 'Close this completed record',
+      archiveClose: 'Close',
       archiveViewAll: 'View all {n}',
       taskBlocked: 'Needs attention',
       taskCompleted: 'Task complete',
@@ -570,11 +572,14 @@ window.__ModuleLoader__.load({
       .butler-archive-item-time{font-size:9px;color:var(--dsw-alias-label-tertiary);font-family:ui-monospace,Consolas,monospace;}
       .butler-archive-item strong{font-size:12px;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
       .butler-archive-item small{font-size:9.5px;color:var(--dsw-alias-label-tertiary);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-      .butler-archive-item-close{position:absolute;top:4px;right:4px;appearance:none;border:1px solid transparent;background:transparent;color:var(--dsw-alias-label-tertiary);border-radius:5px;width:20px;height:20px;display:grid;place-items:center;font-size:15px;line-height:1;cursor:pointer;}
+      .butler-archive-item-close{position:absolute;top:4px;right:4px;appearance:none;border:1px solid rgba(244,63,94,.24);background:rgba(244,63,94,.05);color:#be123c;border-radius:5px;width:20px;height:20px;display:grid;place-items:center;font-size:15px;line-height:1;cursor:pointer;}
       .butler-archive-item-close:hover{border-color:rgba(244,63,94,.4);background:rgba(244,63,94,.1);color:#be123c;}
       .butler-archive-detail{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px 18px;}
+      .butler-archive-detail-head{position:relative;width:100%;padding-right:62px;}
       .butler-archive-detail-head h3{margin:2px 0 4px;font-size:18px;line-height:1.3;}
       .butler-archive-detail-head p{margin:0;font-size:11px;color:var(--dsw-alias-label-secondary);}
+      .butler-archive-detail-close{position:absolute;top:0;right:0;appearance:none;border:1px solid rgba(244,63,94,.42);background:rgba(244,63,94,.08);color:#be123c;border-radius:6px;padding:4px 8px;font:inherit;font-size:10px;font-weight:700;cursor:pointer;}
+      .butler-archive-detail-close:hover{border-color:rgba(244,63,94,.8);background:rgba(244,63,94,.16);}
       .butler-archive-kicker{font-size:9px;letter-spacing:.06em;color:#059669;font-family:ui-monospace,Consolas,monospace;}
       .butler-archive-block{width:100%;border-top:1px solid var(--dsw-alias-border-l1);padding-top:10px;}
       .butler-archive-block h4{margin:0 0 5px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--dsw-alias-label-secondary);}
@@ -3908,6 +3913,15 @@ window.__ModuleLoader__.load({
                     h('span', { className: 'butler-archive-kicker' }, when(selected)),
                     h('h3', null, selected.title),
                     h('p', null, selected.jobTitle),
+                    h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'butler-archive-detail-close',
+                        onClick: () => onCloseRecord(selected.key),
+                      },
+                      t('archiveClose'),
+                    ),
                   ),
                   h(
                     'div',
