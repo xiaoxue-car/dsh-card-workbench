@@ -66,7 +66,17 @@ function findAll(node, type, found = []) {
   return found
 }
 
-function render({ brief = '把首页改成暗色主题', cwd = 'D:\\Project\\virtualPet', busy = false, onSubmit: override } = {}) {
+function findClass(node, className) {
+  if (!node || typeof node !== 'object') return null
+  if (node.props?.className === className) return node
+  for (const child of node.children || []) {
+    const found = findClass(child, className)
+    if (found) return found
+  }
+  return null
+}
+
+function render({ brief = '把首页改成暗色主题', cwd = 'D:\\Project\\virtualPet', busy = false, permission = '', onSubmit: override } = {}) {
   const submitted = []
   const onSubmit = override || (() => submitted.push(brief))
   const tree = Intake({
@@ -82,7 +92,7 @@ function render({ brief = '把首页改成暗色主题', cwd = 'D:\\Project\\vir
     permissionCatalog: null,
     preset: '',
     setPreset() {},
-    permission: '',
+    permission,
     setPermission() {},
     busy,
     error: '',
@@ -348,6 +358,15 @@ console.log('PASS intake Enter: in-flight ref blocks duplicate create requests')
 console.log('PASS intake Enter: submits through the same createJob action as the button')
 console.log('PASS intake Enter: real submit() sends identical createJob args for Enter and button')
 console.log('PASS intake Enter: real submit() refuses empty and busy input')
+
+{
+  const danger = render({ permission: 'danger-full-access' })
+  assert.ok(findClass(danger.tree, 'butler-permission-warning'), 'full access must render the warning')
+  const normal = render({ permission: 'workspace-write' })
+  assert.equal(findClass(normal.tree, 'butler-permission-warning'), null, 'lower permission must clear the warning')
+  console.log('PASS intake permission: full-access warning appears and clears on downgrade')
+}
+
 console.log(
   JSON.stringify(
     {
