@@ -1,4 +1,4 @@
-import assert from 'node:assert/strict'
+﻿import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -55,7 +55,7 @@ let opened = ''
 const tree = CompletedArchivePage({
   t,
   records,
-  initialKey: 'job_a:card_a',
+  initialKey: '__archive__',
   onBack() {},
   onOpenSession(id) {
     opened = id
@@ -93,3 +93,4 @@ console.log('PASS archive UI: every record has its own close button')
 console.log('PASS archive UI: closing one row sends only that key =', JSON.stringify(closed[0]))
 console.log('PASS archive UI: selected detail can also be closed =', JSON.stringify(closed[1]))
 console.log('PASS archive UI: open conversation uses the selected session')
+console.log('PASS archive UI: sentinel key selects the first record by default')
