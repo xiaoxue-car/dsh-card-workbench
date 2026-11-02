@@ -75,7 +75,7 @@ npm pkg get name version repository homepage engines
 
 ```text
 name: dsh-card-workbench
-version: 1.1.31
+version: 1.1.32
 repository.url: https://gitee.com/<你的用户名>/dsh-card-workbench
 ```
 
@@ -90,8 +90,8 @@ git push
 打标签：
 
 ```powershell
-git tag v1.1.31
-git push origin v1.1.31
+git tag v1.1.32
+git push origin v1.1.32
 ```
 
 ## 4. 创建市场索引
@@ -141,7 +141,7 @@ Copy-Item icon.svg site\icons\dsh-card-workbench.svg
       },
       "versions": [
         {
-          "version": "1.1.31",
+          "version": "1.1.32",
           "publishTimestamp": 1793325000,
           "source": {
             "type": "git",
@@ -238,12 +238,12 @@ Gitee Pages 可能需要实名认证；如果无法开启，改用任意 HTTPS �
 以后发新版：
 
 ```powershell
-# 修改 package.json version，例如 1.1.31
+# 修改 package.json version，例如 1.1.32
 git add .
-git commit -m "Release 1.1.31"
-git tag v1.1.31
+git commit -m "Release 1.1.32"
+git tag v1.1.32
 git push
-git push origin v1.1.31
+git push origin v1.1.32
 ```
 
 然后：

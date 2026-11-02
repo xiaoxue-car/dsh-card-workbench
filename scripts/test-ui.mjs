@@ -150,6 +150,7 @@ const taskAnimations = /butler-deck-enter[\s\S]*?butler-deck-open[\s\S]*?butler-
 const taskExitAnimations = /butler-row-out[\s\S]*?butler-lane-out/
 const completedArchive = /function CompletedArchivePage[\s\S]*?completedArchiveItems[\s\S]*?butler-archive-detail/
 const completedArchiveSort = /items\.sort\(\(a, b\) => b\.at - a\.at\)/
+const archiveHeaderButton = /title: t\('archiveButton'\)/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
 const completedClickRemoval = /setCompletedTasks[\s\S]*?openSession\(sessionId\)/
 const planningPlaceholder = /job\.status === 'planning'[\s\S]*?planning:\$\{job\.id\}/
@@ -258,6 +259,7 @@ assert.ok(taskAnimations.test(source), 'task deck and completed rows must animat
 assert.ok(taskExitAnimations.test(source), 'completed rows and lane must animate out')
 assert.ok(completedArchive.test(source), 'completed rows must open the archive page')
 assert.ok(completedArchiveSort.test(source), 'archive items must be sorted newest first')
+assert.ok(archiveHeaderButton.test(source), 'the header must expose the completed archive button')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')
 assert.ok(completedClickRemoval.test(source), 'clicking a completed task must remove it and open its conversation')
 assert.ok(planningPlaceholder.test(source), 'a newly created planning job must render immediately')
@@ -318,6 +320,7 @@ console.log('PASS plugin lifecycle: shell overlay styles are restored on disable
 console.log('PASS task board: deck and completed rows use staggered motion')
 console.log('PASS task board: completed rows and lane animate out')
 console.log('PASS completed archive: two-column page and newest-first ordering')
+console.log('PASS completed archive: header entry button is present')
 console.log('PASS mode: per-conversation selector wired to selectPreset')
 console.log('PASS mode: Chinese labels 标准/PTC/精简/创造')
 console.log('PASS board view: timeline/board toggle with dependency metadata')

@@ -36,6 +36,7 @@ window.__ModuleLoader__.load({
       taskClearCompleted: '清空已完成',
       taskExpandHint: '悬浮或点击展开全部',
       archiveTitle: '已完成工作',
+      archiveButton: '已完成记录',
       archiveSub: '按完成时间倒序排列；选择左侧事项查看回复结果',
       archiveBack: '返回卡片工坊',
       archiveEmpty: '暂无已完成工作',
@@ -275,6 +276,7 @@ window.__ModuleLoader__.load({
       taskClearCompleted: 'Clear completed',
       taskExpandHint: 'Hover or click to expand',
       archiveTitle: 'Completed work',
+      archiveButton: 'Completed log',
       archiveSub: 'Newest first; choose an item on the left to read its result',
       archiveBack: 'Back to workbench',
       archiveEmpty: 'No completed work yet',
@@ -4587,6 +4589,16 @@ window.__ModuleLoader__.load({
                 onClick: () => void refreshNow(),
               },
               refreshing ? t('refreshing') : t('refresh'),
+            ),
+            h(
+              Btn,
+              {
+                small: true,
+                ghost: true,
+                onClick: () => setArchiveKey('__archive__'),
+                title: t('archiveButton'),
+              },
+              t('archiveButton'),
             ),
             h(
               Btn,
