@@ -9,13 +9,26 @@ const end = source.indexOf('    function BoardView(', start)
 assert.ok(start >= 0 && end > start, 'CompletedArchivePage source must be discoverable')
 const componentSource = source.slice(start, end)
 
+const hookState = []
+let hookIndex = 0
 const React = {
   Fragment: 'Fragment',
   useState(initial) {
-    return [typeof initial === 'function' ? initial() : initial, () => {}]
+    const index = hookIndex
+    hookIndex += 1
+    if (!(index in hookState)) {
+      hookState[index] = typeof initial === 'function' ? initial() : initial
+    }
+    return [
+      hookState[index],
+      (value) => {
+        hookState[index] = typeof value === 'function' ? value(hookState[index]) : value
+      },
+    ]
   },
   useEffect() {},
 }
+globalThis.window = { innerWidth: 800, innerHeight: 600 }
 const h = (type, props, ...children) => ({
   type,
   props: props || {},
@@ -52,19 +65,23 @@ const records = [
 ]
 const closed = []
 let opened = ''
-const tree = CompletedArchivePage({
-  t,
-  records,
-  initialKey: '__archive__',
-  onBack() {},
-  onOpenSession(id) {
-    opened = id
-  },
-  onCloseRecord(key) {
-    closed.push(key)
-  },
-  onClearAll() {},
-})
+function renderPage() {
+  hookIndex = 0
+  return CompletedArchivePage({
+    t,
+    records,
+    initialKey: '__archive__',
+    onBack() {},
+    onOpenSession(id) {
+      opened = id
+    },
+    onCloseRecord(key) {
+      closed.push(key)
+    },
+    onClearAll() {},
+  })
+}
+const tree = renderPage()
 
 function collect(node, className, found = []) {
   if (!node || typeof node !== 'object') return found
@@ -91,12 +108,33 @@ assert.ok(openButton, 'the detail must expose the open-conversation action')
 openButton.props.onClick()
 assert.equal(opened, 's1')
 
+const activeItem = collect(tree, 'butler-archive-item is-active')[0]
+assert.ok(activeItem?.props.onMouseEnter, 'archive items must expose a hover tooltip handler')
+activeItem.props.onMouseEnter({
+  currentTarget: {
+    querySelector(selector) {
+      return selector.includes('title')
+        ? { scrollWidth: 300, clientWidth: 100 }
+        : { scrollWidth: 200, clientWidth: 100 }
+    },
+    getBoundingClientRect: () => ({ left: 20, bottom: 120 }),
+  },
+})
+const tooltipTree = renderPage()
+const tips = collect(tooltipTree, 'butler-archive-tip')
+assert.equal(tips.length, 1, 'hovering a clipped summary must render a tooltip')
+assert.match(tips[0].children.join(''), /Task A/)
+assert.match(tips[0].children.join(''), /Job A/)
+assert.equal(tips[0].props.style.left, 20)
+assert.equal(tips[0].props.style.top, 126)
+
 console.log(new Date().toISOString())
 console.log('PASS archive UI: every record has its own close button')
 console.log('PASS archive UI: every record renders its task title =', JSON.stringify(titles.map((node) => node.children.join(''))))
 console.log('PASS archive UI: closing one row sends only that key =', JSON.stringify(closed[0]))
 console.log('PASS archive UI: selected detail can also be closed =', JSON.stringify(closed[1]))
 console.log('PASS archive UI: open conversation uses the selected session')
+console.log('PASS archive UI: clipped summary hover renders a full tooltip =', JSON.stringify(tips[0].children.join('')))
 const fallbackTree = CompletedArchivePage({
   t,
   records: [{ key: 'job_fallback:card_fallback', title: '', summary: 'Fallback summary', jobTitle: 'Fallback job', at: 3 }],

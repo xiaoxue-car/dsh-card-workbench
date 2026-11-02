@@ -158,6 +158,8 @@ const archiveRecordActions = /butler-archive-item-close[\s\S]*?onCloseRecord[\s\
 const archiveContained = /\.butler-archive-item\{[^}]*box-sizing:border-box[^}]*padding:8px 48px/
 const archiveTopRow = /\.butler-archive-item-close\{[^}]*position:absolute/
 const archiveDetailContained = /\.butler-archive-detail-head\{[^}]*display:flex/
+const archiveEllipsis = /\.butler-archive-item-title\{[^}]*white-space:nowrap[^}]*text-overflow:ellipsis/
+const archiveTooltip = /\.butler-archive-tip\{[^}]*position:fixed/
 const archiveHeaderButton = /title: t\('archiveButton'\)/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
 const completedClickRemoval = /setCompletedTasks[\s\S]*?openSession\(sessionId\)/
@@ -275,6 +277,8 @@ assert.ok(archiveRecordActions.test(source), 'archive must expose per-record clo
 assert.ok(archiveContained.test(source), 'archive item close button must stay inside the summary')
 assert.ok(archiveTopRow.test(source), 'archive close button must be anchored inside the summary')
 assert.ok(archiveDetailContained.test(source), 'archive detail close button must sit in a flow header row')
+assert.ok(archiveEllipsis.test(source), 'archive summaries must truncate with an ellipsis')
+assert.ok(archiveTooltip.test(source), 'archive summaries must expose a hover tooltip')
 assert.ok(archiveHeaderButton.test(source), 'the header must expose the completed archive button')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')
 assert.ok(completedClickRemoval.test(source), 'clicking a completed task must remove it and open its conversation')
@@ -341,6 +345,7 @@ console.log('PASS completed lane: only three rows are previewed with a view-all 
 console.log('PASS completed lane: close button is contained inside the row')
 console.log('PASS completed archive: per-record close and clear-all actions')
 console.log('PASS completed archive: close controls are contained inside summaries')
+console.log('PASS completed archive: summaries truncate and expose a hover tooltip')
 console.log('PASS completed archive: header entry button is present')
 console.log('PASS mode: per-conversation selector wired to selectPreset')
 console.log('PASS mode: Chinese labels 标准/PTC/精简/创造')

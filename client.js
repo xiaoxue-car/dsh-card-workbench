@@ -572,11 +572,12 @@ window.__ModuleLoader__.load({
       .butler-archive-item:hover{border-color:rgba(52,211,153,.24);background:rgba(52,211,153,.06);transform:translateX(2px);}
       .butler-archive-item.is-active{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.1);}
       .butler-archive-item-time{display:block;width:100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;color:var(--dsw-alias-label-tertiary);font-family:ui-monospace,Consolas,monospace;}
-      .butler-archive-item-title{display:block;width:100%;min-width:0;font-size:12px;font-weight:650;line-height:1.45;max-width:100%;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;word-break:break-word;color:var(--dsw-alias-label-primary);}
-      .butler-archive-item-summary{display:block;width:100%;min-width:0;font-size:10px;line-height:1.45;color:var(--dsw-alias-label-secondary);max-width:100%;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;word-break:break-word;}
-      .butler-archive-item small{display:block;width:100%;min-width:0;font-size:9.5px;line-height:1.4;color:var(--dsw-alias-label-tertiary);max-width:100%;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;word-break:break-word;}
+      .butler-archive-item-title{display:block;width:100%;min-width:0;font-size:12px;font-weight:650;line-height:1.45;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal;word-break:normal;color:var(--dsw-alias-label-primary);}
+      .butler-archive-item-summary{display:block;width:100%;min-width:0;font-size:10px;line-height:1.45;color:var(--dsw-alias-label-secondary);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .butler-archive-item small{display:block;width:100%;min-width:0;font-size:9.5px;line-height:1.4;color:var(--dsw-alias-label-tertiary);max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
       .butler-archive-item-close{position:absolute;top:4px;right:4px;flex:none;appearance:none;border:1px solid rgba(244,63,94,.28);background:rgba(244,63,94,.06);color:#be123c;border-radius:5px;min-width:30px;height:20px;display:grid;place-items:center;font-size:9px;font-weight:700;line-height:1;cursor:pointer;padding:0 4px;}
       .butler-archive-item-close:hover{border-color:rgba(244,63,94,.4);background:rgba(244,63,94,.1);color:#be123c;}
+      .butler-archive-tip{position:fixed;z-index:1000;max-width:340px;padding:7px 9px;border:1px solid rgba(52,211,153,.35);border-radius:8px;background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font-size:11px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 10px 26px rgba(15,23,42,.18);pointer-events:none;}
       .butler-archive-detail{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px 18px;box-sizing:border-box;width:100%;}
       .butler-archive-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;width:100%;box-sizing:border-box;}
       .butler-archive-detail-copy{min-width:0;flex:1;display:flex;flex-direction:column;align-items:flex-start;}
@@ -3834,6 +3835,7 @@ window.__ModuleLoader__.load({
     function CompletedArchivePage({ t, records, initialKey, onBack, onOpenSession, onCloseRecord, onClearAll }) {
       const items = records || []
       const [selectedKey, setSelectedKey] = React.useState(initialKey || '')
+      const [hoverTip, setHoverTip] = React.useState(null)
       const selected =
         items.find((item) => item.key === selectedKey) || items[0] || null
       React.useEffect(() => {
@@ -3852,6 +3854,23 @@ window.__ModuleLoader__.load({
           return clock(item.at)
         }
       }
+      const showArchiveTip = (event, item) => {
+        const title = event.currentTarget.querySelector('.butler-archive-item-title')
+        const workspace = event.currentTarget.querySelector('small')
+        const clipped = [title, workspace].some(
+          (node) => node && node.scrollWidth > node.clientWidth + 1,
+        )
+        if (!clipped) {
+          setHoverTip(null)
+          return
+        }
+        const text = [...new Set([item.title, item.summary, item.jobTitle].filter(Boolean))].join('\n')
+        const rect = event.currentTarget.getBoundingClientRect()
+        const x = Math.max(8, Math.min(rect.left, (window.innerWidth || 360) - 340))
+        const y = Math.min(rect.bottom + 6, (window.innerHeight || 600) - 120)
+        setHoverTip({ text, x, y })
+      }
+      const hideArchiveTip = () => setHoverTip(null)
       return h(
         'div',
         { className: 'butler-archive' },
@@ -3897,6 +3916,8 @@ window.__ModuleLoader__.load({
                       tabIndex: 0,
                       className: `butler-archive-item${selected?.key === item.key ? ' is-active' : ''}`,
                       onClick: () => setSelectedKey(item.key),
+                      onMouseEnter: (event) => showArchiveTip(event, item),
+                      onMouseLeave: hideArchiveTip,
                       onKeyDown: (event) => {
                         if (event.key === 'Enter' || event.key === ' ') {
                           event.preventDefault()
@@ -4004,6 +4025,16 @@ window.__ModuleLoader__.load({
               : h('div', { className: 'butler-archive-placeholder' }, t('archiveSelect')),
           ),
         ),
+        hoverTip
+          ? h(
+              'div',
+              {
+                className: 'butler-archive-tip',
+                style: { left: hoverTip.x, top: hoverTip.y },
+              },
+              hoverTip.text,
+            )
+          : null,
       )
     }
 
