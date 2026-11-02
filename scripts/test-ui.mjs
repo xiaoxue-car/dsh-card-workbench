@@ -38,8 +38,22 @@ const noManageHover = !/onMouseEnter: \(\) => \{\s*refresh\(\)/.test(source)
 const topbar = /function ButlerTopbarV2/
 const topbarManage = /ButlerTopbar[\s\S]*?t\('management'\)/
 const topbarAccount = /ButlerTopbar[\s\S]*?t\('account'\)/
+const topbarWorkbench = /data-butler-workbench[\s\S]*?t\('managementButler'\)/
 const topbarMenu =
-  /t\('managementNew'\)[\s\S]*?managementButler[\s\S]*?nav\[aria-label\][\s\S]*?managementSettings/
+  /t\('managementNew'\)[\s\S]*?nav\[aria-label\][\s\S]*?managementSettings/
+const topbarMenuNoWorkbench = !/item\(\s*t\('managementButler'\)/.test(source)
+const topbarSameRow = /top: windowsCaption \? '6px' : '46px'/
+const topbarClearsCaptionButtons =
+  /windowsCaption \|\| \/Electron\/i\.test\(navigator\.userAgent\) \? '180px' : '12px'/
+const topbarUnifiedButton =
+  /const baseButton = \{[\s\S]*?padding: '0 12px'[\s\S]*?height: '28px'[\s\S]*?fontSize: '12px'/
+const topbarNoWrap = /flexWrap: 'nowrap'/
+const captionRowAligned = /data-windows-menu[\s\S]*?data-butler-caption/
+const captionUnified =
+  /height: 28px !important;[\s\S]*?padding: 0 12px !important;[\s\S]*?font-size: 12px !important;/
+const responsiveTopbar = /@media \(max-width: 860px\)[\s\S]*?\[data-butler-topbar\] \{ gap: 4px !important; \}/
+const responsiveCaption =
+  /@media \(max-width: 860px\)[\s\S]*?\[role=menubar\] \{ gap: 4px !important; \}/
 const noFooterActions = !/footerActions/.test(source)
 const noTurnJumpPanels = /第\\s\*\\d\+\\s\*轮[\s\S]*?加载并跳转/
 const accountMenu = /aria-haspopup="menu"/
@@ -99,7 +113,7 @@ const testArtifactCleanup = /getElementById\('butler-test-panel'\)/
 const workbenchOnlyTitle =
   /heading: '卡片工坊'/.test(source) && !/总管家/.test(source)
 const workspaceRequired =
-  /className: 'butler-input',[\s\S]*?placeholder: t\('chooseWorkspaceHint'\)[\s\S]*?!cwd\.trim\(\)[\s\S]*?butler-field-hint/
+  /butler-workdir-trigger[\s\S]*?t\('chooseWorkspaceHint'\)[\s\S]*?cwd\.trim\(\)[\s\S]*?butler-field-hint/
 const noDefaultCwd =
   !/if \(!cwdTouched\.current && data\?\.defaultCwd\) setCwd/.test(source)
 const presetSelector =
@@ -116,7 +130,19 @@ const activeTaskCard =
 const activeTaskClick = /onOpen: openSession/
 const completedMerge = /const merged = new Map[\s\S]*?\.slice\(0, 20\)/
 const intakeSameRow = /\.butler-intake > \.butler-row\{[^}]*display:grid[^}]*grid-template-columns:minmax\(0,1fr\) auto/
-const compactPicker = /\.butler-intake \.butler-workdir-row \.butler-btn\.small\{[^}]*height:28px/
+const directoryTrigger = /\.butler-workdir-trigger\{/
+const directoryPicker = /function DirectoryPicker\(/
+const directoryApi = /fetch\(`\$\{API\}\/dirs\$\{query\}`/
+const directoryTreeRole = /role: 'tree'/
+const directorySelect =
+  /const select = \(pathValue\) => \{[\s\S]*?onSelect\(pathValue\)[\s\S]*?setOpen\(false\)/
+const directoryToggle = /const toggle = \(pathValue\) => \{[\s\S]*?void load\(pathValue\)/
+const directorySelected =
+  /is-selected[\s\S]*?aria-selected[\s\S]*?butler-dir-check/
+const noNativeFolderPicker = !/chooseFolder|pickDirectory/.test(source)
+const workspaceSelect = /workspaces && workspaces\.length[\s\S]*?butler-workspace-select/
+const intakeModeControls = /butler-intake-settings[\s\S]*?setPreset[\s\S]*?setPermission/
+const jobModeControls = /function JobModeControls[\s\S]*?onPermission/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
 const completedClickRemoval = /setCompletedTasks[\s\S]*?openSession\(sessionId\)/
 const planningPlaceholder = /job\.status === 'planning'[\s\S]*?planning:\$\{job\.id\}/
@@ -126,8 +152,15 @@ const strongJobActions = /butler-action-strong[\s\S]*?openConversation[\s\S]*?pa
 const clearCompleted = /butler-clear-completed[\s\S]*?onClearCompleted/
 const clearCompletedReset = /const clearCompleted = \(\) => \{[\s\S]*?setCompletedTasks\(\[\]\)/
 const persistentCompletedDismiss = /dismissedCompleted\.current\.add[\s\S]*?writeDismissedCompleted/
+const completedClearBoundary =
+  /const COMPLETED_CLEARED_AT_KEY = 'butler:completed-cleared-at'[\s\S]*?const latestCompletedAt =[\s\S]*?return latest \|\| Date\.now\(\)/
+const clearCompletedPersistsBoundary =
+  /const clearCompleted = \(\) => \{[\s\S]*?writeCompletedClearedAt\(clearedAt\)[\s\S]*?setCompletedTasks\(\[\]\)/
+const completedSeedHonorsBoundary =
+  /currentCompletedTasks\([\s\S]*?dismissedCompleted\.current,[\s\S]*?completedClearedAt\.current,/
+const liveCompletedHonorsBoundary =
+  /for \(const item of finished\)[\s\S]*?item\.at <= completedClearedAt\.current[\s\S]*?merged\.set/
 const hideEmptyCompletedLane = /completed\.length\s*\?\s*h\(\s*'section'[\s\S]*?\) : null/
-const workspaceDropdown = /workspaces && workspaces\.length[\s\S]*?butler-select/
 
 assert.ok(fullPage.test(source), 'butler page must be fixed below the top chrome and fill the viewport')
 assert.ok(conversationFullscreen.test(source), 'the app layout must hide the sidebar and fill the grid')
@@ -141,7 +174,17 @@ assert.ok(topbar.test(source), 'a top application-row bar must exist')
 assert.ok(overlaySlot.test(source), 'the topbar must render in the shell overlay slot')
 assert.ok(topbarManage.test(source), 'the topbar must expose 管理')
 assert.ok(topbarAccount.test(source), 'the topbar must expose 账号')
-assert.ok(topbarMenu.test(source), '管理 must expose new chat, butler, panels and settings')
+assert.ok(topbarWorkbench.test(source), 'the topbar must expose a first-level 卡片工坊 entry')
+assert.ok(topbarMenu.test(source), '管理 must expose new chat, panels and settings')
+assert.ok(topbarMenuNoWorkbench, '卡片工坊 must be removed from the 管理 dropdown')
+assert.ok(topbarSameRow.test(source), 'the Windows topbar must sit on the 40px caption row at 6px')
+assert.ok(topbarClearsCaptionButtons, 'the Windows topbar must clear the minimize/maximize/close buttons')
+assert.ok(topbarUnifiedButton.test(source), 'all plugin topbar buttons must share 28px height and 12px font')
+assert.ok(topbarNoWrap.test(source), 'the five-entry topbar must never wrap')
+assert.ok(captionRowAligned.test(source), 'the Windows caption menu must receive the matching button styles')
+assert.ok(captionUnified.test(source), '应用 / 编辑 must match the plugin button height, padding and font')
+assert.ok(responsiveTopbar.test(source), 'the topbar must compact its gap below 860px')
+assert.ok(responsiveCaption.test(source), 'the caption menu must compact its gap below 860px')
 assert.ok(noFooterActions, '管理 must not include footer actions')
 assert.ok(noTurnJumpPanels.test(source), '管理 must filter turn-jump items from panels')
 assert.ok(accountMenu.test(source), '账号 must click the sidebar account menu trigger')
@@ -190,7 +233,17 @@ assert.ok(activeTaskCard.test(source), 'active task card must render above Intak
 assert.ok(activeTaskClick.test(source), 'clicking the active task card must open its conversation')
 assert.ok(completedMerge.test(source), 'completed tasks must merge and deduplicate')
 assert.ok(intakeSameRow.test(source), 'Intake workdir and start button must stay on one row')
-assert.ok(compactPicker.test(source), 'the choose-folder button must be compact')
+assert.ok(directoryTrigger.test(source), 'the workdir field must render a clickable dropdown trigger')
+assert.ok(directoryPicker.test(source), 'the workdir picker must be an in-panel directory tree')
+assert.ok(directoryApi.test(source), 'the directory tree must load folders from the Host API')
+assert.ok(directoryTreeRole.test(source), 'the dropdown must expose a tree role')
+assert.ok(directorySelect.test(source), 'clicking a folder must select it and close the dropdown')
+assert.ok(directoryToggle.test(source), 'expanding a folder must lazily load its children')
+assert.ok(directorySelected.test(source), 'the selected folder must have a visible selected state')
+assert.ok(noNativeFolderPicker, 'the native choose-folder entry point must be removed')
+assert.ok(workspaceSelect.test(source), 'the workdir field must offer an existing-workspace dropdown')
+assert.ok(intakeModeControls.test(source), 'the intake must expose mode and permission controls')
+assert.ok(jobModeControls.test(source), 'conversation groups must expose always-visible mode and permission controls')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')
 assert.ok(completedClickRemoval.test(source), 'clicking a completed task must remove it and open its conversation')
 assert.ok(planningPlaceholder.test(source), 'a newly created planning job must render immediately')
@@ -200,8 +253,11 @@ assert.ok(strongJobActions.test(source), 'open, pause and remove buttons must us
 assert.ok(clearCompleted.test(source), 'the completed lane must expose a clear-all button')
 assert.ok(clearCompletedReset.test(source), 'clicking clear-all must reset completedTasks')
 assert.ok(persistentCompletedDismiss.test(source), 'opened completed tasks must stay dismissed after remount')
+assert.ok(completedClearBoundary.test(source), 'clear-completed must keep a board-wide cleared boundary')
+assert.ok(clearCompletedPersistsBoundary.test(source), 'clear-completed must persist the boundary and reset the lane')
+assert.ok(completedSeedHonorsBoundary.test(source), 'the completed lane seed must filter by the cleared boundary')
+assert.ok(liveCompletedHonorsBoundary.test(source), 'newly observed completions must respect the cleared boundary')
 assert.ok(hideEmptyCompletedLane.test(source), 'an empty completed lane must be removed')
-assert.ok(workspaceDropdown.test(source), 'the intake workdir must offer an existing-workspace dropdown')
 assert.ok(draftStorage.test(source), 'unsent composer text must be persisted to local storage')
 assert.ok(!automaticNeedsUserOpen.test(source), 'needsUser must not auto-open; the user clicks the task card')
 assert.ok(manualOpenReturn.test(source), 'manual 打开对话 must return to cards after a turn/answer ends')
@@ -212,8 +268,12 @@ console.log('PASS layout: sidebar hidden and frame grid full width')
 console.log('PASS layout: permanent full width on every page; no page transition restores sidebar')
 console.log('PASS layout: persistent CSS hides sidebar immediately during route/module refresh')
 console.log('PASS topbar interaction: no-drag + click-only Manage')
-console.log('PASS topbar: 管理 + 账号 in the application row')
-console.log('PASS topbar Manage: new chat, butler, panels, settings; no turn-jump items')
+console.log('PASS topbar: 卡片工坊 + 管理 + 账号 in the application row')
+console.log('PASS topbar: 卡片工坊 moved out of the 管理 dropdown')
+console.log('PASS topbar: aligned with the 应用 / 编辑 caption row and unified at 28px/12px')
+console.log('PASS topbar: 180px caption-button clearance prevents overlap with window controls')
+console.log('PASS topbar: 卡片工坊/管理/账号 never wrap; compact rules below 860px')
+console.log('PASS topbar Manage: new chat, panels, settings; no turn-jump items')
 console.log('PASS account: native account actions + update, no sidebar reveal')
 console.log('PASS account: settings/feedback/auth/update items are wired')
 console.log('PASS account: update subscription + badge + localized new-version label')
@@ -234,7 +294,10 @@ console.log('PASS clear: visible removed-count feedback')
 console.log('PASS manage menu: unique header and no stray Panel N entries')
 console.log('PASS manage menu: injected __TEST_ nav artifact is removed and filtered')
 console.log('PASS title: only 卡片工坊 is visible; 总管家 wording removed')
-console.log('PASS workdir: empty by default with choose-folder prompt')
+console.log('PASS workdir: empty by default with a click-to-pick trigger')
+console.log('PASS workdir: existing workspaces are available in a dropdown')
+console.log('PASS intake: mode and permission are selectable before creating a job')
+console.log('PASS conversation groups: mode and permission controls are always visible')
 console.log('PASS mode: per-conversation selector wired to selectPreset')
 console.log('PASS mode: Chinese labels 标准/PTC/精简/创造')
 console.log('PASS board view: timeline/board toggle with dependency metadata')
@@ -249,8 +312,10 @@ console.log('PASS conversation actions: open, pause and remove are visually stro
 console.log('PASS completed lane: clear-all button is present')
 console.log('PASS completed lane: clear-all resets completedTasks to []')
 console.log('PASS completed lane: opened completed tasks stay dismissed after remount')
+console.log('PASS completed lane: clear-all persists a board-wide cleared boundary')
+console.log('PASS completed lane: seed and live completions honor the cleared boundary')
 console.log('PASS completed lane: empty lane is removed after the last item')
-console.log('PASS intake: existing workspace dropdown is present')
+console.log('PASS intake: workdir opens a lazy directory tree and closes on folder click')
 console.log('PASS no auto jump: user messages and needsUser do not navigate automatically')
 console.log('PASS navigation: no automatic conversation open; task-card click only')
 console.log('PASS navigation: manual 打开对话 returns after the turn ends')

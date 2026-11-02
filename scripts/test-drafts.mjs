@@ -43,11 +43,15 @@ const load = () =>
 const firstPage = load()
 firstPage.writeDraft('group:job-1', '未发送的对话组问题')
 firstPage.writeDraft('card:card-1', '未发送的卡片补充')
+firstPage.writeDraft('intake:brief', '未交办的工作内容')
+firstPage.writeDraft('intake:cwd', 'D:\\Project\\Demo')
 
 // Simulate closing the page and opening a fresh page with the same storage.
 const reopenedPage = load()
 assert.equal(reopenedPage.readDraft('group:job-1'), '未发送的对话组问题')
 assert.equal(reopenedPage.readDraft('card:card-1'), '未发送的卡片补充')
+assert.equal(reopenedPage.readDraft('intake:brief'), '未交办的工作内容')
+assert.equal(reopenedPage.readDraft('intake:cwd'), 'D:\\Project\\Demo')
 
 reopenedPage.clearDraft('group:job-1')
 assert.equal(reopenedPage.readDraft('group:job-1'), '')
@@ -58,7 +62,13 @@ assert.match(source, /cardDraft = \(id\) => chatDrafts\[id\] \?\? readDraft\(`ca
 assert.match(source, /writeDraft\(`group:\$\{job\.id\}`, event\.target\.value\)/)
 assert.match(source, /writeDraft\(`card:\$\{id\}`, value\)/)
 
+assert.match(source, /React\.useState\(\(\) => readDraft\('intake:brief'\)\)/)
+assert.match(source, /React\.useState\(\(\) => readDraft\('intake:cwd'\)\)/)
+assert.match(source, /writeDraft\('intake:brief', brief\)/)
+assert.match(source, /writeDraft\('intake:cwd', cwd\)/)
+
 console.log('PASS drafts: group and card text survives a simulated page close/reopen')
+console.log('PASS drafts: intake brief and cwd survive a simulated page close/reopen')
 console.log('PASS drafts: successful send clears only the corresponding draft')
 console.log('PASS drafts: both group and card composers read/write localStorage')
 console.log(

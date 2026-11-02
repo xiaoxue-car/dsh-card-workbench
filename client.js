@@ -20,7 +20,6 @@ window.__ModuleLoader__.load({
       chooseWorkspaceHint: '请选择工作区文件夹',
       chooseWorkspace: '选择已有工作区',
       chooseWorkspaceFirst: '请先选择要交办的工作区文件夹',
-      chooseFolder: '选择文件夹',
       start: '拆解开工',
       starting: '管家拆解中…',
       activeTaskKicker: 'CURRENT OPERATION',
@@ -249,7 +248,6 @@ window.__ModuleLoader__.load({
       chooseWorkspaceHint: 'Choose a workspace folder',
       chooseWorkspace: 'Choose an existing workspace',
       chooseWorkspaceFirst: 'Choose a workspace folder before handing over work',
-      chooseFolder: 'Choose folder',
       start: 'Split & start',
       starting: 'Butler is splitting…',
       activeTaskKicker: 'CURRENT OPERATION',
@@ -558,15 +556,46 @@ window.__ModuleLoader__.load({
       .butler-field > span{font-size:11px;color:var(--dsw-alias-label-secondary);}
       .butler-input{width:100%;box-sizing:border-box;height:34px;background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l1);border-radius:8px;padding:0 10px;color:inherit;font:inherit;font-size:12.5px;outline:none;}
       .butler-select{width:100%;box-sizing:border-box;height:34px;background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l1);border-radius:8px;padding:0 8px;color:inherit;font:inherit;font-size:12px;outline:none;cursor:pointer;min-width:0;}
-      .butler-workdir-row .butler-select{height:34px;max-width:none;width:100%;padding:0 8px;border-radius:8px;font-size:12px;}
       .butler-input:focus{border-color:var(--dsw-alias-brand-primary);}
       .butler-workdir-row{display:flex;gap:6px;align-items:center;}
-      .butler-workdir-row .butler-input{flex:1;min-width:0;}
+      .butler-workspace-select{height:34px;margin-bottom:6px;font-size:12px;font-weight:500;}
+      .butler-intake .butler-workspace-select{height:34px;max-width:none;padding:0 8px;font-size:12px;}
+      .butler-intake-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:2px;}
+      .butler-intake-settings .butler-select-field{font-size:10.5px;}
       .butler-intake > .butler-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;min-width:0;width:100%;box-sizing:border-box;}
       .butler-intake > .butler-row > .butler-field{flex:1 1 auto;min-width:0;}
       .butler-intake .butler-workdir-row{min-width:0;}
       .butler-intake > .butler-row > .butler-btn{flex:none;align-self:flex-start;margin-top:26px;height:34px;}
-      .butler-intake .butler-workdir-row .butler-btn.small{height:28px;padding:3px 7px;border-radius:6px;font-size:11px;}
+      .butler-workdir{position:relative;flex:1;min-width:0;}
+      .butler-workdir-trigger{appearance:none;width:100%;min-height:34px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 9px;border:1px solid var(--dsw-alias-border-l1);border-radius:8px;background:var(--dsw-alias-bg-base);color:inherit;font:inherit;text-align:left;cursor:pointer;outline:none;}
+      .butler-workdir-trigger:hover:not(:disabled){border-color:var(--dsw-alias-border-l2);}
+      .butler-workdir-trigger:focus-visible,.butler-workdir-trigger.is-open{border-color:var(--dsw-alias-brand-primary);box-shadow:0 0 0 1px var(--dsw-alias-brand-primary);}
+      .butler-workdir-trigger:disabled{opacity:.55;cursor:default;}
+      .butler-workdir-value{min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.4;white-space:normal;overflow-wrap:anywhere;color:var(--dsw-alias-label-primary);background:transparent;border:0;padding:0;}
+      .butler-workdir-placeholder{min-width:0;font-size:12.5px;color:var(--dsw-alias-label-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .butler-workdir-caret{flex:none;font-size:10px;color:var(--dsw-alias-label-secondary);}
+      .butler-dir-panel{position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:60;display:flex;flex-direction:column;max-height:340px;border:1px solid var(--dsw-alias-border-l2);border-radius:10px;background:var(--dsw-alias-bg-layer-1);box-shadow:0 16px 42px rgba(0,0,0,.3);overflow:hidden;}
+      .butler-dir-head{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);}
+      .butler-dir-title{font-size:11.5px;font-weight:650;color:var(--dsw-alias-label-primary);white-space:nowrap;}
+      .butler-dir-hint{font-size:9.5px;color:var(--dsw-alias-label-tertiary);text-align:right;}
+      .butler-dir-tree{flex:1;min-height:0;overflow:auto;padding:5px;outline:none;}
+      .butler-dir-section{padding:6px 7px 3px;font-size:9px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--dsw-alias-label-tertiary);}
+      .butler-dir-row{display:flex;align-items:center;gap:5px;min-height:29px;box-sizing:border-box;padding:3px 6px 3px 2px;border-radius:6px;cursor:pointer;font-size:12px;line-height:1.35;color:var(--dsw-alias-label-primary);user-select:none;}
+      .butler-dir-row:hover{background:var(--dsw-alias-bg-layer-2);}
+      .butler-dir-row:focus-visible{outline:1px solid var(--dsw-alias-brand-primary);outline-offset:-1px;}
+      .butler-dir-row.is-selected{background:rgba(34,211,238,.14);color:var(--dsw-alias-brand-primary);}
+      .butler-dir-chevron{appearance:none;flex:none;width:16px;height:16px;display:grid;place-items:center;padding:0;border:0;border-radius:4px;background:transparent;color:var(--dsw-alias-label-secondary);font-size:9px;line-height:1;cursor:pointer;}
+      .butler-dir-chevron:hover{background:rgba(148,163,184,.16);color:var(--dsw-alias-label-primary);}
+      .butler-dir-chevron.is-empty{visibility:hidden;pointer-events:none;}
+      .butler-dir-folder{position:relative;flex:none;width:13px;height:10px;border:1px solid currentColor;border-radius:2px;color:var(--dsw-alias-label-secondary);opacity:.9;}
+      .butler-dir-folder::before{content:'';position:absolute;left:0;top:-3px;width:6px;height:3px;border:1px solid currentColor;border-bottom:0;border-radius:2px 2px 0 0;background:var(--dsw-alias-bg-layer-1);}
+      .butler-dir-row.is-selected .butler-dir-folder{color:var(--dsw-alias-brand-primary);}
+      .butler-dir-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      .butler-dir-check{flex:none;margin-left:auto;font-size:11px;font-weight:700;color:var(--dsw-alias-brand-primary);}
+      .butler-dir-state{padding:7px 10px;font-size:10.5px;line-height:1.5;color:var(--dsw-alias-label-secondary);}
+      .butler-dir-state.is-error{color:var(--dsw-alias-state-error-primary);cursor:pointer;}
+      .butler-dir-retry{margin-left:6px;text-decoration:underline;white-space:nowrap;}
+      @media (max-width:640px){.butler-intake > .butler-row{grid-template-columns:minmax(0,1fr);}.butler-intake > .butler-row > .butler-btn{margin-top:0;justify-content:center;}.butler-dir-panel{max-height:46vh;}.butler-dir-hint{display:none;}}
       .butler-btn{appearance:none;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);border-radius:8px;padding:7px 12px;font:inherit;font-size:12.5px;line-height:1.2;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:border-color .15s ease, opacity .15s ease;}
       .butler-btn:hover:not(:disabled){border-color:var(--dsw-alias-border-l2);}
       .butler-btn:disabled{opacity:.5;cursor:default;}
@@ -596,6 +625,8 @@ window.__ModuleLoader__.load({
       .butler-timeline-toggle:hover{color:var(--dsw-alias-brand-primary);}
       .butler-timeline-chevron{flex:none;font-size:10px;color:var(--dsw-alias-label-secondary);width:12px;text-align:center;}
       .butler-job-side{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+      .butler-job-mode-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+      .butler-job-mode-controls .butler-select{height:26px;max-width:150px;font-size:10.5px;}
       .butler-job-side .butler-action-strong{height:28px;padding:4px 10px;border-radius:7px;border-color:rgba(34,211,238,.48);background:rgba(34,211,238,.10);color:#0e7490;font-size:11.5px;font-weight:700;box-shadow:0 0 0 1px rgba(34,211,238,.08);}
       .butler-job-side .butler-action-strong:hover:not(:disabled){border-color:rgba(34,211,238,.8);background:rgba(34,211,238,.16);}
       .butler-job-side .butler-action-strong.is-warn{border-color:rgba(245,158,11,.5);background:rgba(245,158,11,.10);color:#b45309;}
@@ -922,7 +953,7 @@ window.__ModuleLoader__.load({
       return h(
         'details',
         { className: 'butler-log' },
-        h('summary', null, `${t('log')} · ${log.length}`),
+        h('summary', null, `${t('log')} 路 ${log.length}`),
         h(
           'div',
           { className: 'butler-log-list' },
@@ -1091,6 +1122,71 @@ window.__ModuleLoader__.load({
       )
     }
 
+    function JobModeControls({ t, job, presetCatalog, permissionCatalog, busy, onPreset, onPermission }) {
+      const presets = (presetCatalog?.presets || []).filter((item) => !item.broken)
+      const permissions = permissionCatalog?.options || []
+      const presetLabel = (item) =>
+        ({
+          standard: t('modeStandard'),
+          ptc: t('modePtc'),
+          minimal: t('modeMinimal'),
+          cordis: t('modeCreative'),
+        })[item.id] || item.name || item.id
+      const permissionLabel = (value) =>
+        ({
+          'read-only': t('permissionReadOnly'),
+          'workspace-write': t('permissionWorkspaceWrite'),
+          'danger-full-access': t('permissionFullAccess'),
+          custom: t('permissionCustom'),
+        })[value] || value
+      return h(
+        'div',
+        { className: 'butler-job-mode-controls' },
+        presets.length
+          ? h(
+              'label',
+              { className: 'butler-select-field', title: t('mode') },
+              h('span', null, t('mode')),
+              h(
+                'select',
+                {
+                  className: 'butler-select',
+                  value: job.preset || '',
+                  disabled: busy,
+                  onChange: (event) => onPreset(event.target.value),
+                },
+                presets.map((item) =>
+                  h('option', { key: item.id, value: item.id }, presetLabel(item)),
+                ),
+              ),
+            )
+          : null,
+        permissions.length
+          ? h(
+              'label',
+              { className: 'butler-select-field', title: t('permission') },
+              h('span', null, t('permission')),
+              h(
+                'select',
+                {
+                  className: 'butler-select',
+                  value: job.permission || 'custom',
+                  disabled: busy,
+                  onChange: (event) => onPermission(event.target.value),
+                },
+                permissions.map((item) =>
+                  h(
+                    'option',
+                    { key: item.value, value: item.value },
+                    permissionLabel(item.value),
+                  ),
+                ),
+              ),
+            )
+          : null,
+      )
+    }
+
     function QuestionForm({ t, requestId, questions, busy, onSubmit }) {
       const [answers, setAnswers] = React.useState({})
       React.useEffect(() => {
@@ -1228,7 +1324,7 @@ window.__ModuleLoader__.load({
       const showRevise =
         Boolean(job.sessionId || card.sessionId) && !['skipped', 'verifying'].includes(card.status)
       const summary = needsUser
-        ? `${t('needsUserShort')} · ${needsUser.title || ''}`
+        ? `${t('needsUserShort')} 路 ${needsUser.title || ''}`
         : card.result?.summary || card.verify?.summary || card.note || card.goal
       const stop = (fn) => (event) => {
         event.stopPropagation()
@@ -1282,7 +1378,7 @@ window.__ModuleLoader__.load({
                   : null,
               ),
               card.status === 'blocked' && card.blockedReason
-                ? h('div', { className: 'butler-field-hint' }, `${t('blockedLabel')}：${card.blockedReason}`)
+                ? h('div', { className: 'butler-field-hint' }, `${t('blockedLabel')}锛?{card.blockedReason}`)
                 : null,
             ),
             h(
@@ -1291,7 +1387,7 @@ window.__ModuleLoader__.load({
               needsUser ? h('span', { className: 'butler-badge is-warn' }, t('needsUserShort')) : null,
               card.imported ? h('span', { className: 'butler-badge is-idle' }, t('imported')) : null,
               h(Pill, { text: statusText, tone: statusTone(card.status) }),
-              h('span', { className: 'butler-tl-chevron' }, expanded ? '▾' : '▸'),
+              h('span', { className: 'butler-tl-chevron' }, expanded ? '▴' : '▾'),
             ),
           ),
           needsUser
@@ -1302,8 +1398,8 @@ window.__ModuleLoader__.load({
                   'div',
                   { className: 'butler-needs-title' },
                   needsUser.type === 'approval'
-                    ? `${t('needsApproval')}：${needsUser.toolName || ''}`
-                    : `${t('needsQuestion')}：${needsUser.title || ''}`,
+                    ? `${t('needsApproval')}锛?{needsUser.toolName || ''}`
+                    : `${t('needsQuestion')}锛?{needsUser.title || ''}`,
                 ),
                 needsUser.detail ? h('div', { className: 'butler-needs-detail' }, needsUser.detail) : null,
                 needsUser.type === 'question' && needsUser.requestId && needsUser.questions?.length
@@ -1400,7 +1496,7 @@ window.__ModuleLoader__.load({
                         'div',
                         { className: 'butler-tl-text muted' },
                         card.verify.summary ||
-                          (card.verify.gaps && card.verify.gaps.length ? card.verify.gaps.join('；') : ''),
+                          (card.verify.gaps && card.verify.gaps.length ? card.verify.gaps.join('，') : '')
                       ),
                     )
                   : null,
@@ -1408,7 +1504,7 @@ window.__ModuleLoader__.load({
                   ? h(
                       'div',
                       null,
-                      h('div', { className: 'butler-tl-label' }, `${t('revisionNote')} · ${card.revisions.length}`),
+                      h('div', { className: 'butler-tl-label' }, `${t('revisionNote')} 路 ${card.revisions.length}`),
                       h(
                         'div',
                         { className: 'butler-tl-text muted' },
@@ -1517,27 +1613,13 @@ window.__ModuleLoader__.load({
                       'div',
                       { className: 'butler-chat' },
                       h('div', { className: 'butler-tl-label' }, t('cardChat')),
-                      card.chat && card.chat.length
-                        ? h(
-                            'div',
-                            { className: 'butler-chat-list' },
-                            card.chat.slice(-8).map((message, index) =>
-                              h(
-                                'div',
-                                {
-                                  className: `butler-chat-msg is-${message.role || 'assistant'}`,
-                                  key: index,
-                                },
-                                h(
-                                  'span',
-                                  { className: 'butler-chat-role' },
-                                  message.role === 'user' ? t('chatYou') : t('chatAssistant'),
-                                ),
-                                h('span', { className: 'butler-chat-text' }, message.text),
-                              ),
-                            ),
-                          )
-                        : h('div', { className: 'butler-chat-empty' }, t('chatEmpty')),
+                      h(ChatMessages, {
+                        key: chatThreadKey(job, card),
+                        t,
+                        threadKey: chatThreadKey(job, card),
+                        messages: card.chat || [],
+                        emptyText: t('chatEmpty'),
+                      }),
                       h(
                         'div',
                         { className: 'butler-chat-compose' },
@@ -1626,7 +1708,17 @@ window.__ModuleLoader__.load({
       const [revisionText, setRevisionText] = React.useState('')
       const [chatDrafts, setChatDrafts] = React.useState({})
       const [groupChatText, setGroupChatText] = React.useState(() => readDraft(`group:${job.id}`))
-      const [groupOpen, setGroupOpen] = React.useState(false)
+      const groupChatThread = chatThreadKey(job, null)
+      const [groupOpen, setGroupOpen] = React.useState(() =>
+        sessionChatStore.readGroupOpen(groupChatThread),
+      )
+      const toggleGroup = () => {
+        setGroupOpen((value) => {
+          const next = !value
+          sessionChatStore.writeGroupOpen(groupChatThread, next)
+          return next
+        })
+      }
       const showPause =
         job.status === 'running' ||
         job.status === 'planning' ||
@@ -1764,11 +1856,11 @@ window.__ModuleLoader__.load({
                 tabIndex: 0,
                 'aria-expanded': groupOpen,
                 'aria-label': groupOpen ? t('collapseGroup') : t('expandGroup'),
-                onClick: () => setGroupOpen((value) => !value),
+                onClick: () => toggleGroup(),
                 onKeyDown: (event) => {
                   if ((event.key === 'Enter' || event.key === ' ') && event.target === event.currentTarget) {
                     event.preventDefault()
-                    setGroupOpen((value) => !value)
+                    toggleGroup()
                   }
                 },
               },
@@ -1793,6 +1885,17 @@ window.__ModuleLoader__.load({
             { className: 'butler-job-side' },
             waiting ? h('span', { className: 'butler-badge is-warn' }, fill(t('needsUserCount'), { n: waiting })) : null,
             h(Pill, { text: state.label, tone: state.tone }),
+            isSession && job.sessionId
+              ? h(JobModeControls, {
+                  t,
+                  job,
+                  presetCatalog,
+                  permissionCatalog,
+                  busy,
+                  onPreset: changePreset,
+                  onPermission: changePermission,
+                })
+              : null,
             isSession && job.sessionId
               ? h(
                   Btn,
@@ -1862,27 +1965,12 @@ window.__ModuleLoader__.load({
               'div',
               { className: 'butler-group-chat' },
               h('div', { className: 'butler-tl-label' }, t('groupChat')),
-              job.chat && job.chat.length
-                ? h(
-                    'div',
-                    { className: 'butler-chat-list' },
-                    job.chat.slice(-6).map((message, index) =>
-                      h(
-                        'div',
-                        {
-                          className: `butler-chat-msg is-${message.role || 'assistant'}`,
-                          key: index,
-                        },
-                        h(
-                          'span',
-                          { className: 'butler-chat-role' },
-                          message.role === 'user' ? t('chatYou') : t('chatAssistant'),
-                        ),
-                        h('span', { className: 'butler-chat-text' }, message.text),
-                      ),
-                    ),
-                  )
-                : null,
+              h(ChatMessages, {
+                key: chatThreadKey(job, null),
+                t,
+                threadKey: chatThreadKey(job, null),
+                messages: job.chat || [],
+              }),
               job.groupChatOpen
                 ? h('div', { className: 'butler-chat-waiting' }, t('groupChatWaiting'))
                 : null,
@@ -1971,7 +2059,7 @@ window.__ModuleLoader__.load({
           ? h(
               'div',
               { className: 'butler-complete' },
-              '✓ ',
+              '鉁?',
               fill(t('stateDone'), { done: job.stats.done, total: job.stats.total }),
             )
           : null,
@@ -2002,8 +2090,8 @@ window.__ModuleLoader__.load({
                 }
               },
             },
-            h('span', { className: 'butler-timeline-chevron' }, timelineOpen ? '▾' : '▸'),
-            h('span', null, `${t('taskTimeline')} · ${cards.length}`),
+            h('span', { className: 'butler-timeline-chevron' }, timelineOpen ? '▴' : '▾'),
+            h('span', null, `${t('taskTimeline')} 路 ${cards.length}`),
           ),
           h(
             'div',
@@ -2121,7 +2209,7 @@ window.__ModuleLoader__.load({
             h(
               'div',
               { className: 'butler-workspace-name' },
-              `${t('workspace')} · ${shortPath(cwd)}`,
+              `${t('workspace')} 路 ${shortPath(cwd)}`,
             ),
             h('code', { className: 'butler-workspace-path', title: cwd }, cwd || t('unknownWorkspace')),
           ),
@@ -2146,7 +2234,7 @@ window.__ModuleLoader__.load({
             stats.waiting
               ? h('span', { className: 'butler-badge is-warn' }, `${t('metricWaiting')} ${stats.waiting}`)
               : null,
-            h('span', { className: 'butler-workspace-chevron' }, open ? '▾' : '▸'),
+            h('span', { className: 'butler-workspace-chevron' }, open ? '▴' : '▾'),
           ),
         ),
         open
@@ -2190,6 +2278,281 @@ window.__ModuleLoader__.load({
       }
     }
     const clearDraft = (key) => writeDraft(key, '')
+
+    // --- session chat store -------------------------------------------------
+    // Every conversation dialog (a group's direct chat and a task card's chat)
+    // is addressed by its Session id. The Host already persists `job.chat` /
+    // `card.chat`, but the panel used to render only the tail of that list and
+    // rebuilt it on every remount, so switching dialogs looked like the
+    // messages had been cleared. Keep one merged thread per Session in memory
+    // and the reader's scroll offset in localStorage, then render the whole
+    // thread with stable keys. The Host remains the source of truth across a
+    // page reload; only the UI scroll state is stored in the browser.
+    const CHAT_SCROLL_KEY = 'butler:chat-scroll:v1'
+    const CHAT_MESSAGE_LIMIT = 40
+    const EMPTY_CHAT = []
+
+    function chatMessageKey(message) {
+      if (message && typeof message.id === 'string' && message.id) return `id:${message.id}`
+      const role = typeof message?.role === 'string' ? message.role : ''
+      const at = Number.isFinite(Number(message?.at)) ? String(message.at) : ''
+      const text = typeof message?.text === 'string' ? message.text : ''
+      return `${role}|${at}|${text}`
+    }
+
+    function chatThreadKey(job, card) {
+      const session = card?.sessionId || job?.sessionId || (job?.id ? `job:${job.id}` : 'unknown')
+      return card?.id ? `${session}:card:${card.id}` : `${session}:group`
+    }
+
+    function readChatScrollState() {
+      try {
+        const raw = JSON.parse(window.localStorage.getItem(CHAT_SCROLL_KEY) || '{}')
+        if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
+        const state = {}
+        for (const [key, value] of Object.entries(raw)) {
+          if (!value || typeof value !== 'object') continue
+          const top = Number(value.top)
+          state[key] = {
+            top: Number.isFinite(top) && top > 0 ? top : 0,
+            atBottom: value.atBottom === true,
+          }
+        }
+        return state
+      } catch {
+        return {}
+      }
+    }
+
+    const sessionChatStore = (() => {
+      const threads = new Map()
+      const listeners = new Map()
+      const ui = new Map(Object.entries(readChatScrollState()))
+      let persistTimer = null
+
+      const uiFor = (key) => ui.get(key) || { top: 0, atBottom: false }
+
+      const notify = (key) => {
+        const set = listeners.get(key)
+        if (!set) return
+        for (const listener of [...set]) {
+          try {
+            listener()
+          } catch {
+            /* a listener must not break the store */
+          }
+        }
+      }
+
+      const persist = () => {
+        persistTimer = null
+        try {
+          const payload = {}
+          for (const [key, value] of ui) {
+            payload[key] = { top: value.top || 0, atBottom: value.atBottom === true }
+          }
+          window.localStorage.setItem(CHAT_SCROLL_KEY, JSON.stringify(payload))
+        } catch {
+          /* storage may be unavailable */
+        }
+      }
+
+      const schedulePersist = () => {
+        if (persistTimer !== null) return
+        persistTimer = setTimeout(persist, 250)
+      }
+
+      const ingest = (key, messages) => {
+        if (!key) return EMPTY_CHAT
+        const incoming = Array.isArray(messages) ? messages : EMPTY_CHAT
+        const previous = threads.get(key) || EMPTY_CHAT
+        if (!incoming.length && !previous.length) return EMPTY_CHAT
+        // Merge by occurrence count, not by a plain Set: sending the exact same
+        // text twice in one millisecond must still render two bubbles, while a
+        // repeated poll of the same snapshot must not duplicate them.
+        const valid = (message) =>
+          message && typeof message === 'object' && typeof message.text === 'string' && message.text
+        const previousCounts = new Map()
+        for (const message of previous) {
+          if (!valid(message)) continue
+          const fingerprint = chatMessageKey(message)
+          previousCounts.set(fingerprint, (previousCounts.get(fingerprint) || 0) + 1)
+        }
+        const merged = []
+        const used = new Map()
+        const add = (message) => {
+          if (!valid(message)) return
+          const fingerprint = chatMessageKey(message)
+          used.set(fingerprint, (used.get(fingerprint) || 0) + 1)
+          merged.push(message)
+        }
+        for (const message of incoming) add(message)
+        for (const message of previous) {
+          if (!valid(message)) continue
+          const fingerprint = chatMessageKey(message)
+          if ((used.get(fingerprint) || 0) < (previousCounts.get(fingerprint) || 0)) {
+            used.set(fingerprint, (used.get(fingerprint) || 0) + 1)
+            merged.push(message)
+          }
+        }
+        merged.sort((a, b) => (Number(a.at) || 0) - (Number(b.at) || 0))
+        if (merged.length > CHAT_MESSAGE_LIMIT) merged.splice(0, merged.length - CHAT_MESSAGE_LIMIT)
+        if (
+          merged.length === previous.length &&
+          merged.every((message, index) => message === previous[index])
+        ) {
+          return previous
+        }
+        threads.set(key, merged)
+        notify(key)
+        return merged
+      }
+
+      const subscribe = (key, listener) => {
+        if (typeof listener !== 'function') return () => {}
+        let set = listeners.get(key)
+        if (!set) {
+          set = new Set()
+          listeners.set(key, set)
+        }
+        set.add(listener)
+        return () => {
+          set.delete(listener)
+          if (!set.size) listeners.delete(key)
+        }
+      }
+
+      const readScroll = (key) => {
+        const value = uiFor(key)
+        return { top: value.top || 0, atBottom: value.atBottom === true }
+      }
+
+      const writeScroll = (key, top, atBottom) => {
+        if (!key) return
+        const value = uiFor(key)
+        const nextTop = Number.isFinite(Number(top)) && Number(top) > 0 ? Number(top) : 0
+        const nextBottom = atBottom === true
+        if (value.top === nextTop && value.atBottom === nextBottom) return
+        ui.set(key, { ...value, top: nextTop, atBottom: nextBottom })
+        schedulePersist()
+      }
+
+      const readGroupOpen = (key) => uiFor(key).open === true
+
+      const writeGroupOpen = (key, open) => {
+        if (!key) return
+        const value = uiFor(key)
+        const nextOpen = open === true
+        if (value.open === nextOpen) return
+        // Expanded/collapsed state is a within-session convenience only: a page
+        // reload keeps the documented "all groups collapsed" default.
+        ui.set(key, { ...value, open: nextOpen })
+      }
+
+      const flush = () => {
+        if (persistTimer === null) return
+        clearTimeout(persistTimer)
+        persist()
+      }
+
+      return {
+        read: (key) => threads.get(key) || EMPTY_CHAT,
+        subscribe,
+        ingest,
+        readScroll,
+        writeScroll,
+        readGroupOpen,
+        writeGroupOpen,
+        flush,
+      }
+    })()
+
+    function ChatMessages({ t, threadKey, messages, emptyText }) {
+      const [log, setLog] = React.useState(() => {
+        const cached = sessionChatStore.read(threadKey)
+        return cached.length ? cached : Array.isArray(messages) ? messages : EMPTY_CHAT
+      })
+      const listRef = React.useRef(null)
+      const stickRef = React.useRef(true)
+
+      React.useEffect(() => {
+        sessionChatStore.ingest(threadKey, messages)
+        setLog(sessionChatStore.read(threadKey))
+        return sessionChatStore.subscribe(threadKey, () => {
+          setLog(sessionChatStore.read(threadKey))
+        })
+      }, [threadKey, messages])
+
+      React.useLayoutEffect(() => {
+        const node = listRef.current
+        if (!node) return
+        const saved = sessionChatStore.readScroll(threadKey)
+        stickRef.current = saved.atBottom || saved.top === 0
+        let restored = false
+        const restore = () => {
+          // A collapsed group has zero height; wait until it is expanded so the
+          // saved offset applies to a real scrollport instead of being clamped.
+          if (restored || !node.clientHeight) return
+          restored = true
+          node.scrollTop = saved.atBottom ? node.scrollHeight : saved.top
+        }
+        restore()
+        if (typeof ResizeObserver === 'undefined') return
+        const observer = new ResizeObserver(restore)
+        observer.observe(node)
+        return () => observer.disconnect()
+      }, [threadKey])
+
+      React.useLayoutEffect(() => {
+        const node = listRef.current
+        if (!node || !stickRef.current) return
+        node.scrollTop = node.scrollHeight
+        sessionChatStore.writeScroll(threadKey, node.scrollTop, true)
+      }, [log])
+
+      if (!log.length) {
+        return emptyText ? h('div', { className: 'butler-chat-empty' }, emptyText) : null
+      }
+
+      const keyed = []
+      const seen = new Map()
+      for (const message of log) {
+        const base = chatMessageKey(message)
+        const count = seen.get(base) || 0
+        seen.set(base, count + 1)
+        keyed.push({ message, key: count ? `${base}#${count}` : base })
+      }
+
+      return h(
+        'div',
+        {
+          ref: listRef,
+          className: 'butler-chat-list',
+          'data-thread-key': threadKey,
+          'data-message-count': log.length,
+          onScroll: (event) => {
+            const node = event.currentTarget
+            const atBottom = node.scrollHeight - node.scrollTop - node.clientHeight <= 8
+            stickRef.current = atBottom
+            sessionChatStore.writeScroll(threadKey, node.scrollTop, atBottom)
+          },
+        },
+        keyed.map(({ message, key }) =>
+          h(
+            'div',
+            { className: `butler-chat-msg is-${message.role || 'assistant'}`, key },
+            h(
+              'span',
+              { className: 'butler-chat-role' },
+              message.role === 'user' ? t('chatYou') : t('chatAssistant'),
+            ),
+            h('span', { className: 'butler-chat-text' }, message.text),
+          ),
+        ),
+      )
+    }
+    // --- end session chat store ---------------------------------------------
+
     const WORKSPACE_ORDER_KEY = 'butler:workspace-order'
     const readWorkspaceOrder = () => {
       try {
@@ -2388,7 +2751,7 @@ window.__ModuleLoader__.load({
             h(
               'span',
               { className: 'butler-summary-title' },
-              `${t('sessionsTitle')} · ${list.length}`,
+              `${t('sessionsTitle')} 路 ${list.length}`,
             ),
             adopted.length
               ? h('span', { className: 'butler-badge is-idle' }, `${t('adoptedBadge')} ${adopted.length}`)
@@ -2410,7 +2773,7 @@ window.__ModuleLoader__.load({
             'span',
             { className: 'butler-session-toggle-action' },
             h('span', null, open ? t('sessionsClose') : t('sessionsOpen')),
-            h('span', null, open ? '▾' : '▸'),
+            h('span', null, open ? '▴' : '▾'),
           ),
         ),
         !open
@@ -2443,7 +2806,7 @@ window.__ModuleLoader__.load({
                             'div',
                             { className: 'butler-session-title', title: session.title },
                             session.title,
-                            session.current ? ` · ${t('current')}` : '',
+                            session.current ? ` 路 ${t('current')}` : '',
                           ),
                           h(
                             'div',
@@ -2492,11 +2855,296 @@ window.__ModuleLoader__.load({
       )
     }
 
-    function Intake({ t, brief, setBrief, cwd, setCwd, workspaces, busy, error, onSubmit, onPickDirectory }) {
+    const DIR_ROOT_KEY = '__roots__'
+
+    /**
+     * Dropdown directory tree used by the intake form. The Host lists one
+     * folder at a time (`/api/dirs?path=...`); expanding a node is lazy.
+     * Clicking a folder selects it and closes the panel.
+     */
+    function DirectoryPicker({ t, value, onSelect, disabled }) {
+      const [open, setOpen] = React.useState(false)
+      const [expanded, setExpanded] = React.useState(() => new Set())
+      const [, forceRender] = React.useState(0)
+      const cache = React.useRef(new Map())
+      const loading = React.useRef(new Set())
+      const rootRef = React.useRef(null)
+      const triggerRef = React.useRef(null)
+      const selected = String(value || '')
+
+      const load = React.useCallback(async (target) => {
+        const key = target || DIR_ROOT_KEY
+        const cached = cache.current.get(key)
+        if (cached?.status === 'ready') return cached
+        if (loading.current.has(key)) return null
+        loading.current.add(key)
+        cache.current.set(key, { status: 'loading' })
+        forceRender((n) => n + 1)
+        try {
+          const query = target ? `?path=${encodeURIComponent(target)}` : ''
+          const response = await fetch(`${API}/dirs${query}`, {
+            headers: HEADERS,
+            cache: 'no-store',
+          })
+          const payload = await response.json()
+          if (!response.ok || !payload.ok) throw new Error(payload.error || `HTTP ${response.status}`)
+          const data = { status: 'ready', ...payload.data }
+          cache.current.set(key, data)
+          return data
+        } catch (err) {
+          const data = { status: 'error', error: err?.message || String(err) }
+          cache.current.set(key, data)
+          return data
+        } finally {
+          loading.current.delete(key)
+          forceRender((n) => n + 1)
+        }
+      }, [])
+
+      const toggle = (pathValue) => {
+        setExpanded((previous) => {
+          const next = new Set(previous)
+          if (next.has(pathValue)) next.delete(pathValue)
+          else next.add(pathValue)
+          return next
+        })
+        void load(pathValue)
+      }
+
+      const select = (pathValue) => {
+        onSelect(pathValue)
+        setOpen(false)
+        triggerRef.current?.focus()
+      }
+
+      React.useEffect(() => {
+        if (!open) return undefined
+        let cancelled = false
+        ;(async () => {
+          await load('')
+          if (!selected) return
+          const chain = []
+          const seen = new Set()
+          let current = selected
+          while (current && !seen.has(current)) {
+            seen.add(current)
+            const node = await load(current)
+            if (cancelled) return
+            if (!node || node.status !== 'ready' || !node.parent) break
+            chain.push(node.parent)
+            current = node.parent
+          }
+          if (!cancelled && chain.length) {
+            setExpanded((previous) => {
+              const next = new Set(previous)
+              for (const parent of chain) next.add(parent)
+              return next
+            })
+          }
+        })()
+        return () => {
+          cancelled = true
+        }
+      }, [open, selected, load])
+
+      React.useEffect(() => {
+        if (disabled) setOpen(false)
+      }, [disabled])
+
+      React.useEffect(() => {
+        if (!open) return undefined
+        const onPointerDown = (event) => {
+          if (rootRef.current && !rootRef.current.contains(event.target)) setOpen(false)
+        }
+        const onKeyDown = (event) => {
+          if (event.key !== 'Escape') return
+          event.stopPropagation()
+          setOpen(false)
+          triggerRef.current?.focus()
+        }
+        document.addEventListener('mousedown', onPointerDown, true)
+        document.addEventListener('keydown', onKeyDown)
+        return () => {
+          document.removeEventListener('mousedown', onPointerDown, true)
+          document.removeEventListener('keydown', onKeyDown)
+        }
+      }, [open])
+
+      const renderDir = (dir, depth) => {
+        const node = cache.current.get(dir.path)
+        const isExpanded = expanded.has(dir.path)
+        const isSelected = selected === dir.path
+        const children = node?.status === 'ready' ? node.dirs || [] : []
+        const indent = { paddingLeft: `${6 + depth * 14}px` }
+        const state = (text, extra) =>
+          h('div', { className: `butler-dir-state${extra || ''}`, style: indent }, text)
+        return h(
+          React.Fragment,
+          { key: dir.path },
+          h(
+            'div',
+            {
+              className: `butler-dir-row${isSelected ? ' is-selected' : ''}`,
+              role: 'treeitem',
+              'aria-selected': isSelected ? 'true' : 'false',
+              'aria-expanded': node?.status === 'ready' && children.length ? String(isExpanded) : undefined,
+              tabIndex: 0,
+              title: dir.path,
+              style: indent,
+              onClick: () => select(dir.path),
+              onKeyDown: (event) => {
+                if (event.target?.tagName === 'BUTTON') return
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  select(dir.path)
+                } else if (event.key === 'ArrowRight' && !isExpanded) {
+                  event.preventDefault()
+                  toggle(dir.path)
+                } else if (event.key === 'ArrowLeft' && isExpanded) {
+                  event.preventDefault()
+                  toggle(dir.path)
+                }
+              },
+            },
+            h(
+              'button',
+              {
+                type: 'button',
+                className: `butler-dir-chevron${node?.status === 'ready' && !children.length ? ' is-empty' : ''}`,
+                'aria-label': isExpanded ? t('dirCollapse') : t('dirExpand'),
+                onClick: (event) => {
+                  event.stopPropagation()
+                  toggle(dir.path)
+                },
+              },
+              isExpanded ? '▴' : '▾',
+            ),
+            h('span', { className: 'butler-dir-folder', 'aria-hidden': 'true' }),
+            h('span', { className: 'butler-dir-name' }, dir.name),
+            isSelected
+              ? h('span', { className: 'butler-dir-check', 'aria-label': t('dirSelected') }, '✓')
+              : null,
+          ),
+          isExpanded && node?.status === 'loading' ? state(t('dirLoading')) : null,
+          isExpanded && node?.status === 'error'
+            ? h(
+                'div',
+                {
+                  className: 'butler-dir-state is-error',
+                  style: indent,
+                  onClick: (event) => {
+                    event.stopPropagation()
+                    cache.current.delete(dir.path)
+                    void load(dir.path)
+                  },
+                },
+                `${t('dirError')}锛?{node.error}`,
+                h('span', { className: 'butler-dir-retry' }, t('dirRetry')),
+              )
+            : null,
+          isExpanded && node?.status === 'ready' && !children.length
+            ? state(t('dirEmpty'))
+            : null,
+          isExpanded && node?.status === 'ready' && children.length
+            ? h(
+                'div',
+                { role: 'group' },
+                children.map((child) => renderDir(child, depth + 1)),
+              )
+            : null,
+        )
+      }
+
+      const rootsNode = cache.current.get(DIR_ROOT_KEY)
+      const roots = rootsNode?.status === 'ready' ? rootsNode.roots || [] : []
+      const treeState = (() => {
+        if (!rootsNode || rootsNode.status === 'loading') {
+          return h('div', { className: 'butler-dir-state' }, t('dirLoading'))
+        }
+        if (rootsNode.status === 'error') {
+          return h(
+            'div',
+            {
+              className: 'butler-dir-state is-error',
+              onClick: () => {
+                cache.current.delete(DIR_ROOT_KEY)
+                void load('')
+              },
+            },
+            `${t('dirError')}锛?{rootsNode.error}`,
+            h('span', { className: 'butler-dir-retry' }, t('dirRetry')),
+          )
+        }
+        if (!roots.length) return h('div', { className: 'butler-dir-state' }, t('dirEmpty'))
+        return [
+          h('div', { key: 'roots-label', className: 'butler-dir-section' }, t('dirRoots')),
+          ...roots.map((root) => renderDir(root, 0)),
+        ]
+      })()
+
+      return h(
+        'div',
+        { className: 'butler-workdir', ref: rootRef },
+        h(
+          'button',
+          {
+            ref: triggerRef,
+            type: 'button',
+            className: `butler-workdir-trigger${open ? ' is-open' : ''}`,
+            onClick: () => setOpen((previous) => !previous),
+            'aria-haspopup': 'tree',
+            'aria-expanded': open ? 'true' : 'false',
+            'aria-label': `${t('workdir')}锛?{selected || t('chooseWorkspaceHint')}`,
+            title: selected || t('chooseWorkspaceHint'),
+            disabled,
+          },
+          selected
+            ? h('code', { className: 'butler-workdir-value' }, selected)
+            : h('span', { className: 'butler-workdir-placeholder' }, t('chooseWorkspaceHint')),
+          h('span', { className: 'butler-workdir-caret', 'aria-hidden': 'true' }, open ? '▴' : '▾'),
+        ),
+        open
+          ? h(
+              'div',
+              { className: 'butler-dir-panel', role: 'dialog', 'aria-label': t('dirTreeTitle') },
+              h(
+                'div',
+                { className: 'butler-dir-head' },
+                h('span', { className: 'butler-dir-title' }, t('dirTreeTitle')),
+                h('span', { className: 'butler-dir-hint' }, t('dirTreeHint')),
+              ),
+              h(
+                'div',
+                { className: 'butler-dir-tree', role: 'tree', 'aria-label': t('dirTreeTitle') },
+                treeState,
+              ),
+            )
+          : null,
+      )
+    }
+
+    function Intake({ t, brief, setBrief, cwd, setCwd, workspaces, presetCatalog, permissionCatalog, preset, setPreset, permission, setPermission, busy, error, onSubmit }) {
+      const composing = React.useRef(false)
+      const presetOptions = (presetCatalog?.presets || []).filter((item) => !item.broken)
+      const permissionOptions = permissionCatalog?.options || []
+      const presetLabel = (item) =>
+        ({
+          standard: t('modeStandard'),
+          ptc: t('modePtc'),
+          minimal: t('modeMinimal'),
+          cordis: t('modeCreative'),
+        })[item.id] || item.name || item.id
+      const permissionLabel = (value) =>
+        ({
+          'read-only': t('permissionReadOnly'),
+          'workspace-write': t('permissionWorkspaceWrite'),
+          'danger-full-access': t('permissionFullAccess'),
+          custom: t('permissionCustom'),
+        })[value] || value
       return h(
         'section',
         { className: 'butler-card butler-intake' },
-        error ? h('div', { className: 'butler-alert' }, `${t('error')}：${error}`) : null,
+        error ? h('div', { className: 'butler-alert' }, `${t('error')}锛?{error}`) : null,
         h(
           'div',
           { className: 'butler-label' },
@@ -2508,11 +3156,25 @@ window.__ModuleLoader__.load({
           value: brief,
           placeholder: t('placeholder'),
           onChange: (event) => setBrief(event.target.value),
+          onCompositionStart: () => {
+            composing.current = true
+          },
+          onCompositionEnd: () => {
+            composing.current = false
+          },
           onKeyDown: (event) => {
-            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
-              event.preventDefault()
-              onSubmit()
-            }
+            if (event.key !== 'Enter' || event.shiftKey) return
+            const native = event.nativeEvent || {}
+            const isComposing =
+              composing.current ||
+              native.isComposing ||
+              event.isComposing ||
+              event.keyCode === 229 ||
+              native.keyCode === 229
+            if (isComposing) return
+            event.preventDefault()
+            if (busy || !brief.trim() || !cwd.trim()) return
+            onSubmit()
           },
           'aria-label': t('intake'),
         }),
@@ -2523,52 +3185,35 @@ window.__ModuleLoader__.load({
             'div',
             { className: 'butler-field' },
             h('span', null, t('workdir')),
+            workspaces && workspaces.length
+              ? h(
+                  'select',
+                  {
+                    className: 'butler-select butler-workspace-select',
+                    value: cwd,
+                    onChange: (event) => setCwd(event.target.value),
+                    'aria-label': t('chooseWorkspace'),
+                    disabled: Boolean(busy),
+                  },
+                  h('option', { value: '' }, t('chooseWorkspace')),
+                  workspaces.map((workspace) =>
+                    h(
+                      'option',
+                      { value: workspace, key: workspace },
+                      `${workspace.split(/[\\/]/).filter(Boolean).pop() || workspace} · ${workspace}`,
+                    ),
+                  ),
+                )
+              : null,
             h(
               'div',
               { className: 'butler-workdir-row' },
-              workspaces && workspaces.length
-                ? h(
-                    'select',
-                    {
-                      className: 'butler-select',
-                      value: cwd,
-                      onChange: (event) => setCwd(event.target.value),
-                      'aria-label': t('workdir'),
-                    },
-                    h('option', { value: '' }, t('chooseWorkspace')),
-                    workspaces.map((workspace) =>
-                      h(
-                        'option',
-                        { value: workspace, key: workspace },
-                        `${workspace.split(/[\\/]/).filter(Boolean).pop() || workspace} · ${workspace}`,
-                      ),
-                    ),
-                  )
-                : h('input', {
-                    className: 'butler-input',
-                    value: cwd,
-                    placeholder: t('chooseWorkspaceHint'),
-                    onChange: (event) => setCwd(event.target.value),
-                    spellCheck: false,
-                  }),
-              onPickDirectory
-                ? h(
-                    Btn,
-                    {
-                      small: true,
-                      ghost: true,
-                      onClick: async () => {
-                        try {
-                          const picked = await onPickDirectory()
-                          if (picked) setCwd(picked)
-                        } catch {
-                          /* the native picker may be cancelled */
-                        }
-                      },
-                    },
-                    t('chooseFolder'),
-                  )
-                : null,
+              h(DirectoryPicker, {
+                t,
+                value: cwd,
+                onSelect: setCwd,
+                disabled: Boolean(busy),
+              }),
             ),
             cwd.trim()
               ? null
@@ -2579,6 +3224,52 @@ window.__ModuleLoader__.load({
             { tone: 'primary', disabled: busy || !brief.trim() || !cwd.trim(), onClick: onSubmit },
             busy ? t('starting') : t('start'),
           ),
+        ),
+        h(
+          'div',
+          { className: 'butler-intake-settings' },
+          presetOptions.length
+            ? h(
+                'label',
+                { className: 'butler-select-field', title: t('mode') },
+                h('span', null, t('mode')),
+                h(
+                  'select',
+                  {
+                    className: 'butler-select',
+                    value: preset || '',
+                    disabled: Boolean(busy),
+                    onChange: (event) => setPreset(event.target.value),
+                  },
+                  presetOptions.map((option) =>
+                    h('option', { key: option.id, value: option.id }, presetLabel(option)),
+                  ),
+                ),
+              )
+            : null,
+          permissionOptions.length
+            ? h(
+                'label',
+                { className: 'butler-select-field', title: t('permission') },
+                h('span', null, t('permission')),
+                h(
+                  'select',
+                  {
+                    className: 'butler-select',
+                    value: permission || 'custom',
+                    disabled: Boolean(busy),
+                    onChange: (event) => setPermission(event.target.value),
+                  },
+                  permissionOptions.map((option) =>
+                    h(
+                      'option',
+                      { key: option.value, value: option.value },
+                      permissionLabel(option.value),
+                    ),
+                  ),
+                ),
+              )
+            : null,
         ),
       )
     }
@@ -2681,7 +3372,10 @@ window.__ModuleLoader__.load({
     }
 
     const DISMISSED_COMPLETED_KEY = 'butler:dismissed-completed'
+    const COMPLETED_CLEARED_AT_KEY = 'butler:completed-cleared-at'
     const completedTaskKey = (item) => `${item.job.id}:${item.card.id}`
+    const completedTaskAt = (card) =>
+      card.finishedAt || card.lastActivityAt || card.createdAt || 0
     const readDismissedCompleted = () => {
       try {
         const raw = JSON.parse(window.localStorage.getItem(DISMISSED_COMPLETED_KEY) || '[]')
@@ -2700,18 +3394,49 @@ window.__ModuleLoader__.load({
         /* storage may be unavailable */
       }
     }
+    const readCompletedClearedAt = () => {
+      try {
+        const at = Number(window.localStorage.getItem(COMPLETED_CLEARED_AT_KEY))
+        return Number.isFinite(at) && at > 0 ? at : 0
+      } catch {
+        return 0
+      }
+    }
+    const writeCompletedClearedAt = (at) => {
+      try {
+        window.localStorage.setItem(COMPLETED_CLEARED_AT_KEY, String(at))
+      } catch {
+        /* storage may be unavailable */
+      }
+    }
+    /**
+     * Every finished card in the board is hidden once its finish time is not
+     * newer than the last "clear completed" action. A plain `Date.now()` would
+     * work too, but the newest card timestamp keeps the boundary in the same
+     * clock domain as the cards and cannot hide a genuinely new completion
+     * because of a skewed wall clock.
+     */
+    const latestCompletedAt = (jobs) => {
+      let latest = 0
+      for (const job of jobs || []) {
+        for (const card of job.cards || []) {
+          if (card.status !== 'done') continue
+          const at = completedTaskAt(card)
+          if (at > latest) latest = at
+        }
+      }
+      return latest || Date.now()
+    }
 
-    function currentCompletedTasks(jobs, limit = 8, dismissed = null) {
+    function currentCompletedTasks(jobs, limit = 8, dismissed = null, clearedAt = 0) {
       const items = []
       for (const job of jobs || []) {
         for (const card of job.cards || []) {
           if (card.status !== 'done') continue
           if (dismissed?.has(`${job.id}:${card.id}`)) continue
-          items.push({
-            job,
-            card,
-            at: card.finishedAt || card.lastActivityAt || card.createdAt || 0,
-          })
+          const at = completedTaskAt(card)
+          if (clearedAt > 0 && at <= clearedAt) continue
+          items.push({ job, card, at })
         }
       }
       items.sort((a, b) => b.at - a.at)
@@ -2749,7 +3474,7 @@ window.__ModuleLoader__.load({
           style: accent ? { '--task-accent': accent } : undefined,
           role: sessionId ? 'button' : undefined,
           tabIndex: sessionId ? 0 : undefined,
-          'aria-label': sessionId ? `${card.title || job.title} · ${t('taskOpenHint')}` : undefined,
+          'aria-label': sessionId ? `${card.title || job.title} 路 ${t('taskOpenHint')}` : undefined,
           onClick: open,
           onKeyDown: (event) => {
             if ((event.key === 'Enter' || event.key === ' ') && sessionId) {
@@ -2781,8 +3506,8 @@ window.__ModuleLoader__.load({
               'div',
               { className: 'butler-active-sub' },
               isComplete
-                ? `${job.title} · ${t('taskCompletedHint')}`
-                : `${job.title} · ${t('taskOpenHint')}`,
+                ? `${job.title} 路 ${t('taskCompletedHint')}`
+                : `${job.title} 路 ${t('taskOpenHint')}`,
             ),
           ),
           h('span', { className: 'butler-active-arrow', 'aria-hidden': true }, sessionId ? '↗' : '·'),
@@ -2818,7 +3543,7 @@ window.__ModuleLoader__.load({
                   onDismiss?.()
                 },
               },
-              '×',
+              '脳',
             )
           : null,
         !sessionId
@@ -2937,7 +3662,7 @@ window.__ModuleLoader__.load({
                       key: `${item.job.id}:${item.card.id}`,
                       type: 'button',
                       className: 'butler-task-completed-row',
-                      title: `${item.card.title || item.job.title} · ${item.job.title}`,
+                      title: `${item.card.title || item.job.title} 路 ${item.job.title}`,
                       onClick: () => onComplete(item),
                     },
                     h('span', { className: 'butler-task-completed-check' }, '✓'),
@@ -3006,6 +3731,292 @@ window.__ModuleLoader__.load({
       )
     }
 
+    // ---- global status store (test seam: scripts/test-global-store.mjs) ----
+    const PULSE_POLL_MS = 1_000
+    const DETAIL_POLL_MS = 5_000
+    const SESSIONS_POLL_MS = 30_000
+
+    /**
+     * Merge a live status pulse into the last full snapshot. Pulse jobs/cards
+     * only carry status fields; prompts, logs, chat and evidence stay from the
+     * full snapshot. Unknown ids ask the caller for a full refresh.
+     */
+    const revisionOf = (value) => {
+      const revision = Number(value?.revision)
+      return Number.isFinite(revision) ? revision : null
+    }
+
+    function mergePulseIntoData(previous, pulse) {
+      if (!previous) return { data: null, needsFull: false }
+      if (!pulse || !Array.isArray(pulse.jobs)) return { data: previous, needsFull: false }
+      // Responses can overtake each other. A pulse produced before the last
+      // applied snapshot must never move a card back from done/failed to
+      // running/queued (the visible "status rollback" after page switches).
+      const previousRevision = revisionOf(previous)
+      const pulseRevision = revisionOf(pulse)
+      if (
+        previousRevision != null &&
+        pulseRevision != null &&
+        pulseRevision < previousRevision
+      ) {
+        return { data: previous, needsFull: false, stale: true }
+      }
+      let needsFull = false
+      const previousJobs = new Map((previous.jobs || []).map((job) => [job.id, job]))
+      const jobs = pulse.jobs.map((pulseJob) => {
+        const oldJob = previousJobs.get(pulseJob.id)
+        if (!oldJob) {
+          needsFull = true
+          return { ...pulseJob, cards: pulseJob.cards || [] }
+        }
+        const oldCards = new Map((oldJob.cards || []).map((card) => [card.id, card]))
+        const cards = (pulseJob.cards || []).map((pulseCard) => {
+          const oldCard = oldCards.get(pulseCard.id)
+          if (!oldCard) {
+            needsFull = true
+            return pulseCard
+          }
+          return { ...oldCard, ...pulseCard }
+        })
+        if ((oldJob.cards || []).length !== (pulseJob.cards || []).length) needsFull = true
+        return { ...oldJob, ...pulseJob, cards }
+      })
+      if (jobs.length !== (previous.jobs || []).length) needsFull = true
+      return { data: { ...previous, ...pulse, jobs }, needsFull }
+    }
+
+    function createButlerStatusStore() {
+      let snapshot = { data: null, pulse: null, error: '', updatedAt: 0 }
+      const listeners = new Set()
+      let pulseTimer = null
+      let detailTimer = null
+      let pulseInFlight = null
+      let stateInFlight = null
+      let sessionsInFlight = null
+      let started = false
+      let pageOpen = false
+      let lightMode = true
+      let pulseMode = true
+      let lastSessionsAt = 0
+      let fullScheduled = false
+
+      const visible = () =>
+        typeof document === 'undefined' || document.visibilityState !== 'hidden'
+
+      const emit = (patch) => {
+        snapshot = { ...snapshot, ...patch }
+        for (const listener of [...listeners]) {
+          try {
+            listener()
+          } catch {
+            /* one subscriber must not break the store */
+          }
+        }
+      }
+
+      const fetchJson = async (url) => {
+        const response = await fetch(url, { headers: HEADERS, cache: 'no-store' })
+        const payload = await response.json()
+        if (!response.ok || !payload?.ok) throw new Error(payload?.error || `HTTP ${response.status}`)
+        return payload.data
+      }
+
+      const scheduleFull = () => {
+        if (fullScheduled) return
+        fullScheduled = true
+        setTimeout(() => {
+          fullScheduled = false
+          if (pageOpen && visible()) void refreshState()
+        }, 300)
+      }
+
+      const refreshPulse = async () => {
+        if (pulseInFlight) return pulseInFlight
+        pulseInFlight = (async () => {
+          try {
+            if (!pulseMode) {
+              if (pageOpen && visible()) await refreshState()
+              return
+            }
+            const pulse = await fetchJson(`${API}/pulse`)
+            const merged = mergePulseIntoData(snapshot.data, pulse)
+            emit({
+              pulse,
+              data: merged.data || snapshot.data,
+              error: '',
+              updatedAt: Date.now(),
+            })
+            if (merged.needsFull) scheduleFull()
+          } catch (error) {
+            if (!snapshot.pulse) pulseMode = false
+            if (!snapshot.data) emit({ error: error?.message || String(error), updatedAt: Date.now() })
+          } finally {
+            pulseInFlight = null
+          }
+        })()
+        return pulseInFlight
+      }
+
+      const refreshState = async () => {
+        if (stateInFlight) return stateInFlight
+        stateInFlight = (async () => {
+          try {
+            const state = await fetchJson(`${API}/state${lightMode ? '?light=1' : ''}`)
+            const currentRevision = revisionOf(snapshot.data)
+            const incomingRevision = revisionOf(state)
+            if (
+              currentRevision != null &&
+              incomingRevision != null &&
+              incomingRevision < currentRevision
+            ) {
+              // A slower full snapshot can arrive after a newer pulse. Keep the
+              // newer statuses; the next detail refresh fills any missing text.
+              emit({ error: '', updatedAt: Date.now() })
+              return
+            }
+            const sessions = state?.sessions?.length
+              ? state.sessions
+              : snapshot.data?.sessions || []
+            emit({
+              data: { ...state, sessions },
+              error: '',
+              updatedAt: Date.now(),
+            })
+          } catch (error) {
+            emit({ error: error?.message || String(error), updatedAt: Date.now() })
+          } finally {
+            stateInFlight = null
+          }
+        })()
+        return stateInFlight
+      }
+
+      const refreshSessions = async ({ force = false } = {}) => {
+        if (sessionsInFlight) return sessionsInFlight
+        sessionsInFlight = (async () => {
+          try {
+            const payload = await fetchJson(`${API}/sessions${force ? '?force=1' : ''}`)
+            const items = Array.isArray(payload?.items)
+              ? payload.items
+              : Array.isArray(payload)
+                ? payload
+                : []
+            lastSessionsAt = Date.now()
+            lightMode = true
+            emit({
+              data: {
+                ...(snapshot.data || {}),
+                sessions: items,
+                sessionsAt: payload?.at || lastSessionsAt,
+              },
+              sessionsUpdatedAt: lastSessionsAt,
+            })
+          } catch (error) {
+            // A Host that predates /api/sessions still serves the full state.
+            lightMode = false
+            if (!snapshot.data) emit({ error: error?.message || String(error), updatedAt: Date.now() })
+          } finally {
+            sessionsInFlight = null
+          }
+        })()
+        return sessionsInFlight
+      }
+
+      const refresh = async ({ state = true, sessions = false, forceSessions = false } = {}) => {
+        if (sessions) await refreshSessions({ force: forceSessions })
+        if (state) await refreshState()
+        return snapshot
+      }
+
+      const enterPage = () => {
+        if (pageOpen) return
+        pageOpen = true
+        void refresh({ state: true, sessions: true })
+        if (detailTimer) clearInterval(detailTimer)
+        detailTimer = setInterval(() => {
+          if (!visible()) return
+          void refreshState()
+          if (Date.now() - lastSessionsAt >= SESSIONS_POLL_MS) void refreshSessions({ force: true })
+        }, DETAIL_POLL_MS)
+      }
+
+      const leavePage = () => {
+        pageOpen = false
+        if (detailTimer) clearInterval(detailTimer)
+        detailTimer = null
+      }
+
+      const onVisibility = () => {
+        if (!visible()) return
+        void refreshPulse()
+        if (pageOpen) {
+          void refresh({
+            state: true,
+            sessions: Date.now() - lastSessionsAt >= SESSIONS_POLL_MS,
+          })
+        }
+      }
+
+      const start = () => {
+        if (started) return
+        started = true
+        void refreshPulse()
+        pulseTimer = setInterval(() => {
+          if (visible()) void refreshPulse()
+        }, PULSE_POLL_MS)
+        if (typeof document !== 'undefined') {
+          document.addEventListener('visibilitychange', onVisibility)
+        }
+      }
+
+      const stop = () => {
+        if (!started) return
+        started = false
+        if (pulseTimer) clearInterval(pulseTimer)
+        pulseTimer = null
+        leavePage()
+        if (typeof document !== 'undefined') {
+          document.removeEventListener('visibilitychange', onVisibility)
+        }
+      }
+
+      const subscribe = (listener) => {
+        listeners.add(listener)
+        if (!started) start()
+        return () => listeners.delete(listener)
+      }
+
+      return {
+        start,
+        stop,
+        subscribe,
+        getSnapshot: () => snapshot,
+        refresh,
+        refreshState,
+        refreshSessions,
+        refreshPulse,
+        enterPage,
+        leavePage,
+      }
+    }
+
+    const butlerStatusStore = createButlerStatusStore()
+
+    function useButlerStatus() {
+      const [snapshot, setSnapshot] = React.useState(() => butlerStatusStore.getSnapshot())
+      React.useEffect(() => {
+        setSnapshot(butlerStatusStore.getSnapshot())
+        const unsubscribe = butlerStatusStore.subscribe(() => setSnapshot(butlerStatusStore.getSnapshot()))
+        butlerStatusStore.enterPage()
+        return () => {
+          unsubscribe()
+          butlerStatusStore.leavePage()
+        }
+      }, [])
+      return snapshot
+    }
+    // ---- end global status store ----
+
     function ButlerPage(props) {
       const t = typeof props.t === 'function' ? props.t : (key) => (zh[key] || key)
       const returnTrack = React.useRef(null)
@@ -3023,46 +4034,61 @@ window.__ModuleLoader__.load({
           /* navigation is best-effort */
         }
       }
-      const [data, setData] = React.useState(null)
+      const status = useButlerStatus()
+      const data = status.data
       const [error, setError] = React.useState('')
       const [busy, setBusy] = React.useState('')
       const [refreshing, setRefreshing] = React.useState(false)
       const [notice, setNotice] = React.useState('')
-      const [brief, setBrief] = React.useState('')
-      const [cwd, setCwd] = React.useState('')
+      const [brief, setBrief] = React.useState(() => readDraft('intake:brief'))
+      const [cwd, setCwd] = React.useState(() => readDraft('intake:cwd'))
+      const [newPreset, setNewPreset] = React.useState('')
+      const [newPermission, setNewPermission] = React.useState('')
       const [filter, setFilter] = React.useState('all')
       const [viewMode, setViewMode] = React.useState('timeline')
       const [completedTasks, setCompletedTasks] = React.useState([])
       const dismissedCompleted = React.useRef(readDismissedCompleted())
+      const completedClearedAt = React.useRef(readCompletedClearedAt())
       const previousTasks = React.useRef(new Map())
       const initializedTask = React.useRef(false)
-
-      const load = React.useCallback(async () => {
-        try {
-          const response = await fetch(`${API}/state`, { headers: HEADERS, cache: 'no-store' })
-          const payload = await response.json()
-          if (!response.ok || !payload.ok) throw new Error(payload.error || `HTTP ${response.status}`)
-          setData(payload.data)
-          setError('')
-        } catch (err) {
-          setError(err?.message || String(err))
-        }
-      }, [])
-
-      React.useEffect(() => {
-        void load()
-        const timer = setInterval(() => {
-          void load()
-        }, 1500)
-        return () => clearInterval(timer)
-      }, [load])
+      const submitting = React.useRef(false)
 
       React.useEffect(() => {
         if (!data || initializedTask.current) return
         initializedTask.current = true
-        const recent = currentCompletedTasks(data.jobs || [], 8, dismissedCompleted.current)
+        const recent = currentCompletedTasks(
+          data.jobs || [],
+          8,
+          dismissedCompleted.current,
+          completedClearedAt.current,
+        )
         if (recent.length) setCompletedTasks((previous) => (previous.length ? previous : recent))
       }, [data])
+
+      React.useEffect(() => {
+        writeDraft('intake:brief', brief)
+      }, [brief])
+
+      React.useEffect(() => {
+        writeDraft('intake:cwd', cwd)
+      }, [cwd])
+
+      React.useEffect(() => {
+        if (newPreset) return
+        const presets = (data?.presetCatalog?.presets || []).filter((item) => !item.broken)
+        const next = presets.find((item) => item.isDefault)?.id || presets[0]?.id || ''
+        if (next) setNewPreset(next)
+      }, [data, newPreset])
+
+      React.useEffect(() => {
+        if (newPermission) return
+        const options = data?.permissionCatalog?.options || []
+        const next =
+          options.find((item) => item.value === 'workspace-write')?.value ||
+          options[0]?.value ||
+          ''
+        if (next) setNewPermission(next)
+      }, [data, newPermission])
 
       React.useEffect(() => {
         if (cwd) return
@@ -3082,7 +4108,7 @@ window.__ModuleLoader__.load({
           if (currentIds.has(cardId)) continue
           const job = jobs.find((item) => item.id === snapshot.jobId)
           const card = (job?.cards || []).find((item) => item.id === cardId)
-          if (card?.status === 'done') finished.push({ job, card, at: card.finishedAt || card.lastActivityAt || 0 })
+          if (card?.status === 'done') finished.push({ job, card, at: completedTaskAt(card) })
         }
         previousTasks.current = new Map(
           current.map((item) => [item.card.id, { jobId: item.job.id }]),
@@ -3093,6 +4119,12 @@ window.__ModuleLoader__.load({
             const merged = new Map(previous.map((item) => [`${item.job.id}:${item.card.id}`, item]))
             for (const item of finished) {
               if (dismissedCompleted.current.has(`${item.job.id}:${item.card.id}`)) continue
+              if (
+                completedClearedAt.current > 0 &&
+                item.at <= completedClearedAt.current
+              ) {
+                continue
+              }
               merged.set(`${item.job.id}:${item.card.id}`, item)
             }
             return [...merged.values()].sort((a, b) => b.at - a.at).slice(0, 20)
@@ -3125,7 +4157,18 @@ window.__ModuleLoader__.load({
             })
             const result = await response.json()
             if (!response.ok || !result.ok) throw new Error(result.error || `HTTP ${response.status}`)
-            await load()
+            await butlerStatusStore.refresh({
+              state: true,
+              sessions: [
+                'adoptSession',
+                'adoptRecent',
+                'adoptWorkspace',
+                'adoptAll',
+                'hideSession',
+                'archiveSession',
+                'clearFinished',
+              ].includes(action),
+            })
             return result.data
           } catch (err) {
             setError(err?.message || String(err))
@@ -3134,7 +4177,7 @@ window.__ModuleLoader__.load({
             setBusy('')
           }
         },
-        [load],
+        [],
       )
 
       const announce = (text) => {
@@ -3143,7 +4186,7 @@ window.__ModuleLoader__.load({
       }
       const refreshNow = async () => {
         setRefreshing(true)
-        await load()
+        await butlerStatusStore.refresh({ state: true, sessions: true, forceSessions: true })
         setRefreshing(false)
         announce(t('refreshed'))
       }
@@ -3158,16 +4201,38 @@ window.__ModuleLoader__.load({
         })
       }
 
-      const submit = () => {
-        const value = brief.trim()
-        if (!value || busy) return
+      const submit = () => {        const value = brief.trim()
+        if (!value || busy || submitting.current) return
         if (!cwd.trim()) {
           setError(t('chooseWorkspaceFirst'))
           return
         }
-        void act('createJob', { brief: value, cwd: cwd.trim(), mergeRelated: true }, 'create').then((created) => {
-          if (created) setBrief('')
-        })
+        submitting.current = true
+        void act('createJob', {
+          brief: value,
+          cwd: cwd.trim(),
+          mergeRelated: true,
+          preset: newPreset || undefined,
+          permission: newPermission || undefined,
+        }, 'create')
+          .then((created) => {
+            if (created) {
+              setBrief('')
+              clearDraft('intake:brief')
+            }
+          })
+          .finally(() => {
+            submitting.current = false
+          })
+      }
+
+      const updateBrief = (value) => {
+        setBrief(value)
+        writeDraft('intake:brief', value)
+      }
+      const updateCwd = (value) => {
+        setCwd(value)
+        writeDraft('intake:cwd', value)
       }
 
       const toggleSetting = (key, value) => {
@@ -3204,10 +4269,10 @@ window.__ModuleLoader__.load({
       const sessions = data?.sessions || []
       const settings = data?.settings || {}
       const workspaceOptions = Array.from(
-        new Set(
-          [data?.defaultCwd, ...jobs.map((job) => job.cwd), cwd].filter(Boolean),
-        ),
+        new Set([data?.defaultCwd, ...jobs.map((job) => job.cwd), cwd].filter(Boolean)),
       )
+      const intakePresets = (data?.presetCatalog?.presets || []).filter((item) => !item.broken)
+      const intakePermissions = data?.permissionCatalog?.options || []
       const running = jobs.reduce((count, job) => count + (job.stats?.running || 0), 0)
       const stalled = jobs.reduce(
         (count, job) => count + job.cards.filter((card) => card.status === 'stalled').length,
@@ -3237,10 +4302,9 @@ window.__ModuleLoader__.load({
         if (sessionId) openSession(sessionId)
       }
       const clearCompleted = () => {
-        for (const item of completedTasks) {
-          dismissedCompleted.current.add(completedTaskKey(item))
-        }
-        writeDismissedCompleted(dismissedCompleted.current)
+        const clearedAt = latestCompletedAt(data?.jobs || [])
+        completedClearedAt.current = clearedAt
+        writeCompletedClearedAt(clearedAt)
         setCompletedTasks([])
       }
       const filterLabels = { all: 'filterAll', brief: 'filterBrief', session: 'filterSession' }
@@ -3329,14 +4393,19 @@ window.__ModuleLoader__.load({
             h(Intake, {
               t,
               brief,
-              setBrief,
+              setBrief: updateBrief,
               cwd,
-              setCwd,
+              setCwd: updateCwd,
               workspaces: workspaceOptions,
+              presetCatalog: data?.presetCatalog || null,
+              permissionCatalog: data?.permissionCatalog || null,
+              preset: newPreset,
+              setPreset: setNewPreset,
+              permission: newPermission,
+              setPermission: setNewPermission,
               busy: busy === 'create',
-              error,
+              error: error || status.error,
               onSubmit: submit,
-              onPickDirectory: props.pickDirectory,
             }),
             h(SettingsBar, {
               t,
@@ -3423,7 +4492,7 @@ window.__ModuleLoader__.load({
                 ),
             h(HowItWorks, { t }),
             data?.storageFile
-              ? h('div', { className: 'butler-foot' }, `${t('storage')} · ${data.storageFile}`)
+              ? h('div', { className: 'butler-foot' }, `${t('storage')} 路 ${data.storageFile}`)
               : null,
           ),
         ),
@@ -3555,22 +4624,113 @@ window.__ModuleLoader__.load({
         }
       }, [])
 
+      // The Windows caption menu (应用 / 编辑) is rendered by the desktop
+      // preload into a shadow root. Restyle its buttons so the five top-row
+      // entries share one height, font-size and gap. The host itself stays in
+      // place; only its shadow stylesheet is touched.
+      React.useEffect(() => {
+        if (typeof document === 'undefined') return
+        const captionCss = `
+          [role=menubar] { gap: 6px !important; }
+          button {
+            height: 28px !important;
+            box-sizing: border-box !important;
+            padding: 0 12px !important;
+            border: 1px solid var(--dsw-alias-border-l1) !important;
+            border-radius: 8px !important;
+            background: var(--dsw-alias-bg-layer-1) !important;
+            color: var(--dsw-alias-label-primary) !important;
+            font: inherit !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            line-height: 1 !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,.12) !important;
+          }
+          button:hover, button[aria-expanded=true] {
+            background: var(--dsw-alias-interactive-bg-hover) !important;
+            border-color: var(--dsw-alias-border-l2) !important;
+            color: var(--dsw-alias-label-primary) !important;
+          }
+          @media (max-width: 860px) {
+            [role=menubar] { gap: 4px !important; }
+            button { padding: 0 9px !important; font-size: 11.5px !important; }
+          }
+        `
+        let host = null
+        let injected = null
+        const apply = () => {
+          const node = document.querySelector('[data-windows-menu]')
+          if (!node || !node.shadowRoot) return
+          if (node !== host) {
+            host = node
+            injected = node.shadowRoot.querySelector('style[data-butler-caption="1"]')
+          }
+          if (!injected || !injected.isConnected) {
+            injected = document.createElement('style')
+            injected.dataset.butlerCaption = '1'
+            injected.textContent = captionCss
+            node.shadowRoot.appendChild(injected)
+          }
+        }
+        apply()
+        const timer = setInterval(apply, 1000)
+        return () => {
+          clearInterval(timer)
+          // The main-slot and shell-overlay topbars can coexist; only remove the
+          // shared shadow stylesheet after the last one has gone.
+          setTimeout(() => {
+            if (typeof document === 'undefined') return
+            if (!document.querySelector('[data-butler-topbar]')) injected?.remove()
+          }, 0)
+        }
+      }, [])
+
+      // Shared hover / compact rules for the plugin-owned buttons.
+      // (Kept separate from the component so HMR can refresh it in place.)
+      React.useEffect(() => {
+        if (typeof document === 'undefined') return
+        const style = document.createElement('style')
+        style.dataset.butlerNavStyle = '1'
+        style.textContent = `
+          .butler-nav-btn:hover {
+            background: var(--dsw-alias-interactive-bg-hover) !important;
+            border-color: var(--dsw-alias-border-l2) !important;
+          }
+          .butler-nav-btn:active { transform: translateY(1px); }
+          @media (max-width: 860px) {
+            [data-butler-topbar] { gap: 4px !important; }
+            .butler-nav-btn { padding: 0 9px !important; font-size: 11.5px !important; }
+          }
+        `
+        document.head.appendChild(style)
+        return () => style.remove()
+      }, [])
+
+      const windowsCaption =
+        typeof document !== 'undefined' &&
+        document.documentElement.hasAttribute('data-windows-titlebar')
       const baseButton = {
         border: '1px solid var(--dsw-alias-border-l1)',
         background: 'var(--dsw-alias-bg-layer-1)',
         color: 'var(--dsw-alias-label-primary)',
         borderRadius: '8px',
-        padding: '5px 11px',
+        padding: '0 12px',
+        height: '28px',
+        boxSizing: 'border-box',
         display: 'inline-flex',
         alignItems: 'center',
+        justifyContent: 'center',
         gap: '5px',
         font: 'inherit',
         fontSize: '12px',
         fontWeight: '600',
+        lineHeight: '1',
         cursor: 'pointer',
         whiteSpace: 'nowrap',
         boxShadow: '0 2px 8px rgba(0,0,0,.12)',
         pointerEvents: 'auto',
+        flex: 'none',
         WebkitAppRegion: 'no-drag',
         webkitAppRegion: 'no-drag',
       }
@@ -3618,12 +4778,20 @@ window.__ModuleLoader__.load({
           'data-butler-topbar': '1',
           style: {
             position: 'fixed',
-            top: '46px',
-            right: /Electron/i.test(navigator.userAgent) ? '180px' : '12px',
+            // The Windows caption row is 40px tall and its 28px menu buttons
+            // are vertically centred at 6px. On other platforms keep the
+            // previous offset below the native chrome.
+            top: windowsCaption ? '6px' : '46px',
+            // The Windows caption buttons occupy the top-right corner. Keep
+            // the five entries fully clear of minimize / maximize / close.
+            right:
+              windowsCaption || /Electron/i.test(navigator.userAgent) ? '180px' : '12px',
             zIndex: '2147483647',
             display: 'flex',
             gap: '6px',
             alignItems: 'center',
+            flexWrap: 'nowrap',
+            height: '28px',
             maxWidth: 'calc(100vw - 24px)',
             pointerEvents: 'auto',
             WebkitAppRegion: 'no-drag',
@@ -3634,7 +4802,28 @@ window.__ModuleLoader__.load({
           'button',
           {
             type: 'button',
+            className: 'butler-nav-btn',
             style: baseButton,
+            'data-butler-workbench': '1',
+            'aria-label': t('managementButler'),
+            onClick: (event) => {
+              event.stopPropagation()
+              run(() => {
+                exitFullscreen()
+                ctx.layout.selectPanel('butler')
+              })
+            },
+          },
+          t('managementButler'),
+        ),
+        h(
+          'button',
+          {
+            type: 'button',
+            className: 'butler-nav-btn',
+            style: baseButton,
+            'data-butler-manage': '1',
+            'aria-expanded': open ? 'true' : 'false',
             onClick: (event) => {
               event.stopPropagation()
               setAccountOpen(false)
@@ -3652,9 +4841,11 @@ window.__ModuleLoader__.load({
           'button',
           {
             type: 'button',
+            className: 'butler-nav-btn',
             style: baseButton,
             'data-butler-account': '1',
             'aria-label': t('account'),
+            'aria-expanded': accountOpen ? 'true' : 'false',
             onClick: (event) => {
               event.stopPropagation()
               setOpen(false)
@@ -3718,14 +4909,6 @@ window.__ModuleLoader__.load({
                   setTimeout(enterFullscreen, 300)
                 },
                 'new',
-              ),
-              item(
-                t('managementButler'),
-                () => {
-                  exitFullscreen()
-                  ctx.layout.selectPanel('butler')
-                },
-                'butler',
               ),
               panels
                 .filter(
@@ -3843,6 +5026,13 @@ window.__ModuleLoader__.load({
       const enterConversationFullscreen = () => {}
       const exitConversationFullscreen = () => {}
       ctx.effect(() => {
+        // Global status store: it starts with the plugin, not with ButlerPage.
+        // Conversation, settings, market and workbench routes therefore share
+        // one live task snapshot instead of unmounting the only poller.
+        butlerStatusStore.start()
+        return () => butlerStatusStore.stop()
+      }, 'butler: global status store')
+      ctx.effect(() => {
         document.getElementById('butler-debug')?.remove()
         document.getElementById('butler-test-panel')?.remove()
         document
@@ -3940,9 +5130,9 @@ window.__ModuleLoader__.load({
             if (!account) return
             badge = account.querySelector('[data-butler-update-badge]')
             const title = active
-              ? `${t('account')} · ${t('accountUpdate')}${version ? ` ${version}` : ''}`
+              ? `${t('account')} 路 ${t('accountUpdate')}${version ? ` ${version}` : ''}`
               : t('account')
-            const aria = active ? `${t('account')} · ${t('accountUpdate')}` : t('account')
+            const aria = active ? `${t('account')} 路 ${t('accountUpdate')}` : t('account')
             if (account.title !== title) account.title = title
             if (account.getAttribute('aria-label') !== aria) account.setAttribute('aria-label', aria)
             if (badge) {
@@ -3988,6 +5178,7 @@ window.__ModuleLoader__.load({
         window.addEventListener('keydown', onKeyDown)
         return () => window.removeEventListener('keydown', onKeyDown)
       }, 'butler: keyboard shortcut')
+
       // No automatic panel jump on new user messages. Only a needsUser
       // interaction or an explicit task-card click may open a conversation.
       ctx.slots.inject('main', () =>
@@ -3998,7 +5189,6 @@ window.__ModuleLoader__.load({
             locale: NS,
             inject: () => ({
               t,
-              pickDirectory: () => ctx.uiWorkspace.pickDirectory(),
               topbar: () =>
                 h(ButlerTopbarV2, {
                   t,
