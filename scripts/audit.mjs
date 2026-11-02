@@ -33,6 +33,11 @@ function walk(directory, files = []) {
     const full = path.join(directory, entry.name)
     if (entry.isDirectory()) {
       if (entry.name === 'node_modules' || entry.name === '.git' || entry.name === 'scripts') continue
+      // Verification evidence intentionally records real absolute paths, session
+      // ids and the machine username; it is evidence, not runtime code.
+      if (full === path.join(root, 'docs', 'evidence')) continue
+      if (full === path.join(root, 'docs', 'verification')) continue
+      if (full === path.join(root, 'docs', 'bench')) continue
       walk(full, files)
     } else if (/\.(js|mjs|json|yml|yaml)$/.test(entry.name)) {
       files.push(full)
