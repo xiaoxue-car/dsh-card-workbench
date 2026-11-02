@@ -98,4 +98,31 @@ console.log('PASS archive UI: every record renders its task summary =', JSON.str
 console.log('PASS archive UI: closing one row sends only that key =', JSON.stringify(closed[0]))
 console.log('PASS archive UI: selected detail can also be closed =', JSON.stringify(closed[1]))
 console.log('PASS archive UI: open conversation uses the selected session')
+const fallbackTree = CompletedArchivePage({
+  t,
+  records: [{ key: 'job_fallback:card_fallback', title: '', summary: 'Fallback summary', jobTitle: 'Fallback job', at: 3 }],
+  initialKey: '__archive__',
+  onBack() {},
+  onOpenSession() {},
+  onCloseRecord() {},
+  onClearAll() {},
+})
+const fallbackTitle = collect(fallbackTree, 'butler-archive-item-title')
+assert.equal(fallbackTitle.length, 1)
+assert.equal(fallbackTitle[0].children.join(''), 'Fallback summary')
+console.log('PASS archive UI: empty title falls back to summary')
+
+const workspaceFallbackTree = CompletedArchivePage({
+  t,
+  records: [{ key: 'job_workspace:card_workspace', title: '', summary: '', resultSummary: '', jobTitle: 'Fallback job', at: 4 }],
+  initialKey: '__archive__',
+  onBack() {},
+  onOpenSession() {},
+  onCloseRecord() {},
+  onClearAll() {},
+})
+const workspaceFallbackTitle = collect(workspaceFallbackTree, 'butler-archive-item-title')
+assert.equal(workspaceFallbackTitle[0].children.join(''), 'Fallback job')
+console.log('PASS archive UI: empty title and summary fall back to workspace title')
+
 console.log('PASS archive UI: sentinel key selects the first record by default')
