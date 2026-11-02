@@ -43,14 +43,17 @@ function collect(node, predicate, found = []) {
 
 // Build a stateful binding from the real openCompletedArchiveList function.
 const openStart = source.indexOf('const openCompletedArchiveList')
-const openEnd = source.indexOf('\n', openStart)
-const openCode = source.slice(openStart, openEnd).trim()
+const openCode = extractBalanced(source.slice(openStart), '{', '}')
 let archiveKey = ''
-const invokeOpen = new Function('setArchiveKey', `${openCode}; return openCompletedArchiveList`)(
-  (value) => {
-    archiveKey = value
-  },
-)
+const invokeOpen = new Function(
+  'setArchiveKey',
+  'data',
+  'archiveClosed',
+  'ensureArchiveFromData',
+  `${openCode}; return openCompletedArchiveList`,
+)((value) => {
+  archiveKey = value
+}, null, { current: new Set() }, () => {})
 
 // Extract the real header button expression that follows the refresh button.
 const refreshAt = source.indexOf("onClick: () => void refreshNow()")

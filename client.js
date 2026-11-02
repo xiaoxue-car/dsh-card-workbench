@@ -571,7 +571,8 @@ window.__ModuleLoader__.load({
       .butler-archive-item{position:relative;appearance:none;width:100%;box-sizing:border-box;min-width:0;border:1px solid transparent;background:transparent;color:inherit;border-radius:8px;padding:8px 9px;display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;cursor:pointer;transition:background .16s ease,border-color .16s ease,transform .16s ease;overflow:hidden;}
       .butler-archive-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;}
       .butler-archive-item-time{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px;color:var(--dsw-alias-label-tertiary);font-family:ui-monospace,Consolas,monospace;}
-      .butler-archive-item strong{display:block;width:100%;min-width:0;font-size:12px;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+      .butler-archive-item-title{display:block;width:100%;min-width:0;font-size:12px;font-weight:650;line-height:1.35;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-primary);}
+      .butler-archive-item-summary{display:block;width:100%;min-width:0;font-size:10px;line-height:1.35;color:var(--dsw-alias-label-secondary);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
       .butler-archive-item small{display:block;width:100%;min-width:0;font-size:9.5px;color:var(--dsw-alias-label-tertiary);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
       .butler-archive-item-close{flex:none;appearance:none;border:1px solid rgba(244,63,94,.28);background:rgba(244,63,94,.06);color:#be123c;border-radius:5px;min-width:30px;height:20px;display:grid;place-items:center;font-size:9px;font-weight:700;line-height:1;cursor:pointer;padding:0 4px;}
       .butler-archive-item-close:hover{border-color:rgba(244,63,94,.4);background:rgba(244,63,94,.1);color:#be123c;}
@@ -3921,7 +3922,16 @@ window.__ModuleLoader__.load({
                         t('archiveClose'),
                       ),
                     ),
-                    h('strong', null, item.title),
+                    h(
+                      'strong',
+                      { className: 'butler-archive-item-title' },
+                      item.title || item.summary || item.resultSummary || item.jobTitle || '已完成任务',
+                    ),
+                    h(
+                      'span',
+                      { className: 'butler-archive-item-summary' },
+                      item.summary || item.resultSummary || item.verifySummary || item.jobTitle || '—',
+                    ),
                     h('small', null, item.jobTitle),
                   ),
                 )
@@ -3941,7 +3951,7 @@ window.__ModuleLoader__.load({
                       'div',
                       { className: 'butler-archive-detail-copy' },
                       h('span', { className: 'butler-archive-kicker' }, when(selected)),
-                      h('h3', null, selected.title),
+                      h('h3', null, selected.title || selected.summary || selected.resultSummary || '已完成任务'),
                       h('p', null, selected.jobTitle),
                     ),
                     h(
@@ -4695,7 +4705,30 @@ window.__ModuleLoader__.load({
         }
         setArchiveKey(key)
       }
-      const openCompletedArchiveList = () => setArchiveKey('__archive__')
+      const ensureArchiveFromData = () => {
+        if (!data) return
+        setArchiveRecords((previous) => {
+          const merged = new Map(previous.map((record) => [record.key, record]))
+          let changed = false
+          for (const job of data.jobs || []) {
+            for (const card of job.cards || []) {
+              if (card.status !== 'done') continue
+              const key = archiveKeyOf(job, card)
+              if (merged.has(key) || archiveClosed.current.has(key)) continue
+              merged.set(key, archiveRecordFrom(job, card))
+              changed = true
+            }
+          }
+          if (!changed) return previous
+          const next = [...merged.values()].sort((a, b) => b.at - a.at).slice(0, 500)
+          writeArchiveRecords(next)
+          return next
+        })
+      }
+      const openCompletedArchiveList = () => {
+        ensureArchiveFromData()
+        setArchiveKey('__archive__')
+      }
       const closeArchiveRecord = (key) => {
         archiveClosed.current.add(key)
         writeArchiveClosed(archiveClosed.current)
