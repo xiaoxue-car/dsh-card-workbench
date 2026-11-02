@@ -140,9 +140,11 @@ const directoryToggle = /const toggle = \(pathValue\) => \{[\s\S]*?void load\(pa
 const directorySelected =
   /is-selected[\s\S]*?aria-selected[\s\S]*?butler-dir-check/
 const noNativeFolderPicker = !/chooseFolder|pickDirectory/.test(source)
-const workspaceSelect = /workspaces && workspaces\.length[\s\S]*?butler-workspace-select/
+const noWorkspaceSelect = !/butler-workspace-select/.test(source)
 const intakeModeControls = /butler-intake-settings[\s\S]*?setPreset[\s\S]*?setPermission/
+const intakeModelControls = /h\(ComposerControls[\s\S]*?catalog: modelCatalog[\s\S]*?onChange: onModelChange/
 const jobModeControls = /function JobModeControls[\s\S]*?onPermission/
+const pluginDisableRestore = /overlayStyles\.forEach[\s\S]*?node\.style\.setProperty/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
 const completedClickRemoval = /setCompletedTasks[\s\S]*?openSession\(sessionId\)/
 const planningPlaceholder = /job\.status === 'planning'[\s\S]*?planning:\$\{job\.id\}/
@@ -241,9 +243,11 @@ assert.ok(directorySelect.test(source), 'clicking a folder must select it and cl
 assert.ok(directoryToggle.test(source), 'expanding a folder must lazily load its children')
 assert.ok(directorySelected.test(source), 'the selected folder must have a visible selected state')
 assert.ok(noNativeFolderPicker, 'the native choose-folder entry point must be removed')
-assert.ok(workspaceSelect.test(source), 'the workdir field must offer an existing-workspace dropdown')
+assert.ok(noWorkspaceSelect, 'the workdir field must keep only the directory tree picker')
 assert.ok(intakeModeControls.test(source), 'the intake must expose mode and permission controls')
+assert.ok(intakeModelControls.test(source), 'the intake must expose model and reasoning controls')
 assert.ok(jobModeControls.test(source), 'conversation groups must expose always-visible mode and permission controls')
+assert.ok(pluginDisableRestore.test(source), 'disabling the plugin must restore shell overlay styles')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')
 assert.ok(completedClickRemoval.test(source), 'clicking a completed task must remove it and open its conversation')
 assert.ok(planningPlaceholder.test(source), 'a newly created planning job must render immediately')
@@ -295,9 +299,11 @@ console.log('PASS manage menu: unique header and no stray Panel N entries')
 console.log('PASS manage menu: injected __TEST_ nav artifact is removed and filtered')
 console.log('PASS title: only 卡片工坊 is visible; 总管家 wording removed')
 console.log('PASS workdir: empty by default with a click-to-pick trigger')
-console.log('PASS workdir: existing workspaces are available in a dropdown')
+console.log('PASS workdir: only the directory tree picker remains')
 console.log('PASS intake: mode and permission are selectable before creating a job')
+console.log('PASS intake: model and reasoning are selectable before creating a job')
 console.log('PASS conversation groups: mode and permission controls are always visible')
+console.log('PASS plugin lifecycle: shell overlay styles are restored on disable')
 console.log('PASS mode: per-conversation selector wired to selectPreset')
 console.log('PASS mode: Chinese labels 标准/PTC/精简/创造')
 console.log('PASS board view: timeline/board toggle with dependency metadata')

@@ -558,8 +558,6 @@ window.__ModuleLoader__.load({
       .butler-select{width:100%;box-sizing:border-box;height:34px;background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l1);border-radius:8px;padding:0 8px;color:inherit;font:inherit;font-size:12px;outline:none;cursor:pointer;min-width:0;}
       .butler-input:focus{border-color:var(--dsw-alias-brand-primary);}
       .butler-workdir-row{display:flex;gap:6px;align-items:center;}
-      .butler-workspace-select{height:34px;margin-bottom:6px;font-size:12px;font-weight:500;}
-      .butler-intake .butler-workspace-select{height:34px;max-width:none;padding:0 8px;font-size:12px;}
       .butler-intake-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:2px;}
       .butler-intake-settings .butler-select-field{font-size:10.5px;}
       .butler-intake > .butler-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;min-width:0;width:100%;box-sizing:border-box;}
@@ -3123,24 +3121,8 @@ window.__ModuleLoader__.load({
       )
     }
 
-    function Intake({ t, brief, setBrief, cwd, setCwd, workspaces, presetCatalog, permissionCatalog, preset, setPreset, permission, setPermission, busy, error, onSubmit }) {
+    function Intake({ t, brief, setBrief, cwd, setCwd, modelCatalog, modelSelection, onModelChange, presetCatalog, permissionCatalog, preset, setPreset, permission, setPermission, busy, error, onSubmit }) {
       const composing = React.useRef(false)
-      const presetOptions = (presetCatalog?.presets || []).filter((item) => !item.broken)
-      const permissionOptions = permissionCatalog?.options || []
-      const presetLabel = (item) =>
-        ({
-          standard: t('modeStandard'),
-          ptc: t('modePtc'),
-          minimal: t('modeMinimal'),
-          cordis: t('modeCreative'),
-        })[item.id] || item.name || item.id
-      const permissionLabel = (value) =>
-        ({
-          'read-only': t('permissionReadOnly'),
-          'workspace-write': t('permissionWorkspaceWrite'),
-          'danger-full-access': t('permissionFullAccess'),
-          custom: t('permissionCustom'),
-        })[value] || value
       return h(
         'section',
         { className: 'butler-card butler-intake' },
@@ -3185,26 +3167,6 @@ window.__ModuleLoader__.load({
             'div',
             { className: 'butler-field' },
             h('span', null, t('workdir')),
-            workspaces && workspaces.length
-              ? h(
-                  'select',
-                  {
-                    className: 'butler-select butler-workspace-select',
-                    value: cwd,
-                    onChange: (event) => setCwd(event.target.value),
-                    'aria-label': t('chooseWorkspace'),
-                    disabled: Boolean(busy),
-                  },
-                  h('option', { value: '' }, t('chooseWorkspace')),
-                  workspaces.map((workspace) =>
-                    h(
-                      'option',
-                      { value: workspace, key: workspace },
-                      `${workspace.split(/[\\/]/).filter(Boolean).pop() || workspace} · ${workspace}`,
-                    ),
-                  ),
-                )
-              : null,
             h(
               'div',
               { className: 'butler-workdir-row' },
@@ -3228,48 +3190,19 @@ window.__ModuleLoader__.load({
         h(
           'div',
           { className: 'butler-intake-settings' },
-          presetOptions.length
-            ? h(
-                'label',
-                { className: 'butler-select-field', title: t('mode') },
-                h('span', null, t('mode')),
-                h(
-                  'select',
-                  {
-                    className: 'butler-select',
-                    value: preset || '',
-                    disabled: Boolean(busy),
-                    onChange: (event) => setPreset(event.target.value),
-                  },
-                  presetOptions.map((option) =>
-                    h('option', { key: option.id, value: option.id }, presetLabel(option)),
-                  ),
-                ),
-              )
-            : null,
-          permissionOptions.length
-            ? h(
-                'label',
-                { className: 'butler-select-field', title: t('permission') },
-                h('span', null, t('permission')),
-                h(
-                  'select',
-                  {
-                    className: 'butler-select',
-                    value: permission || 'custom',
-                    disabled: Boolean(busy),
-                    onChange: (event) => setPermission(event.target.value),
-                  },
-                  permissionOptions.map((option) =>
-                    h(
-                      'option',
-                      { key: option.value, value: option.value },
-                      permissionLabel(option.value),
-                    ),
-                  ),
-                ),
-              )
-            : null,
+          h(ComposerControls, {
+            t,
+            catalog: modelCatalog,
+            selection: modelSelection,
+            busy,
+            onChange: onModelChange,
+            permissionCatalog,
+            permission,
+            onPermission: setPermission,
+            presetCatalog,
+            preset,
+            onPreset: setPreset,
+          }),
         ),
       )
     }
@@ -4044,6 +3977,7 @@ window.__ModuleLoader__.load({
       const [cwd, setCwd] = React.useState(() => readDraft('intake:cwd'))
       const [newPreset, setNewPreset] = React.useState('')
       const [newPermission, setNewPermission] = React.useState('')
+      const [newModelSelection, setNewModelSelection] = React.useState(null)
       const [filter, setFilter] = React.useState('all')
       const [viewMode, setViewMode] = React.useState('timeline')
       const [completedTasks, setCompletedTasks] = React.useState([])
@@ -4089,6 +4023,12 @@ window.__ModuleLoader__.load({
           ''
         if (next) setNewPermission(next)
       }, [data, newPermission])
+
+      React.useEffect(() => {
+        if (newModelSelection) return
+        const fallback = data?.modelCatalog?.default
+        if (fallback?.provider && fallback?.model) setNewModelSelection(fallback)
+      }, [data, newModelSelection])
 
       React.useEffect(() => {
         if (cwd) return
@@ -4214,6 +4154,7 @@ window.__ModuleLoader__.load({
           mergeRelated: true,
           preset: newPreset || undefined,
           permission: newPermission || undefined,
+          modelSelection: newModelSelection || undefined,
         }, 'create')
           .then((created) => {
             if (created) {
@@ -4268,11 +4209,6 @@ window.__ModuleLoader__.load({
       const jobs = data?.jobs || []
       const sessions = data?.sessions || []
       const settings = data?.settings || {}
-      const workspaceOptions = Array.from(
-        new Set([data?.defaultCwd, ...jobs.map((job) => job.cwd), cwd].filter(Boolean)),
-      )
-      const intakePresets = (data?.presetCatalog?.presets || []).filter((item) => !item.broken)
-      const intakePermissions = data?.permissionCatalog?.options || []
       const running = jobs.reduce((count, job) => count + (job.stats?.running || 0), 0)
       const stalled = jobs.reduce(
         (count, job) => count + job.cards.filter((card) => card.status === 'stalled').length,
@@ -4396,9 +4332,11 @@ window.__ModuleLoader__.load({
               setBrief: updateBrief,
               cwd,
               setCwd: updateCwd,
-              workspaces: workspaceOptions,
               presetCatalog: data?.presetCatalog || null,
               permissionCatalog: data?.permissionCatalog || null,
+              modelCatalog: data?.modelCatalog || null,
+              modelSelection: newModelSelection,
+              onModelChange: setNewModelSelection,
               preset: newPreset,
               setPreset: setNewPreset,
               permission: newPermission,
@@ -5046,6 +4984,7 @@ window.__ModuleLoader__.load({
           }
         })
         const applied = []
+        const overlayStyles = new Map()
         const style = document.createElement('style')
         style.dataset.butlerFullWidth = '1'
         style.textContent =
@@ -5066,6 +5005,13 @@ window.__ModuleLoader__.load({
             delete node.dataset.butlerColumns
           })
           applied.length = 0
+          overlayStyles.forEach((styles, node) => {
+            for (const [name, entry] of Object.entries(styles)) {
+              if (entry.value) node.style.setProperty(name, entry.value, entry.priority)
+              else node.style.removeProperty(name)
+            }
+          })
+          overlayStyles.clear()
         }
         const setImportantIfChanged = (node, name, value) => {
           if (
@@ -5079,6 +5025,16 @@ window.__ModuleLoader__.load({
         const apply = () => {
           if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return
           document.querySelectorAll('[data-shell-overlay]').forEach((node) => {
+            if (!overlayStyles.has(node)) {
+              const snapshot = {}
+              for (const name of ['position', 'inset', 'z-index', 'overflow', 'pointer-events']) {
+                snapshot[name] = {
+                  value: node.style.getPropertyValue(name),
+                  priority: node.style.getPropertyPriority(name),
+                }
+              }
+              overlayStyles.set(node, snapshot)
+            }
             setImportantIfChanged(node, 'position', 'fixed')
             setImportantIfChanged(node, 'inset', '0')
             setImportantIfChanged(node, 'z-index', '2147483647')

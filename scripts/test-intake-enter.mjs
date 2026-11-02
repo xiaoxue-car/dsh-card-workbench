@@ -41,8 +41,9 @@ const h = (type, props, ...children) => ({
 })
 const Btn = function Btn() {}
 const DirectoryPicker = function DirectoryPicker() {}
+const ComposerControls = function ComposerControls() {}
 
-const context = vm.createContext({ React, h, Btn, DirectoryPicker, console })
+const context = vm.createContext({ React, h, Btn, DirectoryPicker, ComposerControls, console })
 const Intake = vm.runInContext(
   `(() => {\n${intakeSource}\nreturn Intake\n})()`,
   context,
@@ -74,6 +75,15 @@ function render({ brief = '把首页改成暗色主题', cwd = 'D:\\Project\\vir
     setBrief() {},
     cwd,
     setCwd() {},
+    modelCatalog: null,
+    modelSelection: null,
+    onModelChange() {},
+    presetCatalog: null,
+    permissionCatalog: null,
+    preset: '',
+    setPreset() {},
+    permission: '',
+    setPermission() {},
     busy,
     error: '',
     onSubmit,
@@ -136,6 +146,7 @@ function makeSubmitHarness({ brief = '回车与按钮一致性测试', cwd = 'D:
     'setBrief',
     'newPreset',
     'newPermission',
+    'newModelSelection',
     'clearDraft',
     `${submitSource}; return submit`,
   )
@@ -150,6 +161,7 @@ function makeSubmitHarness({ brief = '回车与按钮一致性测试', cwd = 'D:
     () => cleared.push(true),
     'standard',
     'workspace-write',
+    null,
     () => {},
   )
   return { submit, calls, errors, cleared, submitting, brief, cwd, busy }
@@ -274,6 +286,7 @@ for (const overrides of [
       mergeRelated: true,
       preset: 'standard',
       permission: 'workspace-write',
+      modelSelection: undefined,
     },
     key: 'create',
   })
