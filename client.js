@@ -50,6 +50,7 @@ window.__ModuleLoader__.load({
       archiveCloseRecord: '关闭这条已完成记录',
       archiveClose: '关闭',
       archiveViewAll: '查看全部 {n} 项',
+      archiveLoadMore: '再显示 48 项（剩余 {n} 项）',
       taskBlocked: '待处理',
       taskCompleted: '任务已完成',
       taskCompletedHint: '点击查看结果，或关闭此提示',
@@ -294,6 +295,7 @@ window.__ModuleLoader__.load({
       archiveCloseRecord: 'Close this completed record',
       archiveClose: 'Close',
       archiveViewAll: 'View all {n}',
+      archiveLoadMore: 'Show 48 more ({n} left)',
       taskBlocked: 'Needs attention',
       taskCompleted: 'Task complete',
       taskCompletedHint: 'Open the result or dismiss this notice',
@@ -568,6 +570,8 @@ window.__ModuleLoader__.load({
       .butler-archive-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(250px,.72fr) minmax(0,1.28fr);gap:12px;}
       .butler-archive-list,.butler-archive-detail{border:1px solid var(--dsw-alias-border-l1);border-radius:12px;background:var(--dsw-alias-bg-layer-1);min-height:0;overflow:auto;padding:9px;box-sizing:border-box;}
       .butler-archive-list{display:flex;flex-direction:column;gap:5px;width:100%;padding:9px;}
+      .butler-archive-more{appearance:none;width:100%;border:1px dashed rgba(52,211,153,.3);background:rgba(52,211,153,.04);color:#059669;border-radius:7px;padding:7px 8px;font:inherit;font-size:10px;font-weight:650;cursor:pointer;}
+      .butler-archive-more:hover{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.55);}
       .butler-archive-item{position:relative;appearance:none;width:100%;box-sizing:border-box;min-width:0;min-height:74px;border:1px solid transparent;background:transparent;color:inherit;border-radius:8px;padding:2px 9px 10px;display:grid;grid-template-columns:minmax(0,1fr) 34px;grid-template-rows:20px auto auto;align-content:start;align-items:start;column-gap:8px;row-gap:2px;text-align:left;cursor:pointer;transition:background .16s ease,border-color .16s ease,transform .16s ease;overflow:visible;}
       .butler-archive-item:hover{border-color:rgba(52,211,153,.24);background:rgba(52,211,153,.06);transform:translateX(2px);}
       .butler-archive-item.is-active{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.1);}
@@ -3836,6 +3840,8 @@ window.__ModuleLoader__.load({
       const items = records || []
       const [selectedKey, setSelectedKey] = React.useState(initialKey || '')
       const [hoverTip, setHoverTip] = React.useState(null)
+      const [listLimit, setListLimit] = React.useState(48)
+      const visibleItems = items.slice(0, listLimit)
       const selected =
         items.find((item) => item.key === selectedKey) || items[0] || null
       React.useEffect(() => {
@@ -3906,8 +3912,11 @@ window.__ModuleLoader__.load({
           h(
             'aside',
             { className: 'butler-archive-list', 'aria-label': t('archiveTitle') },
-            items.length
-              ? items.map((item) =>
+            visibleItems.length
+              ? h(
+                  React.Fragment,
+                  null,
+                  visibleItems.map((item) =>
                   h(
                     'div',
                     {
@@ -3948,7 +3957,19 @@ window.__ModuleLoader__.load({
                       t('archiveClose'),
                     ),
                   ),
-                )
+                ),
+                items.length > listLimit
+                  ? h(
+                      'button',
+                      {
+                        type: 'button',
+                        className: 'butler-archive-more',
+                        onClick: () => setListLimit((previous) => previous + 48),
+                      },
+                      t('archiveLoadMore').replace('{n}', items.length - listLimit),
+                    )
+                  : null,
+              )
               : h('div', { className: 'butler-task-empty' }, t('archiveEmpty')),
           ),
           h(
