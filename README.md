@@ -16,6 +16,16 @@
 
 插件启用期间，左侧原生栏会被隐藏，页面切换为全宽卡片工坊；禁用插件后，左侧栏和原生布局立即恢复。
 
+## 如何配置参数
+
+1. 打开卡片工坊，点击右上角蓝色的 **⚙ 参数设置**。
+   ![点击参数设置](docs/screenshots/settings-entry-annotated.png)
+
+2. 在弹窗中修改中文参数，然后点击底部 **保存**。
+   ![修改并保存参数](docs/screenshots/settings-panel-annotated.png)
+
+保存后立即作用于调度、拆卡、核对、卡顿判断和模型调用；配置写入 `$DSH_HOME/.dsh-butler/settings.json`。
+
 ## 快速开始
 
 ### 安装
