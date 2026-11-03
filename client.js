@@ -1554,6 +1554,8 @@ window.__ModuleLoader__.load({
                         {
                           type: 'button',
                           className: 'butler-link',
+                          onMouseEnter: () => window.__butlerPreloadSession?.(card.sessionId),
+                          onFocus: () => window.__butlerPreloadSession?.(card.sessionId),
                           onClick: stop(() => openSession(card.sessionId)),
                         },
                         t('openToAct'),
@@ -1634,6 +1636,8 @@ window.__ModuleLoader__.load({
                         {
                           type: 'button',
                           className: 'butler-link',
+                          onMouseEnter: () => window.__butlerPreloadSession?.(card.sessionId),
+                          onFocus: () => window.__butlerPreloadSession?.(card.sessionId),
                           onClick: () => openSession(card.sessionId),
                           title: card.sessionId,
                         },
@@ -2001,6 +2005,8 @@ window.__ModuleLoader__.load({
                     ghost: true,
                     className: 'butler-action-strong',
                     disabled: busy,
+                    onMouseEnter: () => window.__butlerPreloadSession?.(job.sessionId),
+                    onFocus: () => window.__butlerPreloadSession?.(job.sessionId),
                     onClick: () => {
                       console.log('[butler] JobCard openSession', {
                         jobId: job.id,
@@ -3576,6 +3582,12 @@ window.__ModuleLoader__.load({
           tabIndex: sessionId ? 0 : undefined,
           'aria-label': sessionId ? `${card.title || job.title} 路 ${t('taskOpenHint')}` : undefined,
           onClick: open,
+          onMouseEnter: () => {
+            if (sessionId) window.__butlerPreloadSession?.(sessionId)
+          },
+          onFocus: () => {
+            if (sessionId) window.__butlerPreloadSession?.(sessionId)
+          },
           onKeyDown: (event) => {
             if ((event.key === 'Enter' || event.key === ' ') && sessionId) {
               event.preventDefault()
@@ -3847,6 +3859,9 @@ window.__ModuleLoader__.load({
       React.useEffect(() => {
         if (!selected && items.length) setSelectedKey(items[0].key)
       }, [items, selected])
+      React.useEffect(() => {
+        if (selected?.sessionId) window.__butlerPreloadSession?.(selected.sessionId)
+      }, [selected?.key])
       const when = (item) => {
         if (!item?.at) return '—'
         try {
@@ -4038,6 +4053,8 @@ window.__ModuleLoader__.load({
                         {
                           type: 'button',
                           className: 'butler-btn small',
+                          onMouseEnter: () => window.__butlerPreloadSession?.(selected.sessionId),
+                          onFocus: () => window.__butlerPreloadSession?.(selected.sessionId),
                           onClick: () => onOpenSession(selected.sessionId),
                         },
                         t('archiveOpen'),
@@ -4400,6 +4417,7 @@ window.__ModuleLoader__.load({
       const t = typeof props.t === 'function' ? props.t : (key) => (zh[key] || key)
       const returnTrack = React.useRef(null)
       const openSession = (id) => {
+        props.preloadSession?.(id)
         const job = (data?.jobs || []).find((item) => item.sessionId === id)
         returnTrack.current = {
           sessionId: id,
@@ -4443,6 +4461,20 @@ window.__ModuleLoader__.load({
       const previousTasks = React.useRef(new Map())
       const initializedTask = React.useRef(false)
       const submitting = React.useRef(false)
+
+      React.useEffect(() => {
+        if (!data) return
+        const activeSessions = (data.jobs || [])
+          .filter(
+            (job) =>
+              job.sessionId &&
+              (job.status === 'running' ||
+                job.status === 'planning' ||
+                job.liveTurn?.open),
+          )
+          .slice(0, 4)
+        for (const job of activeSessions) props.preloadSession?.(job.sessionId)
+      }, [data, props.preloadSession])
 
       React.useEffect(() => {
         if (!data || initializedTask.current) return
@@ -5549,6 +5581,44 @@ window.__ModuleLoader__.load({
         'butler: locale',
       )
       const t = ctx.locale.bind(NS)
+      const preloaded = new Map()
+      const releasePreload = (id) => {
+        const entry = preloaded.get(id)
+        if (!entry) return
+        preloaded.delete(id)
+        try {
+          entry.reference.release()
+        } catch {
+          /* a superseded generation may already be released */
+        }
+      }
+      const preloadSession = (id) => {
+        if (!id || preloaded.has(id)) return
+        try {
+          const reference = ctx.sessions.retain(id, { source: 'controllerOperation' })
+          preloaded.set(id, { reference, at: Date.now() })
+          Promise.resolve(reference.ready).catch(() => {
+            releasePreload(id)
+          })
+          while (preloaded.size > 6) {
+            const oldest = [...preloaded.entries()].sort((a, b) => a[1].at - b[1].at)[0]
+            if (!oldest) break
+            releasePreload(oldest[0])
+          }
+        } catch {
+          /* an unavailable session is opened through the normal navigation path */
+        }
+      }
+      ctx.effect(
+        () => () => {
+          if (window.__butlerPreloadSession === preloadSession) {
+            delete window.__butlerPreloadSession
+          }
+          for (const id of [...preloaded.keys()]) releasePreload(id)
+        },
+        'butler: session preloads',
+      )
+      window.__butlerPreloadSession = preloadSession
       const enterConversationFullscreen = () => {}
       const exitConversationFullscreen = () => {}
       ctx.effect(() => {
@@ -5675,6 +5745,7 @@ window.__ModuleLoader__.load({
             locale: NS,
             inject: () => ({
               t,
+              preloadSession,
               topbar: () =>
                 h(ButlerTopbarV2, {
                   t,
@@ -5773,7 +5844,7 @@ window.__ModuleLoader__.load({
     }
 
     return {
-      inject: ['slots', 'locale', 'uiWorkspace', 'layout'],
+      inject: ['slots', 'locale', 'uiWorkspace', 'layout', 'sessions'],
       apply,
     }
   },
