@@ -1,0 +1,28 @@
+﻿SETTINGS_VERIFIED_AT=2026-11-03T10:30:26.9788594+08:00
+PLUGIN_VERSION=1.1.70
+CODE_COMMIT=0c475807784f2fa2f82a10f3da086b21d6d5bf77
+SLOT_KEY=dsh-card-workbench#dsh-butler
+SLOT_ID=butler-config
+SLOT_ACTIVE=true
+CHINESE_FIELD_COUNT=15
+CONFIG_ENDPOINT=GET/POST /dsh-butler/api/config
+SETTINGS_FILE=C:\Users\殇雪\.dsh\.dsh-butler\settings.json
+SETTINGS_FILE_CONTENT_BEGIN
+{
+  "maxStalls": 3,
+  "maxConcurrency": 4,
+  "schedulerIntervalMs": 1000
+}
+SETTINGS_FILE_CONTENT_END
+PERSISTENCE_TEST=POST maxConcurrency=5 schedulerIntervalMs=1500; reload plugin; GET retained 5/1500; runtime.scheduler.intervalMs=1500
+RESTORE_TEST=POST maxConcurrency=4 schedulerIntervalMs=1000; runtime.scheduler.intervalMs=1000
+VALIDATION_TEST=POST {"maxCards":99} -> HTTP 400 {"ok":false,"error":"最大拆卡数必须在 1 到 20 之间"}
+VALIDATION_TEST=POST {"maxConcurrency":"abc"} -> 最大并发执行数必须是数字
+VALIDATION_TEST=POST {"fullAccess":"yes"} -> 最高权限必须是布尔值
+TEST test-settings.mjs EXIT=0
+2026-11-03T02:30:27.190Z
+PASS settings: Chinese labels are present
+PASS settings: plugins.row.config registration key is present
+PASS settings: /api/config GET/POST routes and settings.json persistence exist
+PASS settings: normalizeConfig accepts editable values
+PASS settings: numeric range and type validation reject invalid input
