@@ -2,7 +2,10 @@
 
 > 关键词：卡片工坊、Card Workbench、DSH 插件、DeepSeek Harness、任务拆解、卡片看板、任务编排、AI 工作流
 
-把工作交给卡片工坊：它负责拆卡、派单、盯办、处理卡顿、逐张核对，并把 Harness 中已有的工作对话接管成卡片组统一盯进度。`n`n- Gitee：https://gitee.com/fglry/dsh-card-workbench`n- GitHub 镜像：https://github.com/xiaoxue-car/dsh-card-workbench
+把工作交给卡片工坊：它负责拆卡、派单、盯办、处理卡顿、逐张核对，并把 Harness 中已有的工作对话接管成卡片组统一盯进度。
+
+- Gitee：https://gitee.com/fglry/dsh-card-workbench
+- GitHub 镜像：https://github.com/xiaoxue-car/dsh-card-workbench
 
 - 无第三方运行时依赖，无构建步骤；
 - 只使用 Harness Host 服务、Node 内置模块和默认模型；

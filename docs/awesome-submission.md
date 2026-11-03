@@ -85,4 +85,10 @@ cordis.patch.yml
 dsh-plugin 相关关键词
 ```
 
-GitHub 镜像已创建：https://github.com/xiaoxue-car/dsh-card-workbench`n`n已推送 main/work/tags，并已发起 PR：`n`nhttps://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/11572`n`nPR 只新增一个条目文件；仓库创建未满 1 天，年龄检查会自动重跑。
+GitHub 镜像已创建：https://github.com/xiaoxue-car/dsh-card-workbench
+
+已推送 main/work/tags，并已发起 PR：
+
+https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/11572
+
+PR 只新增一个条目文件；仓库创建未满 1 天，年龄检查会自动重跑。
