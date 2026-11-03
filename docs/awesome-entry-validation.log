@@ -1,0 +1,16 @@
+﻿VALIDATED_AT=2026-11-03T11:03:10.4334241+08:00
+TARGET_REPO=awesome-dsh-plugin/awesome-dsh-plugin
+ENTRY_DATA_PATH=data/plugins/fglry__dsh-card-workbench.yml
+ENTRY_DOC_PATH=docs/awesome-entry.yml
+CATEGORY=workflow
+ICON=omitted (storefront falls back to owner avatar)
+PLUGIN_DSH_BUNDLE=package.json dsh.bundle.patch=./cordis.patch.yml
+CORDIS_PATCH_EXISTS=true
+NPM_CI_EXIT=0
+GENERATE_EXIT=0
+GENERATE_OUTPUT=README.md: regenerated (8490 entries); README.zh.md: regenerated (8490 entries)
+README_EN_LINE=6388
+README_ZH_LINE=6388
+GENERATE_SECOND_RUN=README.md: up to date (8490 entries); README.zh.md: up to date (8490 entries)
+GITHUB_REPO_EXISTS=false
+NOTE=GitHub mirror must exist for at least 1 day before submission; Gitee URL is not accepted by the GitHub-only gate.
