@@ -1,4 +1,6 @@
-# 卡片工坊 (`dsh-card-workbench`)
+# 卡片工坊 / Card Workbench (`dsh-card-workbench`)
+
+> 关键词：卡片工坊、Card Workbench、DSH 插件、DeepSeek Harness、任务拆解、卡片看板、任务编排、AI 工作流
 
 把工作交给卡片工坊：它负责拆卡、派单、盯办、处理卡顿、逐张核对，并把 Harness 中已有的工作对话接管成卡片组统一盯进度。
 
@@ -223,6 +225,21 @@ client.js         Web 端卡片工坊页面与顶部/侧栏入口
 docs/             验证记录与截图
 scripts/          审计与回归测试
 ```
+
+## 联系与建议
+
+- 邮箱：**2075638176@qq.com**
+- 使用问题、功能建议、Bug 反馈、合作意向都可以发送到这个邮箱。
+- 标题建议带上 `dsh-card-workbench` 或 `卡片工坊`，方便检索。
+
+## 参与开发
+
+- `main`：稳定发布分支，只接受通过审查和测试的合并。
+- `work`：日常开发/集成分支，新功能和修复优先提交到这里。
+- 创作者请从 `work` 拉出 `feature/<name>` 分支开发，提交 Pull Request 到 `work`；维护者运行完整测试后再合并到 `main`。
+- 不要直接向 `main` 推送未经验证的改动。
+
+详见 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
 
 ## License
 

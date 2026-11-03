@@ -1,6 +1,6 @@
 {
     "name": "dsh-card-workbench",
-    "version": "1.1.72",
+    "version": "1.1.73",
     "private": false,
     "license": "MIT",
     "keywords": [
@@ -9,7 +9,12 @@
         "plugin",
         "butler",
         "cards",
-        "sessions"
+        "sessions",
+        "card-workbench",
+        "deepseek-harness",
+        "task-orchestration",
+        "workbench",
+        "卡片工坊"
     ],
     "description": "Card workbench for DSH: split work into cards, adopt every work conversation, watch them, unstick them, verify them.",
     "author": "dsh-card-workbench contributors",
@@ -27,6 +32,7 @@
         "./icon": "./icon.svg"
     },
     "files": [
+        "CONTRIBUTING.md",
         "index.js",
         "client.js",
         "cordis.patch.yml",
