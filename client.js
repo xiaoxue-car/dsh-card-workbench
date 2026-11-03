@@ -37,6 +37,8 @@ window.__ModuleLoader__.load({
       taskExpandHint: '悬浮或点击展开全部',
       archiveTitle: '已完成工作',
       archiveButton: '已完成记录',
+      configButton: '参数设置',
+      configTitle: '卡片工坊参数',
       archiveSub: '按完成时间倒序排列；选择左侧事项查看回复结果',
       archiveBack: '返回卡片工坊',
       archiveEmpty: '暂无已完成工作',
@@ -282,6 +284,8 @@ window.__ModuleLoader__.load({
       taskExpandHint: 'Hover or click to expand',
       archiveTitle: 'Completed work',
       archiveButton: 'Completed log',
+      configButton: 'Settings',
+      configTitle: 'Card workshop settings',
       archiveSub: 'Newest first; choose an item on the left to read its result',
       archiveBack: 'Back to workbench',
       archiveEmpty: 'No completed work yet',
@@ -507,6 +511,10 @@ window.__ModuleLoader__.load({
       .butler-kicker{font-size:9.5px;letter-spacing:.15em;color:var(--dsw-alias-label-secondary);text-transform:uppercase;line-height:1.4;}
       .butler-title{font-size:16px;font-weight:650;line-height:1.35;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
       .butler-headside{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+      .butler-config-overlay{position:absolute;inset:0;z-index:1200;background:rgba(15,23,42,.32);display:flex;align-items:flex-start;justify-content:center;padding:48px 18px 18px;box-sizing:border-box;}
+      .butler-config-dialog{width:min(760px,100%);max-height:calc(100vh - 120px);overflow:auto;background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l1);border-radius:12px;padding:16px;box-shadow:0 18px 50px rgba(15,23,42,.18);box-sizing:border-box;}
+      .butler-config-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;}
+      .butler-config-dialog-head h2{margin:0;font-size:16px;}
       .butler-live{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:var(--dsw-alias-label-secondary);white-space:nowrap;}
       .butler-live i{width:7px;height:7px;border-radius:50%;background:var(--dsw-alias-state-success-primary);animation:butler-pulse 2s ease-in-out infinite;}
       @keyframes butler-pulse{0%,100%{opacity:1}50%{opacity:.3}}
@@ -4594,6 +4602,7 @@ window.__ModuleLoader__.load({
         }
       }, [])
       const [error, setError] = React.useState('')
+      const [configOpen, setConfigOpen] = React.useState(false)
       const [busy, setBusy] = React.useState('')
       const [refreshing, setRefreshing] = React.useState(false)
       const [notice, setNotice] = React.useState('')
@@ -5040,6 +5049,16 @@ window.__ModuleLoader__.load({
               {
                 small: true,
                 ghost: true,
+                onClick: () => setConfigOpen(true),
+                title: t('configButton'),
+              },
+              t('configButton'),
+            ),
+            h(
+              Btn,
+              {
+                small: true,
+                ghost: true,
                 disabled: refreshing,
                 onClick: () => void refreshNow(),
               },
@@ -5193,6 +5212,38 @@ window.__ModuleLoader__.load({
               : null,
           ),
         ),
+        configOpen
+          ? h(
+              'div',
+              {
+                className: 'butler-config-overlay',
+                onClick: () => setConfigOpen(false),
+              },
+              h(
+                'div',
+                {
+                  className: 'butler-config-dialog',
+                  onClick: (event) => event.stopPropagation(),
+                },
+                h(
+                  'div',
+                  { className: 'butler-config-dialog-head' },
+                  h('h2', null, t('configTitle')),
+                  h(
+                    Btn,
+                    {
+                      small: true,
+                      ghost: true,
+                      onClick: () => setConfigOpen(false),
+                      title: t('archiveClose'),
+                    },
+                    t('archiveClose'),
+                  ),
+                ),
+                h(ButlerSettingsPage, { view: 'page' }),
+              ),
+            )
+          : null,
       )
     }
 

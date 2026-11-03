@@ -13,6 +13,8 @@ assert.match(client, /label: '最大并发执行数'/)
 assert.match(client, /label: '最大并行核对数'/)
 assert.match(client, /label: '卡顿判定时间（毫秒）'/)
 assert.match(client, /label: '最高权限'/)
+assert.match(client, /configOpen/)
+assert.match(client, /butler-config-overlay/)
 const configLabels = [...client.matchAll(/label: '([^']+)', type:/g)].map((match) => match[1])
 assert.equal(configLabels.length, 15)
 for (const field of ['maxCards', 'maxConcurrency', 'llmTimeoutMs', 'provider', 'model', 'fullAccess']) {
