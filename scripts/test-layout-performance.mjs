@@ -1,11 +1,11 @@
-﻿import assert from 'node:assert/strict'
+import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import path from 'node:path'
 
 const root = path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'))
 const source = fs.readFileSync(path.join(root, '..', 'client.js'), 'utf8')
 
-const globalSidebar = /\[class\*="_sidebarCol"\]\{display:none!important/
+const globalSidebar = /\[class\*="_sidebarCol"\]\{visibility:hidden!important/
 const globalFrame = /div\[class\*="_frame"\]\{grid-template-columns:0 minmax\(0,1fr\) 0!important;/
 const overlayCss =
   /body\[data-butler-page="1"\] \[data-shell-overlay\]\{position:fixed!important/

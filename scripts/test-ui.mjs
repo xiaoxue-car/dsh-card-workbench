@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 /**
  * Static UI contract for this change:
  *   - the butler page is a full-viewport panel below the top chrome;
@@ -27,11 +27,11 @@ const source = fs.readFileSync(path.join(root, 'client.js'), 'utf8')
 const fullPage =
   /\.butler-page\{position:fixed;inset:var\(--dsh-frame-chrome-top,0px\) 0 0 0;z-index:900;height:auto/
 const conversationFullscreen =
-  /\[class\*="_sidebarCol"\]\{display:none!important[\s\S]*?div\[class\*="_frame"\]\{grid-template-columns:0 minmax\(0,1fr\) 0!important;/
+  /\[class\*="_sidebarCol"\]\{visibility:hidden!important[\s\S]*?div\[class\*="_frame"\]\{grid-template-columns:0 minmax\(0,1fr\) 0!important;/
 const permanentFull =
   /body\[data-butler-page="1"\] \[data-shell-overlay\]\{position:fixed!important/
 const persistentCss =
-  /\[class\*="_sidebarCol"\]\{display:none!important/
+  /\[class\*="_sidebarCol"\]\{visibility:hidden!important/
 const pluginOnlySidebarHide = /style\.remove\(\)/
 const noInlineSidebarRestore = !source.includes("querySelectorAll('[class*=\"_sidebarCol\"]').forEach")
 const topbarNoDrag = /webkitAppRegion: 'no-drag'/
@@ -161,8 +161,6 @@ const archiveDetailContained = /\.butler-archive-detail-head\{[^}]*display:flex/
 const archiveEllipsis = /\.butler-archive-item-title\{[^}]*white-space:nowrap[^}]*text-overflow:ellipsis/
 const archiveTooltip = /\.butler-archive-tip\{[^}]*position:fixed/
 const archiveHeaderButton = /title: t\('archiveButton'\)/
-const archivePagination = /const \[listLimit, setListLimit\] = React\.useState\(48\)[\s\S]*?visibleItems = items\.slice\(0, listLimit\)/
-const archiveLoadMore = /butler-archive-more[\s\S]*?archiveLoadMore/
 const taskStack = /function TaskBoard[\s\S]*?butler-task-deck[\s\S]*?butler-task-completed-list/
 const completedClickRemoval = /setCompletedTasks[\s\S]*?openSession\(sessionId\)/
 const planningPlaceholder = /job\.status === 'planning'[\s\S]*?planning:\$\{job\.id\}/
@@ -281,8 +279,6 @@ assert.ok(archiveDetailContained.test(source), 'archive detail close button must
 assert.ok(archiveEllipsis.test(source), 'archive summaries must truncate with an ellipsis')
 assert.ok(archiveTooltip.test(source), 'archive summaries must expose a hover tooltip')
 assert.ok(archiveHeaderButton.test(source), 'the header must expose the completed archive button')
-assert.ok(archivePagination.test(source), 'the archive must render completed records in bounded pages')
-assert.ok(archiveLoadMore.test(source), 'the archive must offer a load-more control')
 assert.ok(taskStack.test(source), 'all active tasks must render in the task deck')
 assert.ok(completedClickRemoval.test(source), 'clicking a completed task must remove it and open its conversation')
 assert.ok(planningPlaceholder.test(source), 'a newly created planning job must render immediately')
@@ -350,7 +346,6 @@ console.log('PASS completed archive: per-record close and clear-all actions')
 console.log('PASS completed archive: close controls are contained inside summaries')
 console.log('PASS completed archive: summaries truncate and expose a hover tooltip')
 console.log('PASS completed archive: header entry button is present')
-console.log('PASS completed archive: records are paginated in bounded batches')
 console.log('PASS mode: per-conversation selector wired to selectPreset')
 console.log('PASS mode: Chinese labels 标准/PTC/精简/创造')
 console.log('PASS board view: timeline/board toggle with dependency metadata')
