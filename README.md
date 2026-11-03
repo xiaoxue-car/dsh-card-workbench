@@ -121,7 +121,21 @@ Windows：%USERPROFILE%\.dsh\.dsh-butler\board.json
 
 ## 配置
 
-在 profile 的插件行 `config` 中设置：
+### 在设置中修改
+
+打开 Harness 的「设置 → 插件 → 卡片工坊」，点击配置页即可修改参数。设置页中的参数名称、说明均为中文，保存后立即作用于执行心跳、拆卡、核对、卡顿判断和模型调用。
+
+设置保存在：
+
+```text
+$DSH_HOME/.dsh-butler/settings.json
+```
+
+profile 插件行的 `config` 仍作为初始值；设置页保存的值会覆盖对应字段。`dataDir`、面板入口等启动参数不在设置页中修改。
+
+### profile config
+
+也可以在 profile 的插件行 `config` 中设置：
 
 | 参数 | 默认 | 说明 |
 | --- | --- | --- |
@@ -171,6 +185,7 @@ div[class*="_frame"]{
 ```bash
 node scripts/audit.mjs
 node scripts/test-ui.mjs
+node scripts/test-settings.mjs
 node scripts/test-navigation.mjs
 node scripts/test-archive-pagination.mjs
 ```

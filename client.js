@@ -4396,6 +4396,168 @@ window.__ModuleLoader__.load({
     }
     // ---- end global status store ----
 
+    const CONFIG_FIELDS = [
+      { key: 'maxCards', label: '最大拆卡数', type: 'number', min: 1, max: 20, hint: '一次交办最多拆出的卡片数。' },
+      { key: 'maxConcurrency', label: '最大并发执行数', type: 'number', min: 1, max: 8, hint: '所有项目共享的执行槽位，硬上限 8。' },
+      { key: 'maxVerifications', label: '最大并行核对数', type: 'number', min: 1, max: 4, hint: '独立核对队列，不占执行槽位。' },
+      { key: 'stallMs', label: '卡顿判定时间（毫秒）', type: 'number', min: 1000, hint: '多久没有新进展判定为卡顿，默认 600000（10 分钟）。' },
+      { key: 'toolStallMs', label: '工具执行宽限（毫秒）', type: 'number', min: 1000, hint: '工具仍在执行时放宽的卡顿阈值，默认 1800000（30 分钟）。' },
+      { key: 'maxStalls', label: '最大自动续跑次数', type: 'number', min: 1, max: 10, hint: '同一张卡最多自动续跑的次数。' },
+      { key: 'maxAttempts', label: '最大派单尝试次数', type: 'number', min: 1, max: 12, hint: '派单和续跑的总次数上限。' },
+      { key: 'maxFixRounds', label: '最大返工轮数', type: 'number', min: 1, max: 6, hint: '核对不通过后最多退回几轮。' },
+      { key: 'maxGapRounds', label: '最大补卡轮数', type: 'number', min: 1, max: 5, hint: '终审后最多自动补卡几轮。' },
+      { key: 'schedulerIntervalMs', label: '调度心跳间隔（毫秒）', type: 'number', min: 200, max: 10000, hint: 'Host 执行心跳间隔，事件仍会立即补位。' },
+      { key: 'sessionsTtlMs', label: '会话清单缓存（毫秒）', type: 'number', min: 1000, max: 600000, hint: '可接管会话清单的缓存时长。' },
+      { key: 'llmTimeoutMs', label: '模型调用超时（毫秒）', type: 'number', min: 5000, max: 600000, hint: '拆卡和核对的模型调用超时。' },
+      { key: 'provider', label: '模型服务商', type: 'text', hint: '留空使用 Harness 默认模型服务商。' },
+      { key: 'model', label: '模型名称', type: 'text', hint: '留空使用 Harness 默认模型。' },
+      { key: 'fullAccess', label: '最高权限', type: 'checkbox', hint: '允许执行会话修改工作目录之外的文件，请谨慎开启。' },
+    ]
+
+    function ButlerSettingsPage(props) {
+      const view = props?.view === 'summary' ? 'summary' : 'page'
+      const [values, setValues] = React.useState(null)
+      const [status, setStatus] = React.useState('')
+      const [busy, setBusy] = React.useState(false)
+      React.useEffect(() => {
+        let alive = true
+        fetch(`${API}/config`, { headers: HEADERS, cache: 'no-store' })
+          .then((response) => response.json())
+          .then((payload) => {
+            if (!alive) return
+            if (!payload?.ok) throw new Error(payload?.error || '读取配置失败')
+            setValues(payload.data || {})
+          })
+          .catch((error) => {
+            if (alive) setStatus(error?.message || String(error))
+          })
+        return () => {
+          alive = false
+        }
+      }, [])
+      if (view === 'summary') return '拆卡、并发、卡顿、模型与权限参数'
+      const update = (key, value) => setValues((previous) => ({ ...(previous || {}), [key]: value }))
+      const save = async () => {
+        if (busy) return
+        setBusy(true)
+        setStatus('')
+        try {
+          const payload = {}
+          for (const field of CONFIG_FIELDS) {
+            const value = values?.[field.key]
+            if (field.type === 'checkbox') payload[field.key] = Boolean(value)
+            else if (field.type === 'number') payload[field.key] = Number(value)
+            else payload[field.key] = String(value ?? '').trim()
+          }
+          const response = await fetch(`${API}/config`, {
+            method: 'POST',
+            headers: { ...HEADERS, 'content-type': 'application/json' },
+            body: JSON.stringify(payload),
+          })
+          const result = await response.json()
+          if (!result?.ok) throw new Error(result?.error || '保存配置失败')
+          setValues(result.data || payload)
+          setStatus('已保存')
+        } catch (error) {
+          setStatus(error?.message || String(error))
+        } finally {
+          setBusy(false)
+        }
+      }
+      const inputStyle = {
+        width: '100%',
+        boxSizing: 'border-box',
+        border: '1px solid var(--dsw-alias-border-l1)',
+        borderRadius: '6px',
+        background: 'var(--dsw-alias-bg-layer-1)',
+        color: 'var(--dsw-alias-label-primary)',
+        padding: '6px 8px',
+        font: 'inherit',
+        fontSize: '12px',
+      }
+      return h(
+        'div',
+        { style: { display: 'flex', flexDirection: 'column', gap: '12px' } },
+        h('h3', { style: { margin: 0, fontSize: '15px' } }, '卡片工坊参数'),
+        h(
+          'p',
+          { style: { margin: 0, color: 'var(--dsw-alias-label-tertiary)', fontSize: '12px' } },
+          '这些参数保存后立即作用于执行心跳、拆卡、核对和卡顿处理；目录与端口等启动参数不在此处修改。',
+        ),
+        !values
+          ? h('p', { style: { margin: 0, fontSize: '12px' } }, status || '正在读取配置…')
+          : h(
+              'div',
+              {
+                style: {
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                  gap: '10px',
+                },
+              },
+              CONFIG_FIELDS.map((field) =>
+                h(
+                  'label',
+                  { key: field.key, style: { display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '12px' } },
+                  field.type === 'checkbox'
+                    ? h(
+                        'span',
+                        { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+                        h('input', {
+                          type: 'checkbox',
+                          checked: Boolean(values[field.key]),
+                          onChange: (event) => update(field.key, event.target.checked),
+                        }),
+                        field.label,
+                      )
+                    : [
+                        h('span', { key: 'label', style: { fontWeight: 600 } }, field.label),
+                        h('input', {
+                          key: 'input',
+                          type: field.type,
+                          min: field.min,
+                          max: field.max,
+                          value: values[field.key] ?? '',
+                          onChange: (event) => update(field.key, event.target.value),
+                          style: inputStyle,
+                        }),
+                      ],
+                  h(
+                    'small',
+                    { style: { color: 'var(--dsw-alias-label-tertiary)', lineHeight: 1.5 } },
+                    field.hint,
+                  ),
+                ),
+              ),
+            ),
+        h(
+          'div',
+          { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
+          h(
+            'button',
+            {
+              type: 'button',
+              onClick: save,
+              disabled: busy || !values,
+              style: {
+                border: '1px solid var(--dsw-alias-brand-primary)',
+                background: 'var(--dsw-alias-brand-primary)',
+                color: 'var(--dsw-alias-bg-layer-1)',
+                borderRadius: '6px',
+                padding: '6px 14px',
+                font: 'inherit',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: busy ? 'wait' : 'pointer',
+              },
+            },
+            busy ? '保存中…' : '保存',
+          ),
+          status ? h('span', { style: { fontSize: '12px' } }, status) : null,
+        ),
+      )
+    }
+
     function ButlerPage(props) {
       const t = typeof props.t === 'function' ? props.t : (key) => (zh[key] || key)
       const returnTrack = React.useRef(null)
@@ -5706,6 +5868,17 @@ window.__ModuleLoader__.load({
             }),
           },
           ButlerPage,
+        ),
+      )
+      ctx.slots.inject('plugins.row.config', () =>
+        ctx.slots.register(
+          {
+            name: 'plugins.row.config',
+            key: 'dsh-card-workbench#dsh-butler',
+            id: 'butler-config',
+            locale: NS,
+          },
+          ButlerSettingsPage,
         ),
       )
       ctx.slots.inject('shell.overlay', () =>

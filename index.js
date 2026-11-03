@@ -8,23 +8,40 @@
 
 import path from 'node:path'
 import os from 'node:os'
+import fs from 'node:fs'
 import { BoardStore } from './lib/store.js'
 import { Butler } from './lib/engine.js'
+import { ExecutionRuntime, DEFAULT_INTERVAL_MS } from './lib/executor.js'
 import { createModelRunner } from './lib/model.js'
 import { registerRoutes } from './lib/server.js'
-import { booleanOr, positiveInt } from './lib/util.js'
+import { booleanOr, clamp, positiveInt } from './lib/util.js'
 
 /** Services the engine cannot work without. */
 export const inject = ['webServer', 'sessionController', 'llm', 'sessions', 'agents', 'tools']
 
-const DEFAULTS = {
+export const DEFAULTS = {
   maxCards: 6,
-  maxConcurrency: 3,
-  stallMs: 240_000,
+  // Runtime execution slots. The measured highest stable concurrency is 8
+  // (see 并发能力评估.md); the engineering default stays at 4 to leave room for
+  // verification, rework and provider rate limits. Raising this to 8 is a
+  // supported configuration change, not a code change.
+  maxConcurrency: 4,
+  // Verification runs in its own queue and never occupies an execution slot.
+  maxVerifications: 2,
+  stallMs: 600_000,
+  // A tool call is allowed to run longer than a quiet turn before the watchdog
+  // treats it as stalled (builds, test suites, large scans).
+  toolStallMs: 1_800_000,
   maxStalls: 3,
   maxAttempts: 5,
   maxFixRounds: 2,
   maxGapRounds: 2,
+  // Global execution heartbeat. It runs in the Host process, independently of
+  // any page, so a mounted workbench is never the thing that drives cards.
+  schedulerIntervalMs: DEFAULT_INTERVAL_MS,
+  // The adoptable-session inventory opens cold Session logs. It must not run on
+  // every status poll; the workbench fetches it through /api/sessions instead.
+  sessionsTtlMs: 30_000,
   llmTimeoutMs: 120_000,
   fullAccess: false,
   dataDir: null,
@@ -32,16 +49,28 @@ const DEFAULTS = {
   model: null,
 }
 
-function normalizeConfig(raw) {
+export function normalizeConfig(raw) {
   const input = raw && typeof raw === 'object' ? raw : {}
   return {
     maxCards: positiveInt(input.maxCards, DEFAULTS.maxCards, 20),
     maxConcurrency: positiveInt(input.maxConcurrency, DEFAULTS.maxConcurrency, 8),
+    maxVerifications: positiveInt(input.maxVerifications, DEFAULTS.maxVerifications, 4),
     stallMs: positiveInt(input.stallMs, DEFAULTS.stallMs, 24 * 60 * 60 * 1000),
+    toolStallMs: positiveInt(input.toolStallMs, DEFAULTS.toolStallMs, 24 * 60 * 60 * 1000),
     maxStalls: positiveInt(input.maxStalls, DEFAULTS.maxStalls, 10),
     maxAttempts: positiveInt(input.maxAttempts, DEFAULTS.maxAttempts, 12),
     maxFixRounds: positiveInt(input.maxFixRounds, DEFAULTS.maxFixRounds, 6),
     maxGapRounds: positiveInt(input.maxGapRounds, DEFAULTS.maxGapRounds, 5),
+    schedulerIntervalMs: clamp(
+      positiveInt(input.schedulerIntervalMs, DEFAULTS.schedulerIntervalMs, 60_000),
+      200,
+      10_000,
+    ),
+    sessionsTtlMs: clamp(
+      positiveInt(input.sessionsTtlMs, DEFAULTS.sessionsTtlMs, 600_000),
+      1_000,
+      600_000,
+    ),
     llmTimeoutMs: positiveInt(input.llmTimeoutMs, DEFAULTS.llmTimeoutMs, 10 * 60 * 1000),
     fullAccess: booleanOr(input.fullAccess, DEFAULTS.fullAccess),
     dataDir: typeof input.dataDir === 'string' && input.dataDir.trim() ? input.dataDir.trim() : null,
@@ -81,10 +110,66 @@ export function apply(ctx, rawConfig = {}) {
   const dataDir = config.dataDir
     ? path.resolve(defaultCwd, config.dataDir)
     : path.join(dataRoot, '.dsh-butler')
+  const settingsFile = path.join(dataDir, 'settings.json')
+  let storedSettings = {}
+  try {
+    const parsed = JSON.parse(fs.readFileSync(settingsFile, 'utf8'))
+    if (parsed && typeof parsed === 'object') storedSettings = parsed
+  } catch {
+    /* no saved settings yet */
+  }
+  Object.assign(config, normalizeConfig({ ...config, ...storedSettings }))
 
   const store = new BoardStore(dataDir)
   const model = createModelRunner(ctx, config)
   const butler = new Butler({ ctx, config, store, model, defaultCwd })
+  const executor = new ExecutionRuntime({
+    tick: () => butler.tick(),
+    intervalMs: config.schedulerIntervalMs,
+  })
+  butler.setExecutor(executor)
+
+  const editableConfig = new Set([
+    'maxCards',
+    'maxConcurrency',
+    'maxVerifications',
+    'stallMs',
+    'toolStallMs',
+    'maxStalls',
+    'maxAttempts',
+    'maxFixRounds',
+    'maxGapRounds',
+    'schedulerIntervalMs',
+    'sessionsTtlMs',
+    'llmTimeoutMs',
+    'fullAccess',
+    'provider',
+    'model',
+  ])
+  const publicConfig = () =>
+    Object.fromEntries([...editableConfig].map((key) => [key, config[key]]))
+  const updateConfig = (patch) => {
+    const input = patch && typeof patch === 'object' ? patch : {}
+    const accepted = {}
+    for (const key of editableConfig) {
+      if (Object.prototype.hasOwnProperty.call(input, key)) accepted[key] = input[key]
+    }
+    const next = normalizeConfig({ ...config, ...accepted })
+    Object.assign(config, next)
+    executor.setInterval(config.schedulerIntervalMs)
+    model.invalidate()
+    try {
+      fs.mkdirSync(dataDir, { recursive: true })
+      const merged = { ...storedSettings, ...accepted }
+      const temp = `${settingsFile}.${process.pid}.tmp`
+      fs.writeFileSync(temp, JSON.stringify(merged, null, 2), 'utf8')
+      fs.renameSync(temp, settingsFile)
+      storedSettings = merged
+    } catch (error) {
+      console.error('[butler] settings save failed:', error)
+    }
+    return publicConfig()
+  }
 
   ctx.effect(() => {
     if (!ctx.tools?.register) return
@@ -171,7 +256,10 @@ export function apply(ctx, rawConfig = {}) {
     return () => dispose.forEach((fn) => fn())
   }, 'butler: card workshop tools')
 
-  ctx.effect(() => registerRoutes(ctx, butler), 'butler: http bridge')
+  ctx.effect(
+    () => registerRoutes(ctx, butler, { getConfig: publicConfig, updateConfig }),
+    'butler: http bridge',
+  )
 
   ctx.on('agent/created', (payload) => {
     try {
@@ -231,15 +319,15 @@ export function apply(ctx, rawConfig = {}) {
   }, { prepend: true })
 
   ctx.effect(() => {
-    const timer = setInterval(() => {
-      void butler.tick()
-    }, 5_000)
-    if (typeof timer.unref === 'function') timer.unref()
+    // The global runtime is the only execution heartbeat. It starts with the
+    // plugin, not with a page, and keeps running while the user is in a
+    // conversation, the plugin market or any other route.
+    executor.start()
     return () => {
-      clearInterval(timer)
+      executor.stop()
       void butler.shutdown()
     }
-  }, 'butler: watchdog')
+  }, 'butler: global execution runtime')
 
   butler.init().catch((error) => {
     console.error('[butler] init failed:', error)
