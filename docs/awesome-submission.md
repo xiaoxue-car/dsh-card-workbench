@@ -74,7 +74,7 @@ description:
 4. 维护者会阅读仓库源码，确认描述与实际功能一致；
 5. 如果收到 `held: author` 标签，只修改对应条目，再推送到同一分支并留一条说明。
 
-## 当前阻塞
+## 当前状态
 
 当前 Gitee 插件已具备：
 
@@ -85,4 +85,4 @@ cordis.patch.yml
 dsh-plugin 相关关键词
 ```
 
-但还没有 GitHub 仓库，且本机没有 GitHub 登录凭据，无法代为创建仓库或发起 PR。完成上面的 GitHub 镜像后即可提交。
+GitHub 镜像已创建：https://github.com/xiaoxue-car/dsh-card-workbench`n`n已推送 main/work/tags，并已发起 PR：`n`nhttps://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/11572`n`nPR 只新增一个条目文件；仓库创建未满 1 天，年龄检查会自动重跑。
