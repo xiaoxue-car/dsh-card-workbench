@@ -131,7 +131,7 @@ Windows：%USERPROFILE%\.dsh\.dsh-butler\board.json
 $DSH_HOME/.dsh-butler/settings.json
 ```
 
-profile 插件行的 `config` 仍作为初始值；设置页保存的值会覆盖对应字段。`dataDir`、面板入口等启动参数不在设置页中修改。
+profile 插件行的 `config` 仍作为初始值；设置页保存的值会覆盖对应字段。数值参数会校验类型和范围，非法值会直接提示并拒绝保存；`dataDir`、面板入口等启动参数不在设置页中修改。
 
 ### profile config
 

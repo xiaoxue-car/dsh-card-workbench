@@ -4442,6 +4442,16 @@ window.__ModuleLoader__.load({
         setBusy(true)
         setStatus('')
         try {
+          for (const field of CONFIG_FIELDS) {
+            if (field.type !== 'number') continue
+            const number = Number(values?.[field.key])
+            if (!Number.isFinite(number)) {
+              throw new Error(`${field.label}必须是数字`)
+            }
+            if (number < field.min || number > field.max) {
+              throw new Error(`${field.label}必须在 ${field.min} 到 ${field.max} 之间`)
+            }
+          }
           const payload = {}
           for (const field of CONFIG_FIELDS) {
             const value = values?.[field.key]

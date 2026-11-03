@@ -79,6 +79,45 @@ export function normalizeConfig(raw) {
   }
 }
 
+const CONFIG_LIMITS = {
+  maxCards: ['最大拆卡数', 1, 20],
+  maxConcurrency: ['最大并发执行数', 1, 8],
+  maxVerifications: ['最大并行核对数', 1, 4],
+  stallMs: ['卡顿判定时间', 1_000, 24 * 60 * 60 * 1000],
+  toolStallMs: ['工具执行宽限', 1_000, 24 * 60 * 60 * 1000],
+  maxStalls: ['最大自动续跑次数', 1, 10],
+  maxAttempts: ['最大派单尝试次数', 1, 12],
+  maxFixRounds: ['最大返工轮数', 1, 6],
+  maxGapRounds: ['最大补卡轮数', 1, 5],
+  schedulerIntervalMs: ['调度心跳间隔', 200, 10_000],
+  sessionsTtlMs: ['会话清单缓存', 1_000, 600_000],
+  llmTimeoutMs: ['模型调用超时', 5_000, 600_000],
+}
+
+export function validateConfigPatch(patch) {
+  const input = patch && typeof patch === 'object' ? patch : {}
+  for (const [key, [label, min, max]] of Object.entries(CONFIG_LIMITS)) {
+    if (!Object.prototype.hasOwnProperty.call(input, key)) continue
+    const value = input[key]
+    const number = typeof value === 'number' ? value : Number(value)
+    if (!Number.isFinite(number)) {
+      throw new Error(`${label}必须是数字`)
+    }
+    if (number < min || number > max) {
+      throw new Error(`${label}必须在 ${min} 到 ${max} 之间`)
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(input, 'fullAccess') && typeof input.fullAccess !== 'boolean') {
+    throw new Error('最高权限必须是布尔值')
+  }
+  for (const [key, label] of [['provider', '模型服务商'], ['model', '模型名称']]) {
+    if (Object.prototype.hasOwnProperty.call(input, key) && typeof input[key] !== 'string') {
+      throw new Error(`${label}必须是文本`)
+    }
+  }
+  return true
+}
+
 function detectWorkspaceCwd(ctx) {
   try {
     let best = null
@@ -154,6 +193,7 @@ export function apply(ctx, rawConfig = {}) {
     for (const key of editableConfig) {
       if (Object.prototype.hasOwnProperty.call(input, key)) accepted[key] = input[key]
     }
+    validateConfigPatch(accepted)
     const next = normalizeConfig({ ...config, ...accepted })
     Object.assign(config, next)
     executor.setInterval(config.schedulerIntervalMs)
