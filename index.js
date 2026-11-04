@@ -210,6 +210,21 @@ export function apply(ctx, rawConfig = {}) {
     }
     return publicConfig()
   }
+  const setPluginEnabled = async (enabled) => {
+    const manager = ctx.get('pluginManager')
+    if (!manager?.setPluginEnabled || !manager?.listPlugins) {
+      throw new Error('插件管理器不可用')
+    }
+    const plugins = await manager.listPlugins()
+    const own = (plugins || []).find(
+      (plugin) =>
+        plugin.moduleName === 'dsh-card-workbench' ||
+        plugin.patchId === 'dsh-butler' ||
+        plugin.entryId === 'include:dsh-butler',
+    )
+    if (!own?.entryId) throw new Error('未找到卡片工坊插件条目')
+    return manager.setPluginEnabled(own.entryId, Boolean(enabled))
+  }
 
   ctx.effect(() => {
     if (!ctx.tools?.register) return
@@ -297,7 +312,7 @@ export function apply(ctx, rawConfig = {}) {
   }, 'butler: card workshop tools')
 
   ctx.effect(
-    () => registerRoutes(ctx, butler, { getConfig: publicConfig, updateConfig }),
+    () => registerRoutes(ctx, butler, { getConfig: publicConfig, updateConfig, setPluginEnabled }),
     'butler: http bridge',
   )
 

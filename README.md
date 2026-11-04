@@ -79,11 +79,20 @@
 
 开关保存在看板数据中，重启后保留。
 
+## 插件启用开关
+
+顶部导航「卡片工坊」右侧有「启用」开关：
+
+- 勾选：插件正常运行；
+- 取消勾选：关闭卡片工坊插件，相关页面和顶部入口消失；
+- 重新启用：打开 Harness 的「设置 → 插件」，把 `dsh-card-workbench` 重新打开。
+
 ## 主要能力
 
 ### 卡片与看板
 
 - 时间轴按时间倒序展示任务节点，默认只显示时间、摘要、状态；
+- 失败的卡片会显示「忽略」按钮；点击后状态变为「已忽略」，不再计入失败数，也不会继续重试；
 - 点击「任务时间轴」名称展开/收起节点详情；
 - 可按工作区折叠，超过 1 天无真实活动的区块移入「历史工作区」；
 - 支持依赖 DAG、优先级、并行执行和独立的核对队列；
@@ -201,6 +210,7 @@ div[class*="_frame"]{
 node scripts/audit.mjs
 node scripts/test-ui.mjs
 node scripts/test-settings.mjs
+node scripts/test-ignore-card.mjs
 node scripts/test-navigation.mjs
 node scripts/test-archive-pagination.mjs
 ```

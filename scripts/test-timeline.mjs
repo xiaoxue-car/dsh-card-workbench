@@ -39,8 +39,9 @@ const timelineKeyboard =
 const expandAllGate = /timelineOpen\s*\?\s*h\(\s*Btn,[\s\S]*?setExpandAll/
 const oldButtonLabel = /collapseTimeline|expandTimeline/
 const oldButtonRender = /h\(\s*Btn,\s*\{[^}]*setTimelineOpen/
-const groupState = /const \[groupOpen, setGroupOpen\] = React\.useState\(false\)/
-const groupToggle = /className:\s*'butler-job-title is-clickable'[\s\S]*?onClick:\s*\(\) => setGroupOpen/
+const groupState =
+  /const \[groupOpen, setGroupOpen\] = React\.useState\(\(\) =>\s*sessionChatStore\.readGroupOpen/
+const groupToggle = /className:\s*'butler-job-title is-clickable'[\s\S]*?onClick:\s*\(\) => toggleGroup\(\)/
 const groupBody = /className:\s*'butler-job-body'[\s\S]*?display:\s*groupOpen \? 'flex' : 'none'/
 const workspaceDefault =
   /defaultOpen:\s*!historical && \(index === 0 \|\| \(defaultCwd && group\.cwd === defaultCwd\)\)/
@@ -55,7 +56,7 @@ assert.ok(timelineKeyboard.test(source), 'the task timeline name must toggle wit
 assert.ok(expandAllGate.test(source), 'expand-all must be rendered only while timelineOpen is true')
 assert.ok(!oldButtonLabel.test(source), 'the old collapse/expand timeline button labels/keys must be gone')
 assert.ok(!oldButtonRender.test(source), 'there must be no Btn whose onClick calls setTimelineOpen')
-assert.ok(groupState.test(source), 'groupOpen must default to false')
+assert.ok(groupState.test(source), 'groupOpen must restore the persisted group state')
 assert.ok(groupToggle.test(source), 'clicking the conversation group title must toggle groupOpen')
 assert.ok(groupBody.test(source), 'conversation group body must be hidden when groupOpen is false')
 assert.ok(workspaceDefault.test(source), 'current workspace stays open so collapsed group names are visible')

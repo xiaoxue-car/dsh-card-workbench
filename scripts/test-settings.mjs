@@ -24,6 +24,10 @@ assert.match(client, /name: 'plugins.row.config'/)
 assert.match(client, /key: 'dsh-card-workbench#dsh-butler'/)
 assert.match(client, /fetch\(`\$\{API\}\/config`/)
 assert.match(server, /route === '\/api\/config'/)
+assert.match(server, /route === '\/api\/plugin'/)
+assert.match(client, /pluginEnabled/)
+assert.match(client, /togglePlugin/)
+assert.match(client, /ignoreCard/)
 assert.match(index, /settingsFile = path\.join\(dataDir, 'settings\.json'\)/)
 
 const config = normalizeConfig({

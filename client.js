@@ -88,6 +88,7 @@ window.__ModuleLoader__.load({
       retry: '重试',
       verify: '核对',
       skip: '跳过',
+      ignore: '忽略',
       pause: '暂停',
       resume: '继续',
       remove: '删除',
@@ -166,6 +167,8 @@ window.__ModuleLoader__.load({
       managementNew: '新建对话',
       managementSettings: '设置',
       managementButler: '卡片工坊',
+      pluginEnabled: '启用',
+      pluginEnabledHint: '关闭插件；可在 设置 → 插件 中重新启用',
       managementConversation: '对话',
       managementNoPanels: '暂无面板',
       account: '账号',
@@ -251,6 +254,7 @@ window.__ModuleLoader__.load({
       'card.verifying': '核对中',
       'card.done': '已核对',
       'card.failed': '失败',
+      'card.ignored': '已忽略',
       'card.blocked': '已阻塞',
       'card.skipped': '已跳过',
     }
@@ -335,6 +339,7 @@ window.__ModuleLoader__.load({
       retry: 'Retry',
       verify: 'Verify',
       skip: 'Skip',
+      ignore: 'Ignore',
       pause: 'Pause',
       resume: 'Resume',
       remove: 'Delete',
@@ -413,6 +418,8 @@ window.__ModuleLoader__.load({
       managementNew: 'New chat',
       managementSettings: 'Settings',
       managementButler: 'Card Workbench',
+      pluginEnabled: 'Enabled',
+      pluginEnabledHint: 'Disable this plugin; re-enable it in Settings → Plugins',
       managementConversation: 'Conversation',
       managementNoPanels: 'No panels',
       account: 'Account',
@@ -498,6 +505,7 @@ window.__ModuleLoader__.load({
       'card.verifying': 'Verifying',
       'card.done': 'Verified',
       'card.failed': 'Failed',
+      'card.ignored': 'Ignored',
       'card.blocked': 'Blocked',
       'card.skipped': 'Skipped',
     }
@@ -826,6 +834,8 @@ window.__ModuleLoader__.load({
       .butler-tl-item.is-stalled .butler-tl-dot,.butler-tl-item.is-fixing .butler-tl-dot{background:var(--dsw-alias-state-warn-primary);}
       .butler-tl-item.is-done .butler-tl-dot{background:var(--dsw-alias-state-success-primary);}
       .butler-tl-item.is-failed .butler-tl-dot{background:var(--dsw-alias-state-error-primary);}
+      .butler-tl-item.is-ignored{opacity:.62;}
+      .butler-tl-item.is-ignored .butler-tl-dot{background:var(--dsw-alias-label-tertiary);}
       .butler-tl-item.is-verifying .butler-tl-dot{background:var(--dsw-alias-brand-primary);}
       .butler-tl-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:9px 11px;cursor:pointer;outline:none;}
       .butler-tl-head:hover{background:var(--dsw-alias-bg-layer-2);}
@@ -1422,14 +1432,18 @@ window.__ModuleLoader__.load({
       const showChat = isSession && Boolean(job.sessionId || card.sessionId) && card.status !== 'verifying'
       const showVerify =
         Boolean(card.sessionId) &&
-        (isSession ? card.status !== 'skipped' : card.status !== 'done' && card.status !== 'skipped')
+        (isSession
+          ? !['skipped', 'ignored'].includes(card.status)
+          : !['done', 'skipped', 'ignored'].includes(card.status))
       const showRetry =
         !isSession &&
         (card.status === 'failed' || card.status === 'done' || card.status === 'skipped' || card.status === 'stalled')
-      const showSkip = !isSession && !['done', 'failed', 'skipped'].includes(card.status)
-      const showNudge = isSession && !['done', 'failed', 'skipped', 'verifying'].includes(card.status)
+      const showSkip = !isSession && !['done', 'failed', 'ignored', 'skipped'].includes(card.status)
+      const showIgnore = card.status === 'failed'
+      const showNudge =
+        isSession && !['done', 'failed', 'ignored', 'skipped', 'verifying'].includes(card.status)
       const showRevise =
-        Boolean(job.sessionId || card.sessionId) && !['skipped', 'verifying'].includes(card.status)
+        Boolean(job.sessionId || card.sessionId) && !['skipped', 'ignored', 'verifying'].includes(card.status)
       const summary = needsUser
         ? `${t('needsUserShort')} 路 ${needsUser.title || ''}`
         : card.result?.summary || card.verify?.summary || card.note || card.goal
@@ -1699,6 +1713,19 @@ window.__ModuleLoader__.load({
                             onAction('retryCard', { jobId: job.id, cardId: card.id }, `retry:${card.id}`),
                         },
                         t('retry'),
+                      )
+                    : null,
+                  showIgnore
+                    ? h(
+                        'button',
+                        {
+                          type: 'button',
+                          className: 'butler-link',
+                          disabled: busy,
+                          onClick: () =>
+                            onAction('ignoreCard', { jobId: job.id, cardId: card.id }, `ignore:${card.id}`),
+                        },
+                        t('ignore'),
                       )
                     : null,
                   showSkip
@@ -4075,7 +4102,7 @@ window.__ModuleLoader__.load({
         { key: 'pending', label: 'boardPending', states: ['queued'] },
         { key: 'running', label: 'boardRunning', states: ['starting', 'running', 'fixing'] },
         { key: 'verifying', label: 'boardVerifying', states: ['verifying'] },
-        { key: 'done', label: 'boardDone', states: ['done', 'skipped'] },
+        { key: 'done', label: 'boardDone', states: ['done', 'skipped', 'ignored'] },
         { key: 'blocked', label: 'boardBlocked', states: ['stalled', 'failed', 'blocked'] },
       ]
       const items = jobs.flatMap((job) =>
@@ -5256,6 +5283,7 @@ window.__ModuleLoader__.load({
       const [accountName, setAccountName] = React.useState('')
       const [accountSignedOut, setAccountSignedOut] = React.useState(false)
       const [panels, setPanels] = React.useState([])
+      const [pluginEnabled, setPluginEnabled] = React.useState(true)
       const rootRef = React.useRef(null)
 
       const click = (selector) => document.querySelector(selector)?.click()
@@ -5358,6 +5386,22 @@ window.__ModuleLoader__.load({
       const run = (handler) => {
         close()
         handler()
+      }
+      const togglePlugin = async (enabled) => {
+        setPluginEnabled(enabled)
+        if (enabled) return
+        try {
+          const response = await fetch(`${API}/plugin`, {
+            method: 'POST',
+            headers: { ...HEADERS, 'content-type': 'application/json' },
+            body: JSON.stringify({ enabled: false }),
+          })
+          const result = await response.json()
+          if (!result?.ok) throw new Error(result?.error || '关闭插件失败')
+        } catch (error) {
+          setPluginEnabled(true)
+          console.error('[butler] disable plugin failed', error)
+        }
       }
 
       React.useEffect(() => {
@@ -5567,6 +5611,26 @@ window.__ModuleLoader__.load({
             },
           },
           t('managementButler'),
+        ),
+        h(
+          'label',
+          {
+            className: 'butler-nav-btn',
+            style: {
+              ...baseButton,
+              gap: '6px',
+              padding: '0 9px',
+              cursor: 'pointer',
+            },
+            title: t('pluginEnabledHint'),
+          },
+          h('input', {
+            type: 'checkbox',
+            checked: pluginEnabled,
+            onChange: (event) => void togglePlugin(event.target.checked),
+            style: { accentColor: '#2563eb', cursor: 'pointer', margin: 0 },
+          }),
+          h('span', null, t('pluginEnabled')),
         ),
         h(
           'button',
