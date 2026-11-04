@@ -27,8 +27,10 @@ assert.match(server, /route === '\/api\/config'/)
 assert.match(server, /route === '\/api\/plugin'/)
 assert.match(client, /pluginEnabled/)
 assert.match(client, /togglePlugin/)
+assert.match(client, /butler-plugin-pill/)
 assert.match(client, /ignoreCard/)
 assert.match(index, /settingsFile = path\.join\(dataDir, 'settings\.json'\)/)
+assert.match(index, /setBundleEnabled/)
 
 const config = normalizeConfig({
   maxCards: '9',

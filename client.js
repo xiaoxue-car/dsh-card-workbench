@@ -5594,73 +5594,96 @@ window.__ModuleLoader__.load({
           },
         },
         h(
-          'button',
+          'div',
           {
-            type: 'button',
-            className: 'butler-nav-btn',
-            style: baseButton,
-            'data-butler-workbench': '1',
-            'aria-label': t('managementButler'),
-            onClick: (event) => {
-              event.stopPropagation()
-              run(() => {
-                exitFullscreen()
-                window.__butlerActivate?.()
-                  ctx.layout.selectPanel('butler')
-              })
-            },
-          },
-          t('managementButler'),
-        ),
-        h(
-          'button',
-          {
-            type: 'button',
-            role: 'switch',
-            className: 'butler-nav-btn',
-            'aria-checked': pluginEnabled ? 'true' : 'false',
-            'aria-label': t('pluginEnabled'),
+            className: 'butler-nav-btn butler-plugin-pill',
             style: {
               ...baseButton,
-              gap: '7px',
-              padding: '0 9px',
-              cursor: 'pointer',
+              padding: 0,
+              gap: 0,
+              cursor: 'default',
             },
-            title: t('pluginEnabledHint'),
-            onClick: (event) => {
-              event.stopPropagation()
-              void togglePlugin(!pluginEnabled)
-            },
+            'data-butler-workbench': '1',
           },
           h(
-            'span',
+            'button',
             {
-              'aria-hidden': 'true',
+              type: 'button',
               style: {
-                width: '28px',
-                height: '16px',
-                borderRadius: '999px',
-                background: pluginEnabled ? '#2563eb' : '#94a3b8',
-                position: 'relative',
-                flex: 'none',
-                transition: 'background .15s ease',
+                height: '100%',
+                border: '0',
+                borderRadius: '8px 0 0 8px',
+                background: 'transparent',
+                color: 'inherit',
+                font: 'inherit',
+                fontWeight: '600',
+                padding: '0 4px 0 10px',
+                cursor: 'pointer',
+              },
+              'aria-label': t('managementButler'),
+              onClick: (event) => {
+                event.stopPropagation()
+                run(() => {
+                  exitFullscreen()
+                  window.__butlerActivate?.()
+                    ctx.layout.selectPanel('butler')
+                })
               },
             },
-            h('span', {
-              style: {
-                position: 'absolute',
-                top: '2px',
-                left: pluginEnabled ? '14px' : '2px',
-                width: '12px',
-                height: '12px',
-                borderRadius: '50%',
-                background: '#fff',
-                boxShadow: '0 1px 3px rgba(15,23,42,.28)',
-                transition: 'left .15s ease',
-              },
-            }),
+            t('managementButler'),
           ),
-          h('span', null, t('pluginEnabled')),
+          h(
+            'button',
+            {
+              type: 'button',
+              role: 'switch',
+              'aria-checked': pluginEnabled ? 'true' : 'false',
+              'aria-label': t('pluginEnabled'),
+              title: t('pluginEnabledHint'),
+              style: {
+                height: '100%',
+                border: '0',
+                borderRadius: '0 8px 8px 0',
+                background: 'transparent',
+                padding: '0 8px 0 5px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+              },
+              onClick: (event) => {
+                event.stopPropagation()
+                void togglePlugin(!pluginEnabled)
+              },
+            },
+            h(
+              'span',
+              {
+                'aria-hidden': 'true',
+                style: {
+                  width: '26px',
+                  height: '14px',
+                  borderRadius: '999px',
+                  background: pluginEnabled ? '#2563eb' : '#94a3b8',
+                  position: 'relative',
+                  flex: 'none',
+                  transition: 'background .15s ease',
+                },
+              },
+              h('span', {
+                style: {
+                  position: 'absolute',
+                  top: '2px',
+                  left: pluginEnabled ? '14px' : '2px',
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  background: '#fff',
+                  boxShadow: '0 1px 3px rgba(15,23,42,.28)',
+                  transition: 'left .15s ease',
+                },
+              }),
+            ),
+          ),
         ),
         h(
           'button',

@@ -212,6 +212,21 @@ export function apply(ctx, rawConfig = {}) {
   }
   const setPluginEnabled = async (enabled) => {
     const manager = ctx.get('pluginManager')
+    if (manager?.setBundleEnabled && manager?.listBundles) {
+      // Toggle the installed bundle itself so the package-level switch in
+      // Settings > Plugins and its row switch stay in sync. The bundle name
+      // is the profile alias (for example `@local/dsh-butler`), not the npm
+      // package name inside it.
+      const listed = await manager.listBundles()
+      const bundles = Array.isArray(listed) ? listed : listed?.entries || []
+      const own = bundles.find(
+        (bundle) =>
+          bundle.name === '@local/dsh-butler' ||
+          bundle.name === 'dsh-card-workbench' ||
+          (bundle.rows || []).some((row) => row.moduleName === 'dsh-card-workbench'),
+      )
+      if (own?.name) return manager.setBundleEnabled(own.name, Boolean(enabled))
+    }
     if (!manager?.setPluginEnabled || !manager?.listPlugins) {
       throw new Error('插件管理器不可用')
     }
