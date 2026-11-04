@@ -5613,23 +5613,53 @@ window.__ModuleLoader__.load({
           t('managementButler'),
         ),
         h(
-          'label',
+          'button',
           {
+            type: 'button',
+            role: 'switch',
             className: 'butler-nav-btn',
+            'aria-checked': pluginEnabled ? 'true' : 'false',
+            'aria-label': t('pluginEnabled'),
             style: {
               ...baseButton,
-              gap: '6px',
+              gap: '7px',
               padding: '0 9px',
               cursor: 'pointer',
             },
             title: t('pluginEnabledHint'),
+            onClick: (event) => {
+              event.stopPropagation()
+              void togglePlugin(!pluginEnabled)
+            },
           },
-          h('input', {
-            type: 'checkbox',
-            checked: pluginEnabled,
-            onChange: (event) => void togglePlugin(event.target.checked),
-            style: { accentColor: '#2563eb', cursor: 'pointer', margin: 0 },
-          }),
+          h(
+            'span',
+            {
+              'aria-hidden': 'true',
+              style: {
+                width: '28px',
+                height: '16px',
+                borderRadius: '999px',
+                background: pluginEnabled ? '#2563eb' : '#94a3b8',
+                position: 'relative',
+                flex: 'none',
+                transition: 'background .15s ease',
+              },
+            },
+            h('span', {
+              style: {
+                position: 'absolute',
+                top: '2px',
+                left: pluginEnabled ? '14px' : '2px',
+                width: '12px',
+                height: '12px',
+                borderRadius: '50%',
+                background: '#fff',
+                boxShadow: '0 1px 3px rgba(15,23,42,.28)',
+                transition: 'left .15s ease',
+              },
+            }),
+          ),
           h('span', null, t('pluginEnabled')),
         ),
         h(
