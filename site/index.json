@@ -31,7 +31,7 @@
           "source": {
             "type": "git",
             "url": "https://gitee.com/fglry/dsh-card-workbench",
-            "commit": "e2f3ca99ff7b8ff22d8b7e9f32d190d926a4f7d2"
+            "commit": "e6a2956fa7ad99b30041b3c22b8ce53ac1ba9f2c"
           },
           "engines": {
             "dsh": ">=0.2.1-rc.2 <0.3.0-0"
